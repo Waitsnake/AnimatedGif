@@ -1,0 +1,278 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		CC24BA9B1BF124350045BDC7 /* AnimatedGifView.h in Headers */ = {isa = PBXBuildFile; fileRef = CC24BA9A1BF124350045BDC7 /* AnimatedGifView.h */; };
+		CC24BA9D1BF124350045BDC7 /* AnimatedGifView.m in Sources */ = {isa = PBXBuildFile; fileRef = CC24BA9C1BF124350045BDC7 /* AnimatedGifView.m */; };
+		CCFAED3F1BF1772C00CB8C3C /* Options.xib in Resources */ = {isa = PBXBuildFile; fileRef = CCFAED3E1BF1772C00CB8C3C /* Options.xib */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		CC24BA951BF124350045BDC7 /* AnimatedGif.saver */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = AnimatedGif.saver; sourceTree = BUILT_PRODUCTS_DIR; };
+		CC24BA991BF124350045BDC7 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		CC24BA9A1BF124350045BDC7 /* AnimatedGifView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AnimatedGifView.h; sourceTree = "<group>"; };
+		CC24BA9C1BF124350045BDC7 /* AnimatedGifView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AnimatedGifView.m; sourceTree = "<group>"; };
+		CCFAED3E1BF1772C00CB8C3C /* Options.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = Options.xib; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		CC24BA911BF124350045BDC7 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		CC24BA8B1BF124350045BDC7 = {
+			isa = PBXGroup;
+			children = (
+				CC24BA971BF124350045BDC7 /* AnimatedGif */,
+				CC24BA961BF124350045BDC7 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		CC24BA961BF124350045BDC7 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				CC24BA951BF124350045BDC7 /* AnimatedGif.saver */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		CC24BA971BF124350045BDC7 /* AnimatedGif */ = {
+			isa = PBXGroup;
+			children = (
+				CC24BA9A1BF124350045BDC7 /* AnimatedGifView.h */,
+				CC24BA9C1BF124350045BDC7 /* AnimatedGifView.m */,
+				CC24BA981BF124350045BDC7 /* Supporting Files */,
+				CCFAED3E1BF1772C00CB8C3C /* Options.xib */,
+			);
+			path = AnimatedGif;
+			sourceTree = "<group>";
+		};
+		CC24BA981BF124350045BDC7 /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				CC24BA991BF124350045BDC7 /* Info.plist */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXHeadersBuildPhase section */
+		CC24BA921BF124350045BDC7 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				CC24BA9B1BF124350045BDC7 /* AnimatedGifView.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXHeadersBuildPhase section */
+
+/* Begin PBXNativeTarget section */
+		CC24BA941BF124350045BDC7 /* AnimatedGif */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = CC24BAA01BF124350045BDC7 /* Build configuration list for PBXNativeTarget "AnimatedGif" */;
+			buildPhases = (
+				CC24BA901BF124350045BDC7 /* Sources */,
+				CC24BA911BF124350045BDC7 /* Frameworks */,
+				CC24BA921BF124350045BDC7 /* Headers */,
+				CC24BA931BF124350045BDC7 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = AnimatedGif;
+			productName = AnimatedGif;
+			productReference = CC24BA951BF124350045BDC7 /* AnimatedGif.saver */;
+			productType = "com.apple.product-type.bundle";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		CC24BA8C1BF124350045BDC7 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0620;
+				ORGANIZATIONNAME = "Marco Köhler";
+				TargetAttributes = {
+					CC24BA941BF124350045BDC7 = {
+						CreatedOnToolsVersion = 6.2;
+					};
+				};
+			};
+			buildConfigurationList = CC24BA8F1BF124350045BDC7 /* Build configuration list for PBXProject "AnimatedGif" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
+			mainGroup = CC24BA8B1BF124350045BDC7;
+			productRefGroup = CC24BA961BF124350045BDC7 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				CC24BA941BF124350045BDC7 /* AnimatedGif */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		CC24BA931BF124350045BDC7 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				CCFAED3F1BF1772C00CB8C3C /* Options.xib in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		CC24BA901BF124350045BDC7 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				CC24BA9D1BF124350045BDC7 /* AnimatedGifView.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		CC24BA9E1BF124350045BDC7 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.9;
+				MTL_ENABLE_DEBUG_INFO = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		CC24BA9F1BF124350045BDC7 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.9;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		CC24BAA11BF124350045BDC7 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				INFOPLIST_FILE = AnimatedGif/Info.plist;
+				INSTALL_PATH = "$(HOME)/Library/Screen Savers";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx10.10;
+				WRAPPER_EXTENSION = saver;
+			};
+			name = Debug;
+		};
+		CC24BAA21BF124350045BDC7 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				INFOPLIST_FILE = AnimatedGif/Info.plist;
+				INSTALL_PATH = "$(HOME)/Library/Screen Savers";
+				ONLY_ACTIVE_ARCH = NO;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx10.10;
+				WRAPPER_EXTENSION = saver;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		CC24BA8F1BF124350045BDC7 /* Build configuration list for PBXProject "AnimatedGif" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				CC24BA9E1BF124350045BDC7 /* Debug */,
+				CC24BA9F1BF124350045BDC7 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		CC24BAA01BF124350045BDC7 /* Build configuration list for PBXNativeTarget "AnimatedGif" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				CC24BAA11BF124350045BDC7 /* Debug */,
+				CC24BAA21BF124350045BDC7 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = CC24BA8C1BF124350045BDC7 /* Project object */;
+}
