@@ -21,7 +21,7 @@
     // initalize screensaver defaults with an default value
     ScreenSaverDefaults *defaults = [ScreenSaverDefaults defaultsForModuleWithName:[[NSBundle bundleForClass: [self class]] bundleIdentifier]];
     [defaults registerDefaults:[NSDictionary dictionaryWithObjectsAndKeys:
-                                 @"/Users/koehmarc/Pictures/animation.gif", @"GifFileName", @"15.0", @"GifFrameRate", nil]];
+                                 @"/Users/koehmarc/Pictures/animation.gif", @"GifFileName", @"15.0", @"GifFrameRate", @"YES", @"GifFrameRateManual", nil]];
     
     return self;
 }
@@ -34,9 +34,8 @@
     ScreenSaverDefaults *defaults = [ScreenSaverDefaults defaultsForModuleWithName:[[NSBundle bundleForClass: [self class]] bundleIdentifier]];
     NSString *gifFileName = [defaults objectForKey:@"GifFileName"];
     float frameRate = [defaults floatForKey:@"GifFrameRate"];
-    
-    // set framerate new
-    [self setAnimationTimeInterval:1/frameRate];
+    frameRateManual = [defaults boolForKey:@"GifFrameRateManual"];
+
     
     // load GIF image
     img = [[NSImage alloc] initWithContentsOfFile:gifFileName]; // or similar
@@ -46,6 +45,19 @@
         [gifRep setProperty:NSImageLoopCount withValue:@(0)]; //infinite loop
         maxFrameCount = [[gifRep valueForProperty: NSImageFrameCount] integerValue];
         currFrameCount = 0;
+        
+        if(frameRateManual)
+        {
+            // set frame rate manual
+            [self setAnimationTimeInterval:1/frameRate];
+        }
+        else
+        {
+            // set frame duration dynamicly from data from gif file
+            float currFrameDuration = [[gifRep valueForProperty: NSImageCurrentFrameDuration] floatValue];
+            [self setAnimationTimeInterval:currFrameDuration];
+        }
+        
     }
     else
     {
@@ -78,6 +90,14 @@
 
         //select current frame from GIF (Hint: gifRep is a sub-object from img)
         [gifRep setProperty:NSImageCurrentFrame withValue:@(currFrameCount)];
+        
+        
+        // set frame duration dynamicly from data from gif file
+        if(!frameRateManual)
+        {
+            float currFrameDuration = [[gifRep valueForProperty: NSImageCurrentFrameDuration] floatValue];
+            [self setAnimationTimeInterval:currFrameDuration];
+        }
     
         // draw the selected frame
         if ([self isPreview] == TRUE)
@@ -119,10 +139,12 @@
     ScreenSaverDefaults *defaults = [ScreenSaverDefaults defaultsForModuleWithName:[[NSBundle bundleForClass: [self class]] bundleIdentifier]];
     NSString *gifFileName = [defaults objectForKey:@"GifFileName"];
     float frameRate = [defaults floatForKey:@"GifFrameRate"];
+    frameRateManual = [defaults boolForKey:@"GifFrameRateManual"];
     
     // set the visable value in dialog to the last saved value
     [self.textField1 setStringValue:gifFileName];
     [self.slider1 setDoubleValue:frameRate];
+    [self.checkButton1 setState:frameRateManual];
     
     return self.optionsPanel;
 }
@@ -130,10 +152,12 @@
 - (IBAction)closeConfigPos:(id)sender {
     float frameRate = [self.slider1 floatValue];
     fileNameGif = [self.textField1 stringValue];
+    frameRateManual = self.checkButton1.state;
     
     ScreenSaverDefaults *defaults = [ScreenSaverDefaults defaultsForModuleWithName:[[NSBundle bundleForClass: [self class]] bundleIdentifier]];
     [defaults setObject:fileNameGif forKey:@"GifFileName"];
     [defaults setFloat:frameRate forKey:@"GifFrameRate"];
+    [defaults setBool:frameRateManual forKey:@"GifFrameRateManual"];
     [defaults synchronize];
 
     [[NSApplication sharedApplication] endSheet:self.optionsPanel];

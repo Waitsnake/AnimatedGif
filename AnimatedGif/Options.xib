@@ -7,6 +7,7 @@
     <objects>
         <customObject id="-2" userLabel="File's Owner" customClass="AnimatedGifView">
             <connections>
+                <outlet property="checkButton1" destination="2Vl-6h-B2h" id="z3H-3T-gvH"/>
                 <outlet property="optionsPanel" destination="QvC-M9-y7g" id="S9j-MZ-x3G"/>
                 <outlet property="slider1" destination="GKf-lt-8W8" id="nUf-xn-xOt"/>
                 <outlet property="textField1" destination="n2R-8Q-rKI" id="7Yf-Cs-LwI"/>
@@ -62,20 +63,27 @@ DQ
                             <action selector="closeConfigNeg:" target="-2" id="C9W-AE-NB9"/>
                         </connections>
                     </button>
+                    <button fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="2Vl-6h-B2h">
+                        <rect key="frame" x="18" y="203" width="438" height="18"/>
+                        <buttonCell key="cell" type="check" title="Set frame rate manual (if disabled the frame rate from file is used)" bezelStyle="regularSquare" imagePosition="left" alignment="left" state="on" inset="2" id="7lC-sW-T7r">
+                            <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
+                            <font key="font" metaFont="system"/>
+                        </buttonCell>
+                    </button>
                     <slider verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="GKf-lt-8W8">
-                        <rect key="frame" x="18" y="165" width="446" height="27"/>
+                        <rect key="frame" x="18" y="142" width="446" height="27"/>
                         <sliderCell key="cell" alignment="left" minValue="1" maxValue="30" doubleValue="15" tickMarkPosition="below" numberOfTickMarks="30" allowsTickMarkValuesOnly="YES" sliderType="linear" id="ATX-YZ-Fff"/>
                     </slider>
                     <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="w1s-RE-AeI">
-                        <rect key="frame" x="20" y="202" width="122" height="17"/>
-                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Frames per second" id="E2z-Kq-20H">
+                        <rect key="frame" x="18" y="175" width="186" height="17"/>
+                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Frames per second (manual):" id="E2z-Kq-20H">
                             <font key="font" metaFont="system"/>
                             <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
                             <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                         </textFieldCell>
                     </textField>
                     <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="IMN-oe-cqe">
-                        <rect key="frame" x="20" y="141" width="13" height="17"/>
+                        <rect key="frame" x="18" y="127" width="13" height="17"/>
                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="1" id="teS-7o-F0q">
                             <font key="font" metaFont="system"/>
                             <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
@@ -83,7 +91,7 @@ DQ
                         </textFieldCell>
                     </textField>
                     <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="yeR-Gc-HfV">
-                        <rect key="frame" x="443" y="141" width="21" height="17"/>
+                        <rect key="frame" x="443" y="127" width="21" height="17"/>
                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="30" id="Zxp-6N-m2s">
                             <font key="font" metaFont="system"/>
                             <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
@@ -91,7 +99,7 @@ DQ
                         </textFieldCell>
                     </textField>
                     <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="hhA-OU-fO4">
-                        <rect key="frame" x="224" y="141" width="21" height="17"/>
+                        <rect key="frame" x="224" y="127" width="21" height="17"/>
                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="15" id="oUD-bo-3eZ">
                             <font key="font" metaFont="system"/>
                             <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>

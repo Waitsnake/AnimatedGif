@@ -15,10 +15,12 @@
     NSImage *img;
     NSBitmapImageRep *gifRep;
     NSString *fileNameGif;
+    BOOL frameRateManual;
 }
 
 @property (assign) IBOutlet NSPanel *optionsPanel;
 @property (assign) IBOutlet NSTextField *textField1;
 @property (assign) IBOutlet NSSlider *slider1;
+@property (assign) IBOutlet NSButton *checkButton1;
 
 @end
