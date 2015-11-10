@@ -19,5 +19,6 @@
 
 @property (assign) IBOutlet NSPanel *optionsPanel;
 @property (assign) IBOutlet NSTextField *textField1;
+@property (assign) IBOutlet NSSlider *slider1;
 
 @end
