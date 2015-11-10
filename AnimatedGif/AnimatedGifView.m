@@ -21,7 +21,7 @@
     // initalize screensaver defaults with an default value
     ScreenSaverDefaults *defaults = [ScreenSaverDefaults defaultsForModuleWithName:[[NSBundle bundleForClass: [self class]] bundleIdentifier]];
     [defaults registerDefaults:[NSDictionary dictionaryWithObjectsAndKeys:
-                                 @"/Users/koehmarc/Pictures/animation.gif", @"GifFileName", nil]];
+                                 @"/Users/koehmarc/Pictures/animation.gif", @"GifFileName", @"15.0", @"GifFrameRate", nil]];
     
     return self;
 }
@@ -33,6 +33,10 @@
     // get filename from screensaver defaults
     ScreenSaverDefaults *defaults = [ScreenSaverDefaults defaultsForModuleWithName:[[NSBundle bundleForClass: [self class]] bundleIdentifier]];
     NSString *gifFileName = [defaults objectForKey:@"GifFileName"];
+    float frameRate = [defaults floatForKey:@"GifFrameRate"];
+    
+    // set framerate new
+    [self setAnimationTimeInterval:1/frameRate];
     
     // load GIF image
     img = [[NSImage alloc] initWithContentsOfFile:gifFileName]; // or similar
@@ -86,7 +90,6 @@
             // if we have no Preview Mode we use Core Image to draw
             CIImage * ciImage = [[CIImage alloc] initWithBitmapImageRep:gifRep];
             [ciImage drawInRect:[self bounds] fromRect:NSMakeRect(0,0,[img size].width,[img size].height) operation:NSCompositeCopy fraction:1.0];
-        
         }
     
         //calculate next frame of GIF to show
@@ -115,20 +118,24 @@
     // get filename from screensaver defaults
     ScreenSaverDefaults *defaults = [ScreenSaverDefaults defaultsForModuleWithName:[[NSBundle bundleForClass: [self class]] bundleIdentifier]];
     NSString *gifFileName = [defaults objectForKey:@"GifFileName"];
+    float frameRate = [defaults floatForKey:@"GifFrameRate"];
     
     // set the visable value in dialog to the last saved value
     [self.textField1 setStringValue:gifFileName];
+    [self.slider1 setDoubleValue:frameRate];
     
     return self.optionsPanel;
 }
 
 - (IBAction)closeConfigPos:(id)sender {
+    float frameRate = [self.slider1 floatValue];
     fileNameGif = [self.textField1 stringValue];
     
     ScreenSaverDefaults *defaults = [ScreenSaverDefaults defaultsForModuleWithName:[[NSBundle bundleForClass: [self class]] bundleIdentifier]];
     [defaults setObject:fileNameGif forKey:@"GifFileName"];
+    [defaults setFloat:frameRate forKey:@"GifFrameRate"];
     [defaults synchronize];
-    
+
     [[NSApplication sharedApplication] endSheet:self.optionsPanel];
 }
 
