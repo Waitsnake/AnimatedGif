@@ -34,7 +34,7 @@
     ScreenSaverDefaults *defaults = [ScreenSaverDefaults defaultsForModuleWithName:[[NSBundle bundleForClass: [self class]] bundleIdentifier]];
     NSString *gifFileName = [defaults objectForKey:@"GifFileName"];
     float frameRate = [defaults floatForKey:@"GifFrameRate"];
-    frameRateManual = [defaults boolForKey:@"GifFrameRateManual"];
+    BOOL frameRateManual = [defaults boolForKey:@"GifFrameRateManual"];
 
     
     // load GIF image
@@ -90,15 +90,7 @@
 
         //select current frame from GIF (Hint: gifRep is a sub-object from img)
         [gifRep setProperty:NSImageCurrentFrame withValue:@(currFrameCount)];
-        
-        
-        // set frame duration dynamicly from data from gif file
-        if(!frameRateManual)
-        {
-            float currFrameDuration = [[gifRep valueForProperty: NSImageCurrentFrameDuration] floatValue];
-            [self setAnimationTimeInterval:currFrameDuration];
-        }
-    
+            
         // draw the selected frame
         if ([self isPreview] == TRUE)
         {
@@ -139,7 +131,7 @@
     ScreenSaverDefaults *defaults = [ScreenSaverDefaults defaultsForModuleWithName:[[NSBundle bundleForClass: [self class]] bundleIdentifier]];
     NSString *gifFileName = [defaults objectForKey:@"GifFileName"];
     float frameRate = [defaults floatForKey:@"GifFrameRate"];
-    frameRateManual = [defaults boolForKey:@"GifFrameRateManual"];
+    BOOL frameRateManual = [defaults boolForKey:@"GifFrameRateManual"];
     
     // set the visable value in dialog to the last saved value
     [self.textField1 setStringValue:gifFileName];
@@ -152,7 +144,7 @@
 - (IBAction)closeConfigPos:(id)sender {
     float frameRate = [self.slider1 floatValue];
     fileNameGif = [self.textField1 stringValue];
-    frameRateManual = self.checkButton1.state;
+    BOOL frameRateManual = self.checkButton1.state;
     
     ScreenSaverDefaults *defaults = [ScreenSaverDefaults defaultsForModuleWithName:[[NSBundle bundleForClass: [self class]] bundleIdentifier]];
     [defaults setObject:fileNameGif forKey:@"GifFileName"];

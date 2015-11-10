@@ -15,7 +15,6 @@
     NSImage *img;
     NSBitmapImageRep *gifRep;
     NSString *fileNameGif;
-    BOOL frameRateManual;
 }
 
 @property (assign) IBOutlet NSPanel *optionsPanel;
