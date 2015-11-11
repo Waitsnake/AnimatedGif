@@ -174,6 +174,12 @@
     // Disable the selection of more than one file
     openDlg.allowsMultipleSelection = NO;
     
+    // set dialog to last selected file
+    [openDlg setDirectoryURL:[NSURL URLWithString:[self.textField1 stringValue]]];
+    
+    // try to 'focus' only on GIF files (Yes, I know all image types are working with NSImage and if some edit the file URL directly it will open that file too)
+    [openDlg setAllowedFileTypes:[[NSArray alloc] initWithObjects:@"gif", @"GIF", nil]];
+    
     // Display the dialog.  If the OK button was pressed,
     // process the files.
     if ( [openDlg runModal] == NSOKButton )
@@ -182,6 +188,7 @@
         // files and directories selected.
         NSArray* files = [openDlg URLs];
         
+        // set GUI element with selected URL
         [self.textField1 setStringValue:[files objectAtIndex:0]];
         
     }
