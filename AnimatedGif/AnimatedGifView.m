@@ -211,6 +211,33 @@
     [[NSApplication sharedApplication] endSheet:self.optionsPanel];
 }
 
+- (IBAction)loadAgent:(id)sender {
+    // create the plist agent file
+    NSMutableDictionary *plist = [[NSMutableDictionary alloc] init];
+    
+    // set values here...
+    NSDictionary *cfg  = @{@"Label":@"com.stino.animatedgif", @"ProgramArguments":@[@"/System/Library/Frameworks/ScreenSaver.framework/Resources/ScreenSaverEngine.app/Contents/MacOS/ScreenSaverEngine",@"-background"], @"KeepAlive":@YES};
+    [plist addEntriesFromDictionary:cfg];
+    
+    // saves the agent plist file
+    NSString *userLaunchAgentsPath = [[NSString alloc] initWithFormat:@"%@%@%@", @"/Users/", NSUserName(), @"/Library/LaunchAgents/com.stino.animatedgif.plist"];
+    [plist writeToFile:userLaunchAgentsPath atomically:YES];
+    
+    // start the launch agent
+    NSString *cmdstr = [[NSString alloc] initWithFormat:@"%@ %@", @"launchctl load", userLaunchAgentsPath];
+    system([cmdstr cStringUsingEncoding:NSUTF8StringEncoding]);
+}
+
+- (IBAction)unloadAgent:(id)sender {
+    // stop the launch agent
+    NSString *userLaunchAgentsPath = [[NSString alloc] initWithFormat:@"%@%@%@", @"/Users/", NSUserName(), @"/Library/LaunchAgents/com.stino.animatedgif.plist"];
+    NSString *cmdstr = [[NSString alloc] initWithFormat:@"%@%@", @"launchctl unload ", userLaunchAgentsPath];
+    system([cmdstr cStringUsingEncoding:NSUTF8StringEncoding]);
+    
+    // remove the plist agent file
+    [[NSFileManager defaultManager] removeItemAtPath:userLaunchAgentsPath error:nil];
+}
+
 - (IBAction)pressCheckbox1:(id)sender {
     BOOL frameRateManual = self.checkButton1.state;
     if (frameRateManual)
