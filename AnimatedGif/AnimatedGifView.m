@@ -21,7 +21,7 @@
     // initalize screensaver defaults with an default value
     ScreenSaverDefaults *defaults = [ScreenSaverDefaults defaultsForModuleWithName:[[NSBundle bundleForClass: [self class]] bundleIdentifier]];
     [defaults registerDefaults:[NSDictionary dictionaryWithObjectsAndKeys:
-                                 @"file:///Users/koehmarc/Pictures/animation.gif", @"GifFileName", @"15.0", @"GifFrameRate", @"NO", @"GifFrameRateManual", @"YES", @"StretchGif", nil]];
+                                 @"file:///Users/koehmarc/Pictures/animation.gif", @"GifFileName", @"15.0", @"GifFrameRate", @"NO", @"GifFrameRateManual", @"YES", @"StretchGif", @"0.0", @"BackgrRed", @"0.0", @"BackgrGreen", @"0.0", @"BackgrBlue",nil]];
     
     return self;
 }
@@ -36,6 +36,9 @@
     float frameRate = [defaults floatForKey:@"GifFrameRate"];
     BOOL frameRateManual = [defaults boolForKey:@"GifFrameRateManual"];
     shouldStretchImg = [defaults boolForKey:@"StretchGif"];
+    backgrRed = [defaults floatForKey:@"BackgrRed"];
+    backgrGreen = [defaults floatForKey:@"BackgrGreen"];
+    backgrBlue = [defaults floatForKey:@"BackgrBlue"];
 
     
     // load GIF image
@@ -103,15 +106,15 @@
     if (currFrameCount == -1)
     {
         // first clear screen with black
-        [[NSColor colorWithDeviceRed: 0.0 green: 0.0
-                                blue: 0.0 alpha: 1.0] set];
+        [[NSColor colorWithDeviceRed: backgrRed green: backgrGreen
+                                blue: backgrBlue alpha: 1.0] set];
         [NSBezierPath fillRect: screenRect];
     }
     else
     {
         // first clear screen with black
-        [[NSColor colorWithDeviceRed: 0.0 green: 0.0
-                                blue: 0.0 alpha: 1.0] set];
+        [[NSColor colorWithDeviceRed: backgrRed green: backgrGreen
+                                blue: backgrBlue alpha: 1.0] set];
         [NSBezierPath fillRect: screenRect];
 
         //select current frame from GIF (Hint: gifRep is a sub-object from img)
@@ -159,12 +162,18 @@
     float frameRate = [defaults floatForKey:@"GifFrameRate"];
     BOOL frameRateManual = [defaults boolForKey:@"GifFrameRateManual"];
     BOOL stretchImage = [defaults boolForKey:@"StretchGif"];
+    float bgrRed = [defaults floatForKey:@"BackgrRed"];
+    float bgrGreen = [defaults floatForKey:@"BackgrGreen"];
+    float bgrBlue = [defaults floatForKey:@"BackgrBlue"];
     
     // set the visable value in dialog to the last saved value
     [self.textField1 setStringValue:gifFileName];
     [self.slider1 setDoubleValue:frameRate];
     [self.checkButton1 setState:frameRateManual];
     [self.checkButton2 setState:stretchImage];
+    [self.slider1 setEnabled:frameRateManual];
+    [self.label1 setStringValue:[self.slider1 stringValue]];
+    [self.colorWell1 setColor:[NSColor colorWithRed:bgrRed green:bgrGreen blue:bgrBlue alpha:1.0]];
     
     return self.optionsPanel;
 }
@@ -175,7 +184,7 @@
     NSString *gifFileName = [self.textField1 stringValue];
     BOOL frameRateManual = self.checkButton1.state;
     BOOL stretchImage = self.checkButton2.state;
-    shouldStretchImg = self.checkButton2.state;
+    NSColor *colorPicked = self.colorWell1.color;
     
     // write values back to screensver defaults
     ScreenSaverDefaults *defaults = [ScreenSaverDefaults defaultsForModuleWithName:[[NSBundle bundleForClass: [self class]] bundleIdentifier]];
@@ -183,13 +192,39 @@
     [defaults setFloat:frameRate forKey:@"GifFrameRate"];
     [defaults setBool:frameRateManual forKey:@"GifFrameRateManual"];
     [defaults setBool:stretchImage forKey:@"StretchGif"];
+    [defaults setFloat:colorPicked.redComponent forKey:@"BackgrRed"];
+    [defaults setFloat:colorPicked.greenComponent forKey:@"BackgrGreen"];
+    [defaults setFloat:colorPicked.blueComponent forKey:@"BackgrBlue"];
     [defaults synchronize];
     
+    shouldStretchImg = stretchImage;
+    backgrRed = colorPicked.redComponent;
+    backgrGreen = colorPicked.greenComponent;
+    backgrBlue = colorPicked.blueComponent;
+    
+    [[NSColorPanel sharedColorPanel] close];
     [[NSApplication sharedApplication] endSheet:self.optionsPanel];
 }
 
 - (IBAction)closeConfigNeg:(id)sender {
+    [[NSColorPanel sharedColorPanel] close];
     [[NSApplication sharedApplication] endSheet:self.optionsPanel];
+}
+
+- (IBAction)pressCheckbox1:(id)sender {
+    BOOL frameRateManual = self.checkButton1.state;
+    if (frameRateManual)
+    {
+        [self.slider1 setEnabled:YES];
+    }
+    else
+    {
+        [self.slider1 setEnabled:NO];
+    }
+}
+
+- (IBAction)selectSlider1:(id)sender {
+    [self.label1 setStringValue:[self.slider1 stringValue]];
 }
 
 - (IBAction)sendFileButtonAction:(id)sender{
@@ -208,7 +243,7 @@
     // set dialog to last selected file
     [openDlg setDirectoryURL:[NSURL URLWithString:[self.textField1 stringValue]]];
     
-    // try to 'focus' only on GIF files (Yes, I know all image types are working with NSImage and if some edit the file URL directly it will open that file too)
+    // try to 'focus' only on GIF files (Yes, I know all image types are working with NSImage)
     [openDlg setAllowedFileTypes:[[NSArray alloc] initWithObjects:@"gif", @"GIF", nil]];
     
     // Display the dialog.  If the OK button was pressed,
