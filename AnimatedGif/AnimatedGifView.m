@@ -216,7 +216,7 @@
     NSMutableDictionary *plist = [[NSMutableDictionary alloc] init];
     
     // set values here...
-    NSDictionary *cfg  = @{@"Label":@"com.stino.animatedgif", @"ProgramArguments":@[@"/System/Library/Frameworks/ScreenSaver.framework/Resources/ScreenSaverEngine.app/Contents/MacOS/ScreenSaverEngine",@"-background"], @"KeepAlive":@YES};
+    NSDictionary *cfg  = @{@"Label":@"com.stino.animatedgif", @"ProgramArguments":@[@"/System/Library/Frameworks/ScreenSaver.framework/Resources/ScreenSaverEngine.app/Contents/MacOS/ScreenSaverEngine",@"-background"], @"KeepAlive":@YES, @"ThrottleInterval":@0};
     [plist addEntriesFromDictionary:cfg];
     
     // saves the agent plist file
