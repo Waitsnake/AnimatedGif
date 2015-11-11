@@ -21,7 +21,7 @@
     // initalize screensaver defaults with an default value
     ScreenSaverDefaults *defaults = [ScreenSaverDefaults defaultsForModuleWithName:[[NSBundle bundleForClass: [self class]] bundleIdentifier]];
     [defaults registerDefaults:[NSDictionary dictionaryWithObjectsAndKeys:
-                                 @"file:///Users/koehmarc/Pictures/animation.gif", @"GifFileName", @"15.0", @"GifFrameRate", @"YES", @"GifFrameRateManual", nil]];
+                                 @"file:///Users/koehmarc/Pictures/animation.gif", @"GifFileName", @"15.0", @"GifFrameRate", @"NO", @"GifFrameRateManual", @"YES", @"StretchGif", nil]];
     
     return self;
 }
@@ -35,6 +35,7 @@
     NSString *gifFileName = [defaults objectForKey:@"GifFileName"];
     float frameRate = [defaults floatForKey:@"GifFrameRate"];
     BOOL frameRateManual = [defaults boolForKey:@"GifFrameRateManual"];
+    shouldStretchImg = [defaults boolForKey:@"StretchGif"];
 
     
     // load GIF image
@@ -78,15 +79,40 @@
 
 - (void)animateOneFrame
 {
+    NSRect screenRect = [self bounds];
+    NSRect target = screenRect;
+    float screenRatio = [self pictureRatioFromWidth:screenRect.size.width andHeight:screenRect.size.height];
+    float imgRatio = [self pictureRatioFromWidth:img.size.width andHeight:img.size.height];
+    
+    if (shouldStretchImg==NO)
+    {
+        // try to fit image optimal to screen
+        if (imgRatio >= screenRatio)
+        {
+            target.size.height = [self calcHeightFromRatio:imgRatio andWidth:screenRect.size.width];
+            target.origin.y = (screenRect.size.height - target.size.height)/2;
+        }
+        else
+        {
+            target.size.width = [self calcWidthFromRatio:imgRatio andHeight:screenRect.size.height];
+            target.origin.x = (screenRect.size.width - target.size.width)/2;
+        }
+    }
+    
+
     if (currFrameCount == -1)
     {
-        // if no file is load we paint all black
+        // first clear screen with black
         [[NSColor colorWithDeviceRed: 0.0 green: 0.0
                                 blue: 0.0 alpha: 1.0] set];
-        [NSBezierPath fillRect: [self bounds]];
+        [NSBezierPath fillRect: screenRect];
     }
     else
     {
+        // first clear screen with black
+        [[NSColor colorWithDeviceRed: 0.0 green: 0.0
+                                blue: 0.0 alpha: 1.0] set];
+        [NSBezierPath fillRect: screenRect];
 
         //select current frame from GIF (Hint: gifRep is a sub-object from img)
         [gifRep setProperty:NSImageCurrentFrame withValue:@(currFrameCount)];
@@ -95,13 +121,13 @@
         if ([self isPreview] == TRUE)
         {
             // In Prefiew Mode Core Image is not working (?) so we make a classical image draw
-            [img drawInRect:[self bounds]];
+            [img drawInRect:target];
         }
         else
         {
             // if we have no Preview Mode we use Core Image to draw
             CIImage * ciImage = [[CIImage alloc] initWithBitmapImageRep:gifRep];
-            [ciImage drawInRect:[self bounds] fromRect:NSMakeRect(0,0,[img size].width,[img size].height) operation:NSCompositeCopy fraction:1.0];
+            [ciImage drawInRect:target fromRect:NSMakeRect(0,0,img.size.width,img.size.height) operation:NSCompositeCopy fraction:1.0];
         }
     
         //calculate next frame of GIF to show
@@ -132,11 +158,13 @@
     NSString *gifFileName = [defaults objectForKey:@"GifFileName"];
     float frameRate = [defaults floatForKey:@"GifFrameRate"];
     BOOL frameRateManual = [defaults boolForKey:@"GifFrameRateManual"];
+    BOOL stretchImage = [defaults boolForKey:@"StretchGif"];
     
     // set the visable value in dialog to the last saved value
     [self.textField1 setStringValue:gifFileName];
     [self.slider1 setDoubleValue:frameRate];
     [self.checkButton1 setState:frameRateManual];
+    [self.checkButton2 setState:stretchImage];
     
     return self.optionsPanel;
 }
@@ -144,14 +172,17 @@
 - (IBAction)closeConfigPos:(id)sender {
     // read values from GUI elements
     float frameRate = [self.slider1 floatValue];
-    fileNameGif = [self.textField1 stringValue];
+    NSString *gifFileName = [self.textField1 stringValue];
     BOOL frameRateManual = self.checkButton1.state;
+    BOOL stretchImage = self.checkButton2.state;
+    shouldStretchImg = self.checkButton2.state;
     
     // write values back to screensver defaults
     ScreenSaverDefaults *defaults = [ScreenSaverDefaults defaultsForModuleWithName:[[NSBundle bundleForClass: [self class]] bundleIdentifier]];
-    [defaults setObject:fileNameGif forKey:@"GifFileName"];
+    [defaults setObject:gifFileName forKey:@"GifFileName"];
     [defaults setFloat:frameRate forKey:@"GifFrameRate"];
     [defaults setBool:frameRateManual forKey:@"GifFrameRateManual"];
+    [defaults setBool:stretchImage forKey:@"StretchGif"];
     [defaults synchronize];
     
     [[NSApplication sharedApplication] endSheet:self.optionsPanel];
@@ -172,8 +203,8 @@
     [openDlg setCanChooseDirectories:NO];
     
     // Disable the selection of more than one file
-    openDlg.allowsMultipleSelection = NO;
-    
+    [openDlg setAllowsMultipleSelection:NO];
+
     // set dialog to last selected file
     [openDlg setDirectoryURL:[NSURL URLWithString:[self.textField1 stringValue]]];
     
@@ -193,6 +224,19 @@
         
     }
     
+}
+
+
+- (float)pictureRatioFromWidth:(float)iWidth andHeight:(float)iHeight {
+    return iWidth/iHeight;
+}
+
+- (float)calcWidthFromRatio:(float)iRatio andHeight:(float)iHeight {
+    return iRatio*iHeight;
+}
+
+- (float)calcHeightFromRatio:(float)iRatio andWidth:(float)iWidth {
+    return iWidth/iRatio;
 }
 
 @end
