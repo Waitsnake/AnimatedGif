@@ -15,6 +15,9 @@
     NSInteger maxFrameCount;
     NSImage *img;
     NSBitmapImageRep *gifRep;
+    float backgrRed;
+    float backgrGreen;
+    float backgrBlue;
 }
 
 - (float)pictureRatioFromWidth:(float)iWidth andHeight:(float)iHeight;
@@ -26,5 +29,7 @@
 @property (assign) IBOutlet NSSlider *slider1;
 @property (assign) IBOutlet NSButton *checkButton1;
 @property (assign) IBOutlet NSButton *checkButton2;
+@property (assign) IBOutlet NSColorWell *colorWell1;
+@property (assign) IBOutlet NSTextField *label1;
 
 @end
