@@ -46,7 +46,7 @@ DQ
                         </textFieldCell>
                     </textField>
                     <textField verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="n2R-8Q-rKI">
-                        <rect key="frame" x="20" y="60" width="445" height="22"/>
+                        <rect key="frame" x="20" y="60" width="393" height="22"/>
                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" title="/Users/koehmarc/Pictures/animation.gif" drawsBackground="YES" id="Pkm-gg-pTx">
                             <font key="font" metaFont="system"/>
                             <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
@@ -106,6 +106,16 @@ DQ
                             <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                         </textFieldCell>
                     </textField>
+                    <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="wPm-LD-3ir">
+                        <rect key="frame" x="418" y="54" width="53" height="32"/>
+                        <buttonCell key="cell" type="push" title="..." bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="5Ro-dF-RHD">
+                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                            <font key="font" metaFont="system"/>
+                        </buttonCell>
+                        <connections>
+                            <action selector="sendFileButtonAction:" target="-2" id="7M8-iE-WnT"/>
+                        </connections>
+                    </button>
                 </subviews>
             </view>
             <connections>

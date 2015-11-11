@@ -21,7 +21,7 @@
     // initalize screensaver defaults with an default value
     ScreenSaverDefaults *defaults = [ScreenSaverDefaults defaultsForModuleWithName:[[NSBundle bundleForClass: [self class]] bundleIdentifier]];
     [defaults registerDefaults:[NSDictionary dictionaryWithObjectsAndKeys:
-                                 @"/Users/koehmarc/Pictures/animation.gif", @"GifFileName", @"15.0", @"GifFrameRate", @"YES", @"GifFrameRateManual", nil]];
+                                 @"file:///Users/koehmarc/Pictures/animation.gif", @"GifFileName", @"15.0", @"GifFrameRate", @"YES", @"GifFrameRateManual", nil]];
     
     return self;
 }
@@ -38,7 +38,7 @@
 
     
     // load GIF image
-    img = [[NSImage alloc] initWithContentsOfFile:gifFileName]; // or similar
+    img = [[NSImage alloc] initWithContentsOfURL:[NSURL URLWithString:gifFileName]];
     if (img)
     {
         gifRep = [[img representations] objectAtIndex:0];
@@ -53,7 +53,7 @@
         }
         else
         {
-            // set frame duration dynamicly from data from gif file
+            // set frame duration from data from gif file
             float currFrameDuration = [[gifRep valueForProperty: NSImageCurrentFrameDuration] floatValue];
             [self setAnimationTimeInterval:currFrameDuration];
         }
@@ -142,21 +142,50 @@
 }
 
 - (IBAction)closeConfigPos:(id)sender {
+    // read values from GUI elements
     float frameRate = [self.slider1 floatValue];
     fileNameGif = [self.textField1 stringValue];
     BOOL frameRateManual = self.checkButton1.state;
     
+    // write values back to screensver defaults
     ScreenSaverDefaults *defaults = [ScreenSaverDefaults defaultsForModuleWithName:[[NSBundle bundleForClass: [self class]] bundleIdentifier]];
     [defaults setObject:fileNameGif forKey:@"GifFileName"];
     [defaults setFloat:frameRate forKey:@"GifFrameRate"];
     [defaults setBool:frameRateManual forKey:@"GifFrameRateManual"];
     [defaults synchronize];
-
+    
     [[NSApplication sharedApplication] endSheet:self.optionsPanel];
 }
 
 - (IBAction)closeConfigNeg:(id)sender {
     [[NSApplication sharedApplication] endSheet:self.optionsPanel];
+}
+
+- (IBAction)sendFileButtonAction:(id)sender{
+    
+    NSOpenPanel* openDlg = [NSOpenPanel openPanel];
+    
+    // Enable the selection of files in the dialog.
+    [openDlg setCanChooseFiles:YES];
+    
+    // Disable the selection of directories in the dialog.
+    [openDlg setCanChooseDirectories:NO];
+    
+    // Disable the selection of more than one file
+    openDlg.allowsMultipleSelection = NO;
+    
+    // Display the dialog.  If the OK button was pressed,
+    // process the files.
+    if ( [openDlg runModal] == NSOKButton )
+    {
+        // Get an array containing the full filenames of all
+        // files and directories selected.
+        NSArray* files = [openDlg URLs];
+        
+        [self.textField1 setStringValue:[files objectAtIndex:0]];
+        
+    }
+    
 }
 
 @end
