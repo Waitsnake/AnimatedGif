@@ -7,7 +7,8 @@
     <objects>
         <customObject id="-2" userLabel="File's Owner" customClass="AnimatedGifView">
             <connections>
-                <outlet property="checkButton1" destination="2Vl-6h-B2h" id="z3H-3T-gvH"/>
+                <outlet property="checkButton1" destination="2Vl-6h-B2h" id="wFx-cP-qsd"/>
+                <outlet property="checkButton2" destination="F1w-Ge-9Km" id="6Nm-HA-COs"/>
                 <outlet property="optionsPanel" destination="QvC-M9-y7g" id="S9j-MZ-x3G"/>
                 <outlet property="slider1" destination="GKf-lt-8W8" id="nUf-xn-xOt"/>
                 <outlet property="textField1" destination="n2R-8Q-rKI" id="7Yf-Cs-LwI"/>
@@ -18,10 +19,10 @@
         <window allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" releasedWhenClosed="NO" visibleAtLaunch="NO" animationBehavior="default" id="QvC-M9-y7g" customClass="NSPanel">
             <windowStyleMask key="styleMask" titled="YES" closable="YES"/>
             <windowPositionMask key="initialPositionMask" leftStrut="YES" rightStrut="YES" topStrut="YES" bottomStrut="YES"/>
-            <rect key="contentRect" x="196" y="240" width="485" height="239"/>
+            <rect key="contentRect" x="196" y="240" width="485" height="274"/>
             <rect key="screenRect" x="0.0" y="0.0" width="1366" height="746"/>
             <view key="contentView" id="EiT-Mj-1SZ">
-                <rect key="frame" x="0.0" y="0.0" width="485" height="239"/>
+                <rect key="frame" x="0.0" y="0.0" width="485" height="274"/>
                 <autoresizingMask key="autoresizingMask"/>
                 <subviews>
                     <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="oV9-Yk-r4r">
@@ -116,12 +117,19 @@ DQ
                             <action selector="sendFileButtonAction:" target="-2" id="7M8-iE-WnT"/>
                         </connections>
                     </button>
+                    <button fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="F1w-Ge-9Km">
+                        <rect key="frame" x="18" y="238" width="188" height="18"/>
+                        <buttonCell key="cell" type="check" title="Stretch image to fit screen" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="X1o-i7-m2z">
+                            <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
+                            <font key="font" metaFont="system"/>
+                        </buttonCell>
+                    </button>
                 </subviews>
             </view>
             <connections>
                 <outlet property="initialFirstResponder" destination="oV9-Yk-r4r" id="I8h-Th-Wmt"/>
             </connections>
-            <point key="canvasLocation" x="137.5" y="138.5"/>
+            <point key="canvasLocation" x="137.5" y="156"/>
         </window>
     </objects>
 </document>

@@ -10,16 +10,21 @@
 
 @interface AnimatedGifView : ScreenSaverView {
     // keep track of whether or not drawRect: should erase the background
+    BOOL shouldStretchImg;
     NSInteger currFrameCount;
     NSInteger maxFrameCount;
     NSImage *img;
     NSBitmapImageRep *gifRep;
-    NSString *fileNameGif;
 }
+
+- (float)pictureRatioFromWidth:(float)iWidth andHeight:(float)iHeight;
+- (float)calcWidthFromRatio:(float)iRatio andHeight:(float)iHeight;
+- (float)calcHeightFromRatio:(float)iRatio andWidth:(float)iWidth;
 
 @property (assign) IBOutlet NSPanel *optionsPanel;
 @property (assign) IBOutlet NSTextField *textField1;
 @property (assign) IBOutlet NSSlider *slider1;
 @property (assign) IBOutlet NSButton *checkButton1;
+@property (assign) IBOutlet NSButton *checkButton2;
 
 @end
