@@ -124,7 +124,7 @@ DQ
                     </button>
                     <colorWell fixedFrame="YES" continuous="NO" translatesAutoresizingMaskIntoConstraints="NO" id="bxi-1B-SU5">
                         <rect key="frame" x="160" y="154" width="44" height="23"/>
-                        <color key="color" red="0.05813049898" green="0.055541899059999997" blue="1" alpha="1" colorSpace="calibratedRGB"/>
+                        <color key="color" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                     </colorWell>
                     <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="yfb-kL-Hbi">
                         <rect key="frame" x="18" y="157" width="119" height="17"/>
@@ -153,8 +153,8 @@ DQ
                         </connections>
                     </button>
                     <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Kd9-dR-ges">
-                        <rect key="frame" x="18" y="122" width="308" height="17"/>
-                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Run screensaver in background as launch agent:" id="dxI-if-SV8">
+                        <rect key="frame" x="18" y="122" width="299" height="17"/>
+                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Run screensaver in background (launch agent):" id="dxI-if-SV8">
                             <font key="font" metaFont="system"/>
                             <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
                             <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
