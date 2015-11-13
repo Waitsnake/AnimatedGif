@@ -131,6 +131,12 @@
             // if we have no Preview Mode we use Core Image to draw
             CIImage * ciImage = [[CIImage alloc] initWithBitmapImageRep:gifRep];
             [ciImage drawInRect:target fromRect:NSMakeRect(0,0,img.size.width,img.size.height) operation:NSCompositeCopy fraction:1.0];
+            
+            // we change the window level only, if not in preview mode and if the level is allready set by the ScreenSaverEngine to desktop level or lower. This allows the screensaver to be used in normal mode, when a screensaver is on the highest window level and not in background
+            if (self.window.level <= kCGDesktopWindowLevel) {
+                //  set the window level to desktop level, that fixes the problem that after an mission control switch the window is hided. because ScreenSaverEngine set the window level one step to low (kCGDesktopWindowLevel-1) to work correct with mission control that requires exactly kCGDesktopWindowLevel.
+                [self.window setLevel:kCGDesktopWindowLevel];
+            }
         }
     
         //calculate next frame of GIF to show
@@ -143,6 +149,7 @@
             currFrameCount = 0;
         }
     }
+    
     return;
 }
 
