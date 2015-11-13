@@ -8,6 +8,9 @@
 
 #import "AnimatedGifView.h"
 
+#define LOAD_BTN    0
+#define UNLOAD_BTN  1
+
 @implementation AnimatedGifView
 
 - (instancetype)initWithFrame:(NSRect)frame isPreview:(BOOL)isPreview
@@ -82,6 +85,7 @@
 
 - (void)animateOneFrame
 {
+    // set some values screensaver and GIF image size
     NSRect screenRect = [self bounds];
     NSRect target = screenRect;
     float screenRatio = [self pictureRatioFromWidth:screenRect.size.width andHeight:screenRect.size.height];
@@ -155,6 +159,7 @@
 
 - (BOOL)hasConfigureSheet
 {
+    // tell ScreenSaverEngine that screensaver has an Options dialog
     return YES;
 }
 
@@ -182,8 +187,41 @@
     [self.label1 setStringValue:[self.slider1 stringValue]];
     [self.colorWell1 setColor:[NSColor colorWithRed:bgrRed green:bgrGreen blue:bgrBlue alpha:1.0]];
     
+    // set sement button depending if the launchagent is active or not
+    NSString *userLaunchAgentsPath = [[NSString alloc] initWithFormat:@"%@%@%@", @"/Users/", NSUserName(), @"/Library/LaunchAgents/com.stino.animatedgif.plist"];
+    BOOL launchAgentFileExists = [[NSFileManager defaultManager] fileExistsAtPath:userLaunchAgentsPath];
+    if (launchAgentFileExists == YES)
+    {
+        self.segmentButton1.selectedSegment = LOAD_BTN;
+    }
+    else
+    {
+        self.segmentButton1.selectedSegment = UNLOAD_BTN;
+    }
+    
+    // return the new created options dialog
     return self.optionsPanel;
 }
+
+
+- (IBAction)navigateSegmentButton:(id)sender
+{
+    // check witch segment of segment button was pressed and than start the according method
+    NSSegmentedControl *control = (NSSegmentedControl *)sender;    
+    NSInteger selectedSeg = [control selectedSegment];
+    
+    switch (selectedSeg) {
+        case LOAD_BTN:
+            [self loadAgent];
+            break;
+        case UNLOAD_BTN:
+            [self unloadAgent];
+            break;
+        default:
+            break;
+    }
+}
+
 
 - (IBAction)closeConfigPos:(id)sender {
     // read values from GUI elements
@@ -204,48 +242,25 @@
     [defaults setFloat:colorPicked.blueComponent forKey:@"BackgrBlue"];
     [defaults synchronize];
     
+    // set new values to object attributes
     shouldStretchImg = stretchImage;
     backgrRed = colorPicked.redComponent;
     backgrGreen = colorPicked.greenComponent;
     backgrBlue = colorPicked.blueComponent;
     
+    // close color dialog and options dialog
     [[NSColorPanel sharedColorPanel] close];
     [[NSApplication sharedApplication] endSheet:self.optionsPanel];
 }
 
 - (IBAction)closeConfigNeg:(id)sender {
+    // close color dialog and options dialog
     [[NSColorPanel sharedColorPanel] close];
     [[NSApplication sharedApplication] endSheet:self.optionsPanel];
 }
 
-- (IBAction)loadAgent:(id)sender {
-    // create the plist agent file
-    NSMutableDictionary *plist = [[NSMutableDictionary alloc] init];
-    
-    // set values here...
-    NSDictionary *cfg  = @{@"Label":@"com.stino.animatedgif", @"ProgramArguments":@[@"/System/Library/Frameworks/ScreenSaver.framework/Resources/ScreenSaverEngine.app/Contents/MacOS/ScreenSaverEngine",@"-background"], @"KeepAlive":@{@"OtherJobEnabled":@{@"com.apple.SystemUIServer.agent":@YES,@"com.apple.Finder":@YES,@"com.apple.Dock.agent":@YES}}, @"ThrottleInterval":@0};
-    [plist addEntriesFromDictionary:cfg];
-    
-    // saves the agent plist file
-    NSString *userLaunchAgentsPath = [[NSString alloc] initWithFormat:@"%@%@%@", @"/Users/", NSUserName(), @"/Library/LaunchAgents/com.stino.animatedgif.plist"];
-    [plist writeToFile:userLaunchAgentsPath atomically:YES];
-    
-    // start the launch agent
-    NSString *cmdstr = [[NSString alloc] initWithFormat:@"%@ %@", @"launchctl load", userLaunchAgentsPath];
-    system([cmdstr cStringUsingEncoding:NSUTF8StringEncoding]);
-}
-
-- (IBAction)unloadAgent:(id)sender {
-    // stop the launch agent
-    NSString *userLaunchAgentsPath = [[NSString alloc] initWithFormat:@"%@%@%@", @"/Users/", NSUserName(), @"/Library/LaunchAgents/com.stino.animatedgif.plist"];
-    NSString *cmdstr = [[NSString alloc] initWithFormat:@"%@%@", @"launchctl unload ", userLaunchAgentsPath];
-    system([cmdstr cStringUsingEncoding:NSUTF8StringEncoding]);
-    
-    // remove the plist agent file
-    [[NSFileManager defaultManager] removeItemAtPath:userLaunchAgentsPath error:nil];
-}
-
 - (IBAction)pressCheckbox1:(id)sender {
+    // enable or disable slider depending on checkbox
     BOOL frameRateManual = self.checkButton1.state;
     if (frameRateManual)
     {
@@ -258,6 +273,7 @@
 }
 
 - (IBAction)selectSlider1:(id)sender {
+    // update label with actual selected value of slider
     [self.label1 setStringValue:[self.slider1 stringValue]];
 }
 
@@ -295,6 +311,32 @@
     
 }
 
+- (void)loadAgent {
+    // create the plist agent file
+    NSMutableDictionary *plist = [[NSMutableDictionary alloc] init];
+    
+    // set values here...
+    NSDictionary *cfg  = @{@"Label":@"com.stino.animatedgif", @"ProgramArguments":@[@"/System/Library/Frameworks/ScreenSaver.framework/Resources/ScreenSaverEngine.app/Contents/MacOS/ScreenSaverEngine",@"-background"], @"KeepAlive":@{@"OtherJobEnabled":@{@"com.apple.SystemUIServer.agent":@YES,@"com.apple.Finder":@YES,@"com.apple.Dock.agent":@YES}}, @"ThrottleInterval":@0};
+    [plist addEntriesFromDictionary:cfg];
+    
+    // saves the agent plist file
+    NSString *userLaunchAgentsPath = [[NSString alloc] initWithFormat:@"%@%@%@", @"/Users/", NSUserName(), @"/Library/LaunchAgents/com.stino.animatedgif.plist"];
+    [plist writeToFile:userLaunchAgentsPath atomically:YES];
+    
+    // start the launch agent
+    NSString *cmdstr = [[NSString alloc] initWithFormat:@"launchctl load %@ &", userLaunchAgentsPath];
+    system([cmdstr cStringUsingEncoding:NSUTF8StringEncoding]);
+}
+
+- (void)unloadAgent {
+    // stop the launch agent
+    NSString *userLaunchAgentsPath = [[NSString alloc] initWithFormat:@"%@%@%@", @"/Users/", NSUserName(), @"/Library/LaunchAgents/com.stino.animatedgif.plist"];
+    NSString *cmdstr = [[NSString alloc] initWithFormat:@"%@%@", @"launchctl unload ", userLaunchAgentsPath];
+    system([cmdstr cStringUsingEncoding:NSUTF8StringEncoding]);
+    
+    // remove the plist agent file
+    [[NSFileManager defaultManager] removeItemAtPath:userLaunchAgentsPath error:nil];
+}
 
 - (float)pictureRatioFromWidth:(float)iWidth andHeight:(float)iHeight {
     return iWidth/iHeight;
