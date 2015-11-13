@@ -12,6 +12,7 @@
                 <outlet property="colorWell1" destination="bxi-1B-SU5" id="Z7a-Km-nnj"/>
                 <outlet property="label1" destination="rLV-9G-B0l" id="Fo5-Vr-nj9"/>
                 <outlet property="optionsPanel" destination="QvC-M9-y7g" id="S9j-MZ-x3G"/>
+                <outlet property="segmentButton1" destination="3xC-QT-NED" id="AlZ-Xp-0qc"/>
                 <outlet property="slider1" destination="GKf-lt-8W8" id="nUf-xn-xOt"/>
                 <outlet property="textField1" destination="n2R-8Q-rKI" id="7Yf-Cs-LwI"/>
             </connections>
@@ -160,26 +161,19 @@ DQ
                             <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                         </textFieldCell>
                     </textField>
-                    <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="OsD-6G-FXb">
-                        <rect key="frame" x="387" y="111" width="84" height="32"/>
-                        <buttonCell key="cell" type="push" title="unload" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="QO6-fw-QH8">
-                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                    <segmentedControl verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="3xC-QT-NED">
+                        <rect key="frame" x="327" y="118" width="137" height="24"/>
+                        <segmentedCell key="cell" borderStyle="border" alignment="left" style="rounded" trackingMode="selectOne" id="5DN-LS-Kqw">
                             <font key="font" metaFont="system"/>
-                        </buttonCell>
+                            <segments>
+                                <segment label="load" width="65"/>
+                                <segment label="unload" width="65" selected="YES" tag="1"/>
+                            </segments>
+                        </segmentedCell>
                         <connections>
-                            <action selector="unloadAgent:" target="-2" id="1jL-GG-Cu2"/>
+                            <action selector="navigateSegmentButton:" target="-2" id="bCA-Fa-VYE"/>
                         </connections>
-                    </button>
-                    <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="zlv-Dv-hyw">
-                        <rect key="frame" x="326" y="111" width="68" height="32"/>
-                        <buttonCell key="cell" type="push" title="load" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="i3o-ma-UCo">
-                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
-                            <font key="font" metaFont="system"/>
-                        </buttonCell>
-                        <connections>
-                            <action selector="loadAgent:" target="-2" id="JCn-pd-svz"/>
-                        </connections>
-                    </button>
+                    </segmentedControl>
                 </subviews>
             </view>
             <connections>

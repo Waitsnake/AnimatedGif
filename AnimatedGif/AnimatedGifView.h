@@ -23,6 +23,8 @@
 - (float)pictureRatioFromWidth:(float)iWidth andHeight:(float)iHeight;
 - (float)calcWidthFromRatio:(float)iRatio andHeight:(float)iHeight;
 - (float)calcHeightFromRatio:(float)iRatio andWidth:(float)iWidth;
+- (void)loadAgent;
+- (void)unloadAgent;
 
 @property (assign) IBOutlet NSPanel *optionsPanel;
 @property (assign) IBOutlet NSTextField *textField1;
@@ -31,5 +33,6 @@
 @property (assign) IBOutlet NSButton *checkButton2;
 @property (assign) IBOutlet NSColorWell *colorWell1;
 @property (assign) IBOutlet NSTextField *label1;
+@property (assign) IBOutlet NSSegmentedControl *segmentButton1;
 
 @end
