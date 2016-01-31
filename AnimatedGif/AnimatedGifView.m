@@ -24,7 +24,7 @@
     // initalize screensaver defaults with an default value
     ScreenSaverDefaults *defaults = [ScreenSaverDefaults defaultsForModuleWithName:[[NSBundle bundleForClass: [self class]] bundleIdentifier]];
     [defaults registerDefaults:[NSDictionary dictionaryWithObjectsAndKeys:
-                                 @"file:///Users/koehmarc/Pictures/animation.gif", @"GifFileName", @"15.0", @"GifFrameRate", @"NO", @"GifFrameRateManual", @"YES", @"StretchGif", @"0.0", @"BackgrRed", @"0.0", @"BackgrGreen", @"0.0", @"BackgrBlue",nil]];
+                                 @"file:///Users/koehmarc/Pictures/animation.gif", @"GifFileName", @"15.0", @"GifFrameRate", @"NO", @"GifFrameRateManual", @"0", @"ViewOpt", @"0.0", @"BackgrRed", @"0.0", @"BackgrGreen", @"0.0", @"BackgrBlue",nil]];
     
     return self;
 }
@@ -38,7 +38,7 @@
     NSString *gifFileName = [defaults objectForKey:@"GifFileName"];
     float frameRate = [defaults floatForKey:@"GifFrameRate"];
     BOOL frameRateManual = [defaults boolForKey:@"GifFrameRateManual"];
-    shouldStretchImg = [defaults boolForKey:@"StretchGif"];
+    viewOption = [defaults integerForKey:@"ViewOpt"];
     backgrRed = [defaults floatForKey:@"BackgrRed"];
     backgrGreen = [defaults floatForKey:@"BackgrGreen"];
     backgrBlue = [defaults floatForKey:@"BackgrBlue"];
@@ -91,7 +91,7 @@
     float screenRatio = [self pictureRatioFromWidth:screenRect.size.width andHeight:screenRect.size.height];
     float imgRatio = [self pictureRatioFromWidth:img.size.width andHeight:img.size.height];
     
-    if (shouldStretchImg==NO)
+    if (viewOption==0)
     {
         // try to fit image optimal to screen
         if (imgRatio >= screenRatio)
@@ -105,8 +105,26 @@
             target.origin.x = (screenRect.size.width - target.size.width)/2;
         }
     }
+    else if (viewOption==1)
+    {
+        target = screenRect;
+    }
+    else if (viewOption==2)
+    {
+        target.size.height = img.size.height;
+        target.size.width = img.size.width;
+        target.origin.y = (screenRect.size.height - img.size.height)/2;
+        target.origin.x = (screenRect.size.width - img.size.width)/2;
+    }
+    else
+    {
+        // in case option in defaults file was too large we set it to last valid value
+        target.size.height = img.size.height;
+        target.size.width = img.size.width;
+        target.origin.y = (screenRect.size.height - img.size.height)/2;
+        target.origin.x = (screenRect.size.width - img.size.width)/2;
+    }
     
-
     if (currFrameCount == -1)
     {
         // first clear screen with black
@@ -173,16 +191,21 @@
     NSString *gifFileName = [defaults objectForKey:@"GifFileName"];
     float frameRate = [defaults floatForKey:@"GifFrameRate"];
     BOOL frameRateManual = [defaults boolForKey:@"GifFrameRateManual"];
-    BOOL stretchImage = [defaults boolForKey:@"StretchGif"];
     float bgrRed = [defaults floatForKey:@"BackgrRed"];
     float bgrGreen = [defaults floatForKey:@"BackgrGreen"];
     float bgrBlue = [defaults floatForKey:@"BackgrBlue"];
+    NSInteger viewOpt = [defaults integerForKey:@"ViewOpt"];
+    if (viewOpt > 2)
+    {
+        viewOpt = 0;
+    }
+    
     
     // set the visable value in dialog to the last saved value
     [self.textField1 setStringValue:gifFileName];
     [self.slider1 setDoubleValue:frameRate];
     [self.checkButton1 setState:frameRateManual];
-    [self.checkButton2 setState:stretchImage];
+    [self.popupButton1 selectItemWithTag:viewOpt];
     [self.slider1 setEnabled:frameRateManual];
     [self.label1 setStringValue:[self.slider1 stringValue]];
     [self.colorWell1 setColor:[NSColor colorWithRed:bgrRed green:bgrGreen blue:bgrBlue alpha:1.0]];
@@ -228,7 +251,7 @@
     float frameRate = [self.slider1 floatValue];
     NSString *gifFileName = [self.textField1 stringValue];
     BOOL frameRateManual = self.checkButton1.state;
-    BOOL stretchImage = self.checkButton2.state;
+    NSInteger viewOpt = self.popupButton1.selectedTag;
     NSColor *colorPicked = self.colorWell1.color;
     
     // write values back to screensver defaults
@@ -236,14 +259,14 @@
     [defaults setObject:gifFileName forKey:@"GifFileName"];
     [defaults setFloat:frameRate forKey:@"GifFrameRate"];
     [defaults setBool:frameRateManual forKey:@"GifFrameRateManual"];
-    [defaults setBool:stretchImage forKey:@"StretchGif"];
+    [defaults setInteger:viewOpt forKey:@"ViewOpt"];
     [defaults setFloat:colorPicked.redComponent forKey:@"BackgrRed"];
     [defaults setFloat:colorPicked.greenComponent forKey:@"BackgrGreen"];
     [defaults setFloat:colorPicked.blueComponent forKey:@"BackgrBlue"];
     [defaults synchronize];
     
     // set new values to object attributes
-    shouldStretchImg = stretchImage;
+    viewOption = viewOpt;
     backgrRed = colorPicked.redComponent;
     backgrGreen = colorPicked.greenComponent;
     backgrBlue = colorPicked.blueComponent;

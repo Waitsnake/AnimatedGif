@@ -10,7 +10,7 @@
 
 @interface AnimatedGifView : ScreenSaverView {
     // keep track of whether or not drawRect: should erase the background
-    BOOL shouldStretchImg;
+    NSInteger viewOption;
     NSInteger currFrameCount;
     NSInteger maxFrameCount;
     NSImage *img;
@@ -30,9 +30,9 @@
 @property (assign) IBOutlet NSTextField *textField1;
 @property (assign) IBOutlet NSSlider *slider1;
 @property (assign) IBOutlet NSButton *checkButton1;
-@property (assign) IBOutlet NSButton *checkButton2;
 @property (assign) IBOutlet NSColorWell *colorWell1;
 @property (assign) IBOutlet NSTextField *label1;
 @property (assign) IBOutlet NSSegmentedControl *segmentButton1;
+@property (assign) IBOutlet NSPopUpButton *popupButton1;
 
 @end
