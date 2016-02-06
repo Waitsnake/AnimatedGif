@@ -8,6 +8,7 @@
         <customObject id="-2" userLabel="File's Owner" customClass="AnimatedGifView">
             <connections>
                 <outlet property="checkButton1" destination="2Vl-6h-B2h" id="wFx-cP-qsd"/>
+                <outlet property="checkButton2" destination="kHm-iW-jBX" id="Eqb-3j-yVz"/>
                 <outlet property="colorWell1" destination="bxi-1B-SU5" id="Z7a-Km-nnj"/>
                 <outlet property="label1" destination="rLV-9G-B0l" id="Fo5-Vr-nj9"/>
                 <outlet property="optionsPanel" destination="QvC-M9-y7g" id="S9j-MZ-x3G"/>
@@ -22,12 +23,47 @@
         <window allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" releasedWhenClosed="NO" visibleAtLaunch="NO" animationBehavior="default" id="QvC-M9-y7g" customClass="NSPanel">
             <windowStyleMask key="styleMask" titled="YES" closable="YES"/>
             <windowPositionMask key="initialPositionMask" leftStrut="YES" rightStrut="YES" topStrut="YES" bottomStrut="YES"/>
-            <rect key="contentRect" x="196" y="240" width="485" height="344"/>
+            <rect key="contentRect" x="196" y="240" width="485" height="373"/>
             <rect key="screenRect" x="0.0" y="0.0" width="1366" height="746"/>
             <view key="contentView" id="EiT-Mj-1SZ">
-                <rect key="frame" x="0.0" y="0.0" width="485" height="344"/>
+                <rect key="frame" x="0.0" y="0.0" width="485" height="373"/>
                 <autoresizingMask key="autoresizingMask"/>
                 <subviews>
+                    <popUpButton verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Cmf-ro-Be5">
+                        <rect key="frame" x="113" y="329" width="222" height="26"/>
+                        <popUpButtonCell key="cell" type="push" title="strech with keep image ratio" bezelStyle="rounded" alignment="left" lineBreakMode="truncatingTail" state="on" borderStyle="borderAndBezel" imageScaling="proportionallyDown" inset="2" selectedItem="5ie-tK-3yY" id="lpg-CF-VQ3">
+                            <behavior key="behavior" lightByBackground="YES" lightByGray="YES"/>
+                            <font key="font" metaFont="menu"/>
+                            <menu key="menu" id="HIs-ti-7q1">
+                                <items>
+                                    <menuItem title="strech with keep image ratio" state="on" id="5ie-tK-3yY">
+                                        <modifierMask key="keyEquivalentModifierMask"/>
+                                    </menuItem>
+                                    <menuItem title="strech maximal to screen" tag="1" id="iVp-Ep-OYA">
+                                        <modifierMask key="keyEquivalentModifierMask"/>
+                                    </menuItem>
+                                    <menuItem title="keep image original size" tag="2" id="nXD-VJ-W6I">
+                                        <modifierMask key="keyEquivalentModifierMask"/>
+                                    </menuItem>
+                                </items>
+                            </menu>
+                        </popUpButtonCell>
+                    </popUpButton>
+                    <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="fXD-SA-3et">
+                        <rect key="frame" x="20" y="334" width="89" height="17"/>
+                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="View options:" id="vEo-Jt-50P">
+                            <font key="font" metaFont="system"/>
+                            <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
+                            <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                        </textFieldCell>
+                    </textField>
+                    <button fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="kHm-iW-jBX">
+                        <rect key="frame" x="18" y="302" width="357" height="18"/>
+                        <buttonCell key="cell" type="check" title="load animation at start into memory (saves CPU time)" bezelStyle="regularSquare" imagePosition="left" inset="2" id="F13-fV-gKv">
+                            <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
+                            <font key="font" metaFont="system"/>
+                        </buttonCell>
+                    </button>
                     <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="oV9-Yk-r4r">
                         <rect key="frame" x="389" y="13" width="82" height="32"/>
                         <buttonCell key="cell" type="push" title="OK" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="cbc-xy-mRP">
@@ -51,7 +87,7 @@ DQ
                     </textField>
                     <textField verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="n2R-8Q-rKI">
                         <rect key="frame" x="20" y="61" width="346" height="22"/>
-                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" alignment="left" title="file:///Users/koehmarc/Pictures/animation.gif" drawsBackground="YES" id="Pkm-gg-pTx">
+                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" alignment="left" title="file:///please/select/an/gif/animation.gif" drawsBackground="YES" id="Pkm-gg-pTx">
                             <font key="font" metaFont="system"/>
                             <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
                             <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
@@ -69,7 +105,7 @@ DQ
                     </button>
                     <button fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="2Vl-6h-B2h">
                         <rect key="frame" x="18" y="272" width="410" height="18"/>
-                        <buttonCell key="cell" type="check" title="Set frame rate manual (otherwise frame rate from GIF is used)" bezelStyle="regularSquare" imagePosition="left" alignment="left" state="on" inset="2" id="7lC-sW-T7r">
+                        <buttonCell key="cell" type="check" title="Set frame rate manual (otherwise frame rate from GIF is used)" bezelStyle="regularSquare" imagePosition="left" alignment="left" inset="2" id="7lC-sW-T7r">
                             <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                             <font key="font" metaFont="system"/>
                         </buttonCell>
@@ -79,7 +115,7 @@ DQ
                     </button>
                     <slider verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="GKf-lt-8W8">
                         <rect key="frame" x="18" y="211" width="446" height="27"/>
-                        <sliderCell key="cell" alignment="left" minValue="1" maxValue="30" doubleValue="15" tickMarkPosition="below" numberOfTickMarks="30" allowsTickMarkValuesOnly="YES" sliderType="linear" id="ATX-YZ-Fff"/>
+                        <sliderCell key="cell" enabled="NO" alignment="left" minValue="1" maxValue="30" doubleValue="15" tickMarkPosition="below" numberOfTickMarks="30" allowsTickMarkValuesOnly="YES" sliderType="linear" id="ATX-YZ-Fff"/>
                         <connections>
                             <action selector="selectSlider1:" target="-2" id="cbY-ll-2iX"/>
                         </connections>
@@ -167,40 +203,12 @@ DQ
                             <action selector="navigateSegmentButton:" target="-2" id="bCA-Fa-VYE"/>
                         </connections>
                     </segmentedControl>
-                    <popUpButton verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Cmf-ro-Be5">
-                        <rect key="frame" x="113" y="300" width="222" height="26"/>
-                        <popUpButtonCell key="cell" type="push" title="strech with keep image ratio" bezelStyle="rounded" alignment="left" lineBreakMode="truncatingTail" borderStyle="borderAndBezel" imageScaling="proportionallyDown" inset="2" selectedItem="5ie-tK-3yY" id="lpg-CF-VQ3">
-                            <behavior key="behavior" lightByBackground="YES" lightByGray="YES"/>
-                            <font key="font" metaFont="menu"/>
-                            <menu key="menu" id="HIs-ti-7q1">
-                                <items>
-                                    <menuItem title="strech with keep image ratio" id="5ie-tK-3yY">
-                                        <modifierMask key="keyEquivalentModifierMask"/>
-                                    </menuItem>
-                                    <menuItem title="strech maximal to screen" tag="1" id="iVp-Ep-OYA">
-                                        <modifierMask key="keyEquivalentModifierMask"/>
-                                    </menuItem>
-                                    <menuItem title="keep image original size" tag="2" id="nXD-VJ-W6I">
-                                        <modifierMask key="keyEquivalentModifierMask"/>
-                                    </menuItem>
-                                </items>
-                            </menu>
-                        </popUpButtonCell>
-                    </popUpButton>
-                    <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="fXD-SA-3et">
-                        <rect key="frame" x="20" y="305" width="89" height="17"/>
-                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="View options:" id="vEo-Jt-50P">
-                            <font key="font" metaFont="system"/>
-                            <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
-                            <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
-                        </textFieldCell>
-                    </textField>
                 </subviews>
             </view>
             <connections>
                 <outlet property="initialFirstResponder" destination="oV9-Yk-r4r" id="I8h-Th-Wmt"/>
             </connections>
-            <point key="canvasLocation" x="137.5" y="191"/>
+            <point key="canvasLocation" x="137.5" y="205.5"/>
         </window>
     </objects>
 </document>

@@ -18,16 +18,42 @@
     currFrameCount = -1;
     self = [super initWithFrame:frame isPreview:isPreview];
     if (self) {
+        self.glView = [self createGLView];
         [self setAnimationTimeInterval:1/15.0];
     }
     
     // initalize screensaver defaults with an default value
     ScreenSaverDefaults *defaults = [ScreenSaverDefaults defaultsForModuleWithName:[[NSBundle bundleForClass: [self class]] bundleIdentifier]];
     [defaults registerDefaults:[NSDictionary dictionaryWithObjectsAndKeys:
-                                 @"file:///Users/koehmarc/Pictures/animation.gif", @"GifFileName", @"15.0", @"GifFrameRate", @"NO", @"GifFrameRateManual", @"0", @"ViewOpt", @"0.0", @"BackgrRed", @"0.0", @"BackgrGreen", @"0.0", @"BackgrBlue",nil]];
+                                 @"file:///please/select/an/gif/animation.gif", @"GifFileName", @"15.0", @"GifFrameRate", @"NO", @"GifFrameRateManual", @"0", @"ViewOpt", @"0.0", @"BackgrRed", @"0.0", @"BackgrGreen", @"0.0", @"BackgrBlue", @"NO", @"LoadAniToMem",nil]];
     
     return self;
 }
+
+- (NSOpenGLView *)createGLView
+{
+    NSOpenGLPixelFormatAttribute attribs[] = {
+        NSOpenGLPFAAccelerated,
+        0
+    };
+    NSOpenGLPixelFormat* format = [[NSOpenGLPixelFormat alloc] initWithAttributes:attribs];
+    NSOpenGLView* glview = [[NSOpenGLView alloc] initWithFrame:NSZeroRect pixelFormat:format];
+    return glview;
+}
+
+- (void)setFrameSize:(NSSize)newSize
+{
+    [super setFrameSize:newSize];
+    [self.glView setFrameSize:newSize];
+}
+
+
+- (void)dealloc
+{
+    [self.glView removeFromSuperview];
+    self.glView = nil;
+}
+
 
 - (void)startAnimation
 {
@@ -38,6 +64,7 @@
     NSString *gifFileName = [defaults objectForKey:@"GifFileName"];
     float frameRate = [defaults floatForKey:@"GifFrameRate"];
     BOOL frameRateManual = [defaults boolForKey:@"GifFrameRateManual"];
+    loadAnimationToMem = [defaults boolForKey:@"LoadAniToMem"];
     viewOption = [defaults integerForKey:@"ViewOpt"];
     backgrRed = [defaults floatForKey:@"BackgrRed"];
     backgrGreen = [defaults floatForKey:@"BackgrGreen"];
@@ -65,16 +92,53 @@
             [self setAnimationTimeInterval:currFrameDuration];
         }
         
+        // add glview to screensaver view in case of not in preview mode
+        if ([self isPreview] == FALSE)
+        {
+            [self addSubview:self.glView];
+        }
+        
+        // in case of no review mode and active config option create an array in memory with all frames of bitmap in bitmap format (can be used directly as opengl texture)
+        if (   ([self isPreview] == FALSE)
+            && (loadAnimationToMem == TRUE)
+           )
+        {
+            animationImages = [[NSMutableArray alloc] init];
+            for(NSUInteger frame=0;frame<maxFrameCount;frame++)
+            {
+                [gifRep setProperty:NSImageCurrentFrame withValue:@(frame)];
+                // bitmapData needs most CPU time during animation.
+                // thats why we execute bitmapData here during startAnimation and not in animateOneFrame. the start of screensaver will be than slower of cause, but during animation itself we need less CPU time
+                unsigned char *data = [gifRep bitmapData];
+                unsigned long size = [gifRep bytesPerPlane]*sizeof(unsigned char);
+                // copy the bitmap data into an NSData object, that can be save transfered to animateOneFrame
+                NSData *imgData = [[NSData alloc] initWithBytes:data length:size];
+                [animationImages addObject:imgData];
+                
+            }
+        }
+        
     }
     else
     {
         currFrameCount = -1;
     }
+    
 }
 
 - (void)stopAnimation
 {
     [super stopAnimation];
+    if ([self isPreview] == FALSE)
+    {
+        // remove glview from screensaver view
+        [self removeFromSuperview];
+    }
+    if ([self isPreview] == FALSE)
+    {
+        /*clean all precalulated bitmap images*/
+        [animationImages removeAllObjects];
+    }
     currFrameCount = -1;
 }
 
@@ -127,32 +191,118 @@
     
     if (currFrameCount == -1)
     {
-        // first clear screen with black
-        [[NSColor colorWithDeviceRed: backgrRed green: backgrGreen
+        if ([self isPreview] == TRUE)
+        {
+            // only clear screen with background color (not OpenGL)
+            [[NSColor colorWithDeviceRed: backgrRed green: backgrGreen
                                 blue: backgrBlue alpha: 1.0] set];
-        [NSBezierPath fillRect: screenRect];
+            [NSBezierPath fillRect: screenRect];
+        }
+        else
+        {
+            // only clear screen with background color (OpenGL)
+            [self.glView.openGLContext makeCurrentContext];
+            glClearColor(backgrRed, backgrGreen, backgrBlue, 1.0f);
+            glClear(GL_COLOR_BUFFER_BIT);
+            glFlush();
+            [self setNeedsDisplay:YES];
+        }
     }
     else
     {
-        // first clear screen with black
-        [[NSColor colorWithDeviceRed: backgrRed green: backgrGreen
-                                blue: backgrBlue alpha: 1.0] set];
-        [NSBezierPath fillRect: screenRect];
-
-        //select current frame from GIF (Hint: gifRep is a sub-object from img)
-        [gifRep setProperty:NSImageCurrentFrame withValue:@(currFrameCount)];
             
         // draw the selected frame
         if ([self isPreview] == TRUE)
         {
-            // In Prefiew Mode Core Image is not working (?) so we make a classical image draw
+            
+            // In Prefiew Mode OpenGL leads to crashes (?) so we make a classical image draw
+            
+            //select current frame from GIF (Hint: gifRep is a sub-object from img)
+            [gifRep setProperty:NSImageCurrentFrame withValue:@(currFrameCount)];
+            
+            // than clear screen with background color
+            [[NSColor colorWithDeviceRed: backgrRed green: backgrGreen
+             blue: backgrBlue alpha: 1.0] set];
+             [NSBezierPath fillRect: screenRect];
+            
+            // now draw frame
             [img drawInRect:target];
         }
         else
         {
-            // if we have no Preview Mode we use Core Image to draw
-            CIImage * ciImage = [[CIImage alloc] initWithBitmapImageRep:gifRep];
-            [ciImage drawInRect:target fromRect:NSMakeRect(0,0,img.size.width,img.size.height) operation:NSCompositeCopy fraction:1.0];
+            // if we have no Preview Mode we use OpenGL to draw
+
+            // change context to glview
+            [self.glView.openGLContext makeCurrentContext];
+            
+            // first clear screen with background color
+            glClearColor(backgrRed, backgrGreen, backgrBlue, 1.0f);
+            glClear(GL_COLOR_BUFFER_BIT);
+            
+            // Start phase
+            glPushMatrix();
+            
+            // defines the pixel resolution of the screen (can be smaler than real screen, but than you will see pixels)
+            glOrtho(0,screenRect.size.width,screenRect.size.height,0,-1,1);
+            
+            glEnable(GL_TEXTURE_2D);
+            
+            // load current bitmap as texture into the GPU
+            glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+            glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+            glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+            glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+            if (loadAnimationToMem == TRUE)
+            {
+                // we load bitmap data from memory and save CPU time (created during startAnimation)
+                NSData *pixels = [animationImages objectAtIndex:currFrameCount];
+                glTexImage2D(GL_TEXTURE_2D,
+                         0,
+                         GL_RGBA,
+                         (GLint)[gifRep pixelsWide],
+                         (GLint)[gifRep pixelsHigh],
+                         0,
+                         GL_RGBA,
+                         GL_UNSIGNED_BYTE, 
+                         [pixels bytes]
+                         );
+            }
+            else
+            {
+                // bitmapData needs more CPU time to create bitmap data
+                [gifRep setProperty:NSImageCurrentFrame withValue:@(currFrameCount)];
+                glTexImage2D(GL_TEXTURE_2D,
+                             0,
+                             GL_RGBA,
+                             (GLint)[gifRep pixelsWide],
+                             (GLint)[gifRep pixelsHigh],
+                             0,
+                             GL_RGBA,
+                             GL_UNSIGNED_BYTE,
+                             [gifRep bitmapData]
+                             );
+            }
+            
+            // define the target position of texture (related to screen defined by glOrtho) witch makes the texture visable
+            float x = target.origin.x;
+            float y = target.origin.y;
+            float iheight = target.size.height;
+            float iwidth = target.size.width;
+            glBegin( GL_QUADS );
+            glTexCoord2f( 0.f, 0.f ); glVertex2f(x, y); //Bottom left
+            glTexCoord2f( 1.f, 0.f ); glVertex2f(x + iwidth, y); //Bottom right
+            glTexCoord2f( 1.f, 1.f ); glVertex2f(x + iwidth, y + iheight); //Top right
+            glTexCoord2f( 0.f, 1.f ); glVertex2f(x, y + iheight); //Top left
+            glEnd();
+            
+            glDisable(GL_TEXTURE_2D);
+            
+            //End phase
+            glPopMatrix();
+            
+            glFlush();
+            
+            [self setNeedsDisplay:YES];
             
             // we change the window level only, if not in preview mode and if the level is allready set by the ScreenSaverEngine to desktop level or lower. This allows the screensaver to be used in normal mode, when a screensaver is on the highest window level and not in background
             if (self.window.level <= kCGDesktopWindowLevel) {
@@ -191,6 +341,7 @@
     NSString *gifFileName = [defaults objectForKey:@"GifFileName"];
     float frameRate = [defaults floatForKey:@"GifFrameRate"];
     BOOL frameRateManual = [defaults boolForKey:@"GifFrameRateManual"];
+    BOOL loadAniToMem = [defaults boolForKey:@"LoadAniToMem"];
     float bgrRed = [defaults floatForKey:@"BackgrRed"];
     float bgrGreen = [defaults floatForKey:@"BackgrGreen"];
     float bgrBlue = [defaults floatForKey:@"BackgrBlue"];
@@ -205,6 +356,7 @@
     [self.textField1 setStringValue:gifFileName];
     [self.slider1 setDoubleValue:frameRate];
     [self.checkButton1 setState:frameRateManual];
+    [self.checkButton2 setState:loadAniToMem];
     [self.popupButton1 selectItemWithTag:viewOpt];
     [self.slider1 setEnabled:frameRateManual];
     [self.label1 setStringValue:[self.slider1 stringValue]];
@@ -251,6 +403,7 @@
     float frameRate = [self.slider1 floatValue];
     NSString *gifFileName = [self.textField1 stringValue];
     BOOL frameRateManual = self.checkButton1.state;
+    BOOL loadAniToMem = self.checkButton2.state;
     NSInteger viewOpt = self.popupButton1.selectedTag;
     NSColor *colorPicked = self.colorWell1.color;
     
@@ -259,6 +412,7 @@
     [defaults setObject:gifFileName forKey:@"GifFileName"];
     [defaults setFloat:frameRate forKey:@"GifFrameRate"];
     [defaults setBool:frameRateManual forKey:@"GifFrameRateManual"];
+    [defaults setBool:loadAniToMem forKey:@"LoadAniToMem"];
     [defaults setInteger:viewOpt forKey:@"ViewOpt"];
     [defaults setFloat:colorPicked.redComponent forKey:@"BackgrRed"];
     [defaults setFloat:colorPicked.greenComponent forKey:@"BackgrGreen"];

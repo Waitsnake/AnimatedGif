@@ -7,9 +7,11 @@
 //
 
 #import <ScreenSaver/ScreenSaver.h>
+#import <GLUT/GLUT.h>
 
 @interface AnimatedGifView : ScreenSaverView {
     // keep track of whether or not drawRect: should erase the background
+    NSMutableArray *animationImages;
     NSInteger viewOption;
     NSInteger currFrameCount;
     NSInteger maxFrameCount;
@@ -18,18 +20,22 @@
     float backgrRed;
     float backgrGreen;
     float backgrBlue;
+    BOOL loadAnimationToMem;
 }
 
+- (NSOpenGLView *)createGLView;
 - (float)pictureRatioFromWidth:(float)iWidth andHeight:(float)iHeight;
 - (float)calcWidthFromRatio:(float)iRatio andHeight:(float)iHeight;
 - (float)calcHeightFromRatio:(float)iRatio andWidth:(float)iWidth;
 - (void)loadAgent;
 - (void)unloadAgent;
 
+@property (nonatomic, retain) NSOpenGLView* glView;
 @property (assign) IBOutlet NSPanel *optionsPanel;
 @property (assign) IBOutlet NSTextField *textField1;
 @property (assign) IBOutlet NSSlider *slider1;
 @property (assign) IBOutlet NSButton *checkButton1;
+@property (assign) IBOutlet NSButton *checkButton2;
 @property (assign) IBOutlet NSColorWell *colorWell1;
 @property (assign) IBOutlet NSTextField *label1;
 @property (assign) IBOutlet NSSegmentedControl *segmentButton1;
