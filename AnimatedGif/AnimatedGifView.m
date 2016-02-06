@@ -17,15 +17,16 @@
 {
     currFrameCount = -1;
     self = [super initWithFrame:frame isPreview:isPreview];
-    if (self) {
-        self.glView = [self createGLView];
-        [self setAnimationTimeInterval:1/15.0];
-    }
     
     // initalize screensaver defaults with an default value
     ScreenSaverDefaults *defaults = [ScreenSaverDefaults defaultsForModuleWithName:[[NSBundle bundleForClass: [self class]] bundleIdentifier]];
     [defaults registerDefaults:[NSDictionary dictionaryWithObjectsAndKeys:
                                  @"file:///please/select/an/gif/animation.gif", @"GifFileName", @"15.0", @"GifFrameRate", @"NO", @"GifFrameRateManual", @"0", @"ViewOpt", @"0.0", @"BackgrRed", @"0.0", @"BackgrGreen", @"0.0", @"BackgrBlue", @"NO", @"LoadAniToMem",nil]];
+    
+    if (self) {
+        self.glView = [self createGLView];
+        [self setAnimationTimeInterval:1/15.0];
+    }
     
     return self;
 }
@@ -33,11 +34,16 @@
 - (NSOpenGLView *)createGLView
 {
     NSOpenGLPixelFormatAttribute attribs[] = {
-        NSOpenGLPFAAccelerated,
+        NSOpenGLPFADoubleBuffer, NSOpenGLPFAAccelerated,
         0
     };
     NSOpenGLPixelFormat* format = [[NSOpenGLPixelFormat alloc] initWithAttributes:attribs];
     NSOpenGLView* glview = [[NSOpenGLView alloc] initWithFrame:NSZeroRect pixelFormat:format];
+    
+    GLint swapInterval = 1; // request synchronization
+    //GLint swapInterval = 0; // disable synchronization
+    [[glview openGLContext] setValues:&swapInterval forParameter: NSOpenGLCPSwapInterval];
+    
     return glview;
 }
 
@@ -301,6 +307,7 @@
             glPopMatrix();
             
             glFlush();
+            [self.glView.openGLContext flushBuffer];
             
             [self setNeedsDisplay:YES];
             
