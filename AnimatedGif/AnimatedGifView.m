@@ -129,7 +129,6 @@
     {
         currFrameCount = -1;
     }
-    
 }
 
 - (void)stopAnimation
@@ -200,8 +199,7 @@
         if ([self isPreview] == TRUE)
         {
             // only clear screen with background color (not OpenGL)
-            [[NSColor colorWithDeviceRed: backgrRed green: backgrGreen
-                                blue: backgrBlue alpha: 1.0] set];
+            [[NSColor colorWithDeviceRed: backgrRed green: backgrGreen blue: backgrBlue alpha: 1.0] set];
             [NSBezierPath fillRect: screenRect];
         }
         else
@@ -227,9 +225,8 @@
             [gifRep setProperty:NSImageCurrentFrame withValue:@(currFrameCount)];
             
             // than clear screen with background color
-            [[NSColor colorWithDeviceRed: backgrRed green: backgrGreen
-             blue: backgrBlue alpha: 1.0] set];
-             [NSBezierPath fillRect: screenRect];
+            [[NSColor colorWithDeviceRed: backgrRed green: backgrGreen blue: backgrBlue alpha: 1.0] set];
+            [NSBezierPath fillRect: screenRect];
             
             // now draw frame
             [img drawInRect:target];
@@ -252,6 +249,10 @@
             glOrtho(0,screenRect.size.width,screenRect.size.height,0,-1,1);
             
             glEnable(GL_TEXTURE_2D);
+            if ([gifRep hasAlpha] == TRUE) {
+                glEnable(GL_BLEND);
+                glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+            }
             
             // load current bitmap as texture into the GPU
             glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -301,6 +302,7 @@
             glTexCoord2f( 0.f, 1.f ); glVertex2f(x, y + iheight); //Top left
             glEnd();
             
+            glDisable(GL_BLEND);
             glDisable(GL_TEXTURE_2D);
             
             //End phase
