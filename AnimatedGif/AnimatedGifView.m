@@ -230,6 +230,7 @@
             
             // now draw frame
             [img drawInRect:target];
+
         }
         else
         {
@@ -254,8 +255,15 @@
                 glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
             }
             
+            //get one free texture name
+            GLuint frameTextureName;
+            glGenTextures(1, &frameTextureName);
+            
+            //bind a Texture object to the name
+            glBindTexture(GL_TEXTURE_2D,frameTextureName);
+            
             // load current bitmap as texture into the GPU
-            glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+            glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
             glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
             glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
             glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
@@ -290,6 +298,8 @@
                              );
             }
             
+            glGenerateMipmap(GL_TEXTURE_2D);
+            
             // define the target position of texture (related to screen defined by glOrtho) witch makes the texture visable
             float x = target.origin.x;
             float y = target.origin.y;
@@ -308,7 +318,11 @@
             //End phase
             glPopMatrix();
             
+            //free texture object by name
+            glDeleteTextures(1,&frameTextureName);
+            
             glFlush();
+            
             [self.glView.openGLContext flushBuffer];
             
             [self setNeedsDisplay:YES];
