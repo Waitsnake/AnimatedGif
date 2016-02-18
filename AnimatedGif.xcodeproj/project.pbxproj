@@ -233,7 +233,7 @@
 				INFOPLIST_FILE = AnimatedGif/Info.plist;
 				INSTALL_PATH = "$(HOME)/Library/Screen Savers";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDKROOT = macosx10.10;
+				SDKROOT = macosx10.9;
 				WRAPPER_EXTENSION = saver;
 			};
 			name = Debug;
@@ -246,7 +246,7 @@
 				INSTALL_PATH = "$(HOME)/Library/Screen Savers";
 				ONLY_ACTIVE_ARCH = NO;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDKROOT = macosx10.10;
+				SDKROOT = macosx10.9;
 				WRAPPER_EXTENSION = saver;
 			};
 			name = Release;
