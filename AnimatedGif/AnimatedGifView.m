@@ -94,8 +94,19 @@
         else
         {
             // set frame duration from data from gif file
+            /* If the fps is "too fast" NSBitmapImageRep gives back a clamped value for slower fps and not the value from the file! WTF? */
+            /*
+            [gifRep setProperty:NSImageCurrentFrame withValue:@(2)];
             float currFrameDuration = [[gifRep valueForProperty: NSImageCurrentFrameDuration] floatValue];
             [self setAnimationTimeInterval:currFrameDuration];
+             */
+            
+            // As workaround for the problem of NSBitmapImageRep class we use CGImageSourceCopyPropertiesAtIndex that allways gives back the real value
+            CGImageSourceRef source = CGImageSourceCreateWithURL ( (__bridge CFURLRef) [NSURL URLWithString:gifFileName], NULL);
+            NSDictionary *properties = (__bridge_transfer NSDictionary *)CGImageSourceCopyPropertiesAtIndex(source, 0, nil);
+            float duration = [[[properties objectForKey:(__bridge NSString *)kCGImagePropertyGIFDictionary]
+                               objectForKey:(__bridge NSString *) kCGImagePropertyGIFUnclampedDelayTime] doubleValue];
+            [self setAnimationTimeInterval:duration];
         }
         
         // add glview to screensaver view in case of not in preview mode
