@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="6751" systemVersion="15D21" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" customObjectInstantitationMethod="direct">
     <dependencies>
+        <deployment identifier="macosx"/>
         <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="6751"/>
     </dependencies>
     <objects>
@@ -9,6 +10,7 @@
                 <outlet property="checkButtonLoadIntoMem" destination="kHm-iW-jBX" id="n2S-Io-UcC"/>
                 <outlet property="checkButtonSetFpsManual" destination="2Vl-6h-B2h" id="dT1-OY-sf9"/>
                 <outlet property="colorWellBackgrColor" destination="bxi-1B-SU5" id="3HG-NI-5UY"/>
+                <outlet property="labelFpsGif" destination="mjS-aM-rjj" id="eOE-dO-KIv"/>
                 <outlet property="labelFpsManual" destination="rLV-9G-B0l" id="nux-yX-hmm"/>
                 <outlet property="optionsPanel" destination="QvC-M9-y7g" id="S9j-MZ-x3G"/>
                 <outlet property="popupButtonViewOptions" destination="Cmf-ro-Be5" id="6oo-Av-SiB"/>
@@ -56,7 +58,7 @@ DQ
 </string>
                         </buttonCell>
                         <connections>
-                            <action selector="closeConfigPos:" target="-2" id="ZgF-GZ-Ytd"/>
+                            <action selector="closeConfigOk:" target="-2" id="oWj-YT-93G"/>
                         </connections>
                     </button>
                     <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="RVF-wA-M8z">
@@ -88,7 +90,7 @@ Gw
 </string>
                         </buttonCell>
                         <connections>
-                            <action selector="closeConfigNeg:" target="-2" id="C9W-AE-NB9"/>
+                            <action selector="closeConfigCancel:" target="-2" id="3ST-qa-J46"/>
                         </connections>
                     </button>
                     <button fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="2Vl-6h-B2h">
@@ -99,7 +101,7 @@ Gw
                             <font key="font" metaFont="system"/>
                         </buttonCell>
                         <connections>
-                            <action selector="pressCheckbox1:" target="-2" id="CC2-rN-x70"/>
+                            <action selector="pressCheckboxSetFpsManual:" target="-2" id="9QN-mN-Nn7"/>
                         </connections>
                     </button>
                     <slider verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="GKf-lt-8W8">
@@ -107,7 +109,7 @@ Gw
                         <animations/>
                         <sliderCell key="cell" enabled="NO" alignment="left" minValue="1" maxValue="30" doubleValue="15" tickMarkPosition="below" numberOfTickMarks="30" allowsTickMarkValuesOnly="YES" sliderType="linear" id="ATX-YZ-Fff"/>
                         <connections>
-                            <action selector="selectSlider1:" target="-2" id="cbY-ll-2iX"/>
+                            <action selector="selectSliderFpsManual:" target="-2" id="wW5-cA-Kvt"/>
                         </connections>
                     </slider>
                     <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="w1s-RE-AeI">
@@ -224,6 +226,33 @@ Gw
                             <action selector="navigateSegmentButton:" target="-2" id="bCA-Fa-VYE"/>
                         </connections>
                     </segmentedControl>
+                    <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="qCV-jK-6LQ">
+                        <rect key="frame" x="426" y="244" width="38" height="17"/>
+                        <animations/>
+                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="fps)" id="9tk-h1-X4j">
+                            <font key="font" metaFont="system"/>
+                            <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
+                            <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                        </textFieldCell>
+                    </textField>
+                    <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="mjS-aM-rjj">
+                        <rect key="frame" x="386" y="244" width="42" height="17"/>
+                        <animations/>
+                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="center" title="0.0" id="8nB-VS-pdn">
+                            <font key="font" metaFont="system"/>
+                            <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
+                            <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                        </textFieldCell>
+                    </textField>
+                    <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Tq9-SN-Ueu">
+                        <rect key="frame" x="273" y="244" width="109" height="17"/>
+                        <animations/>
+                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="(value from GIF =" id="j4e-Y9-nD4">
+                            <font key="font" metaFont="system"/>
+                            <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
+                            <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                        </textFieldCell>
+                    </textField>
                 </subviews>
                 <animations/>
             </view>
