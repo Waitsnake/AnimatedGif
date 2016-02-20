@@ -1,21 +1,20 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="6751" systemVersion="15D21" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" customObjectInstantitationMethod="direct">
     <dependencies>
-        <deployment identifier="macosx"/>
         <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="6751"/>
     </dependencies>
     <objects>
         <customObject id="-2" userLabel="File's Owner" customClass="AnimatedGifView">
             <connections>
-                <outlet property="checkButton1" destination="2Vl-6h-B2h" id="wFx-cP-qsd"/>
-                <outlet property="checkButton2" destination="kHm-iW-jBX" id="Eqb-3j-yVz"/>
-                <outlet property="colorWell1" destination="bxi-1B-SU5" id="Z7a-Km-nnj"/>
-                <outlet property="label1" destination="rLV-9G-B0l" id="Fo5-Vr-nj9"/>
+                <outlet property="checkButtonLoadIntoMem" destination="kHm-iW-jBX" id="1PD-q6-RWL"/>
+                <outlet property="checkButtonSetFpsManual" destination="2Vl-6h-B2h" id="gRb-ac-gPq"/>
+                <outlet property="colorWellBackgrColor" destination="bxi-1B-SU5" id="usi-GV-sXp"/>
+                <outlet property="labelFpsManual" destination="rLV-9G-B0l" id="ong-si-NEu"/>
                 <outlet property="optionsPanel" destination="QvC-M9-y7g" id="S9j-MZ-x3G"/>
-                <outlet property="popupButton1" destination="Cmf-ro-Be5" id="qAr-dS-USP"/>
-                <outlet property="segmentButton1" destination="3xC-QT-NED" id="AlZ-Xp-0qc"/>
-                <outlet property="slider1" destination="GKf-lt-8W8" id="nUf-xn-xOt"/>
-                <outlet property="textField1" destination="n2R-8Q-rKI" id="7Yf-Cs-LwI"/>
+                <outlet property="popupButtonViewOptions" destination="Cmf-ro-Be5" id="ivH-C7-la8"/>
+                <outlet property="segmentButtonLaunchAgent" destination="3xC-QT-NED" id="o8N-nQ-m5L"/>
+                <outlet property="sliderFpsManual" destination="GKf-lt-8W8" id="mrp-yB-xeS"/>
+                <outlet property="textFieldFileUrl" destination="n2R-8Q-rKI" id="4LH-JE-wZQ"/>
             </connections>
         </customObject>
         <customObject id="-1" userLabel="First Responder" customClass="FirstResponder"/>
