@@ -38,6 +38,7 @@
 @property (assign) IBOutlet NSButton *checkButtonLoadIntoMem;
 @property (assign) IBOutlet NSColorWell *colorWellBackgrColor;
 @property (assign) IBOutlet NSTextField *labelFpsManual;
+@property (assign) IBOutlet NSTextField *labelFpsGif;
 @property (assign) IBOutlet NSSegmentedControl *segmentButtonLaunchAgent;
 @property (assign) IBOutlet NSPopUpButton *popupButtonViewOptions;
 

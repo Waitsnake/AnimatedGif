@@ -385,6 +385,22 @@
         viewOpt = 0;
     }
     
+    // set file fps in GUI
+    CGImageSourceRef source = CGImageSourceCreateWithURL ( (__bridge CFURLRef) [NSURL URLWithString:gifFileName], NULL);
+    if (source)
+    {
+        NSDictionary *properties = (__bridge_transfer NSDictionary *)CGImageSourceCopyPropertiesAtIndex(source, 0, nil);
+        float duration = [[[properties objectForKey:(__bridge NSString *)kCGImagePropertyGIFDictionary]
+                       objectForKey:(__bridge NSString *) kCGImagePropertyGIFUnclampedDelayTime] doubleValue];
+        float fps = 1/duration;
+        
+        [self.labelFpsGif setStringValue:[NSString stringWithFormat:@"%2.1f", fps]];
+    }
+    else
+    {
+        [self.labelFpsGif setStringValue:@"0.0"];
+    }
+    
     
     // set the visable value in dialog to the last saved value
     [self.textFieldFileUrl setStringValue:gifFileName];
@@ -432,7 +448,7 @@
 }
 
 
-- (IBAction)closeConfigPos:(id)sender {
+- (IBAction)closeConfigOk:(id)sender {
     // read values from GUI elements
     float frameRate = [self.sliderFpsManual floatValue];
     NSString *gifFileName = [self.textFieldFileUrl stringValue];
@@ -464,13 +480,13 @@
     [[NSApplication sharedApplication] endSheet:self.optionsPanel];
 }
 
-- (IBAction)closeConfigNeg:(id)sender {
+- (IBAction)closeConfigCancel:(id)sender {
     // close color dialog and options dialog
     [[NSColorPanel sharedColorPanel] close];
     [[NSApplication sharedApplication] endSheet:self.optionsPanel];
 }
 
-- (IBAction)pressCheckbox1:(id)sender {
+- (IBAction)pressCheckboxSetFpsManual:(id)sender {
     // enable or disable slider depending on checkbox
     BOOL frameRateManual = self.checkButtonSetFpsManual.state;
     if (frameRateManual)
@@ -483,7 +499,7 @@
     }
 }
 
-- (IBAction)selectSlider1:(id)sender {
+- (IBAction)selectSliderFpsManual:(id)sender {
     // update label with actual selected value of slider
     [self.labelFpsManual setStringValue:[self.sliderFpsManual stringValue]];
 }
@@ -517,6 +533,22 @@
         
         // set GUI element with selected URL
         [self.textFieldFileUrl setStringValue:[files objectAtIndex:0]];
+        
+        // update file fps in GUI
+        CGImageSourceRef source = CGImageSourceCreateWithURL ( (__bridge CFURLRef) [NSURL URLWithString:[self.textFieldFileUrl stringValue]], NULL);
+        if (source)
+        {
+            NSDictionary *properties = (__bridge_transfer NSDictionary *)CGImageSourceCopyPropertiesAtIndex(source, 0, nil);
+            float duration = [[[properties objectForKey:(__bridge NSString *)kCGImagePropertyGIFDictionary]
+                               objectForKey:(__bridge NSString *) kCGImagePropertyGIFUnclampedDelayTime] doubleValue];
+            float fps = 1/duration;
+            
+            [self.labelFpsGif setStringValue:[NSString stringWithFormat:@"%2.1f", fps]];
+        }
+        else
+        {
+            [self.labelFpsGif setStringValue:@"0.0"];
+        }
         
     }
     
