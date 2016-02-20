@@ -387,25 +387,25 @@
     
     
     // set the visable value in dialog to the last saved value
-    [self.textField1 setStringValue:gifFileName];
-    [self.slider1 setDoubleValue:frameRate];
-    [self.checkButton1 setState:frameRateManual];
-    [self.checkButton2 setState:loadAniToMem];
-    [self.popupButton1 selectItemWithTag:viewOpt];
-    [self.slider1 setEnabled:frameRateManual];
-    [self.label1 setStringValue:[self.slider1 stringValue]];
-    [self.colorWell1 setColor:[NSColor colorWithRed:bgrRed green:bgrGreen blue:bgrBlue alpha:1.0]];
+    [self.textFieldFileUrl setStringValue:gifFileName];
+    [self.sliderFpsManual setDoubleValue:frameRate];
+    [self.checkButtonSetFpsManual setState:frameRateManual];
+    [self.checkButtonLoadIntoMem setState:loadAniToMem];
+    [self.popupButtonViewOptions selectItemWithTag:viewOpt];
+    [self.sliderFpsManual setEnabled:frameRateManual];
+    [self.labelFpsManual setStringValue:[self.sliderFpsManual stringValue]];
+    [self.colorWellBackgrColor setColor:[NSColor colorWithRed:bgrRed green:bgrGreen blue:bgrBlue alpha:1.0]];
     
     // set sement button depending if the launchagent is active or not
     NSString *userLaunchAgentsPath = [[NSString alloc] initWithFormat:@"%@%@%@", @"/Users/", NSUserName(), @"/Library/LaunchAgents/com.stino.animatedgif.plist"];
     BOOL launchAgentFileExists = [[NSFileManager defaultManager] fileExistsAtPath:userLaunchAgentsPath];
     if (launchAgentFileExists == YES)
     {
-        self.segmentButton1.selectedSegment = LOAD_BTN;
+        self.segmentButtonLaunchAgent.selectedSegment = LOAD_BTN;
     }
     else
     {
-        self.segmentButton1.selectedSegment = UNLOAD_BTN;
+        self.segmentButtonLaunchAgent.selectedSegment = UNLOAD_BTN;
     }
     
     // return the new created options dialog
@@ -434,12 +434,12 @@
 
 - (IBAction)closeConfigPos:(id)sender {
     // read values from GUI elements
-    float frameRate = [self.slider1 floatValue];
-    NSString *gifFileName = [self.textField1 stringValue];
-    BOOL frameRateManual = self.checkButton1.state;
-    BOOL loadAniToMem = self.checkButton2.state;
-    NSInteger viewOpt = self.popupButton1.selectedTag;
-    NSColor *colorPicked = self.colorWell1.color;
+    float frameRate = [self.sliderFpsManual floatValue];
+    NSString *gifFileName = [self.textFieldFileUrl stringValue];
+    BOOL frameRateManual = self.checkButtonSetFpsManual.state;
+    BOOL loadAniToMem = self.checkButtonLoadIntoMem.state;
+    NSInteger viewOpt = self.popupButtonViewOptions.selectedTag;
+    NSColor *colorPicked = self.colorWellBackgrColor.color;
     
     // write values back to screensver defaults
     ScreenSaverDefaults *defaults = [ScreenSaverDefaults defaultsForModuleWithName:[[NSBundle bundleForClass: [self class]] bundleIdentifier]];
@@ -472,20 +472,20 @@
 
 - (IBAction)pressCheckbox1:(id)sender {
     // enable or disable slider depending on checkbox
-    BOOL frameRateManual = self.checkButton1.state;
+    BOOL frameRateManual = self.checkButtonSetFpsManual.state;
     if (frameRateManual)
     {
-        [self.slider1 setEnabled:YES];
+        [self.sliderFpsManual setEnabled:YES];
     }
     else
     {
-        [self.slider1 setEnabled:NO];
+        [self.sliderFpsManual setEnabled:NO];
     }
 }
 
 - (IBAction)selectSlider1:(id)sender {
     // update label with actual selected value of slider
-    [self.label1 setStringValue:[self.slider1 stringValue]];
+    [self.labelFpsManual setStringValue:[self.sliderFpsManual stringValue]];
 }
 
 - (IBAction)sendFileButtonAction:(id)sender{
@@ -502,7 +502,7 @@
     [openDlg setAllowsMultipleSelection:NO];
 
     // set dialog to last selected file
-    [openDlg setDirectoryURL:[NSURL URLWithString:[self.textField1 stringValue]]];
+    [openDlg setDirectoryURL:[NSURL URLWithString:[self.textFieldFileUrl stringValue]]];
     
     // try to 'focus' only on GIF files (Yes, I know all image types are working with NSImage)
     [openDlg setAllowedFileTypes:[[NSArray alloc] initWithObjects:@"gif", @"GIF", nil]];
@@ -516,7 +516,7 @@
         NSArray* files = [openDlg URLs];
         
         // set GUI element with selected URL
-        [self.textField1 setStringValue:[files objectAtIndex:0]];
+        [self.textFieldFileUrl setStringValue:[files objectAtIndex:0]];
         
     }
     

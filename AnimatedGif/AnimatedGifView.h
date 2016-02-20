@@ -32,13 +32,13 @@
 
 @property (nonatomic, retain) NSOpenGLView* glView;
 @property (assign) IBOutlet NSPanel *optionsPanel;
-@property (assign) IBOutlet NSTextField *textField1;
-@property (assign) IBOutlet NSSlider *slider1;
-@property (assign) IBOutlet NSButton *checkButton1;
-@property (assign) IBOutlet NSButton *checkButton2;
-@property (assign) IBOutlet NSColorWell *colorWell1;
-@property (assign) IBOutlet NSTextField *label1;
-@property (assign) IBOutlet NSSegmentedControl *segmentButton1;
-@property (assign) IBOutlet NSPopUpButton *popupButton1;
+@property (assign) IBOutlet NSTextField *textFieldFileUrl;
+@property (assign) IBOutlet NSSlider *sliderFpsManual;
+@property (assign) IBOutlet NSButton *checkButtonSetFpsManual;
+@property (assign) IBOutlet NSButton *checkButtonLoadIntoMem;
+@property (assign) IBOutlet NSColorWell *colorWellBackgrColor;
+@property (assign) IBOutlet NSTextField *labelFpsManual;
+@property (assign) IBOutlet NSSegmentedControl *segmentButtonLaunchAgent;
+@property (assign) IBOutlet NSPopUpButton *popupButtonViewOptions;
 
 @end
