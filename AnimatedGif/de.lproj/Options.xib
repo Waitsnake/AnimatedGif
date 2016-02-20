@@ -29,80 +29,45 @@
                 <rect key="frame" x="0.0" y="0.0" width="485" height="373"/>
                 <autoresizingMask key="autoresizingMask"/>
                 <subviews>
-                    <popUpButton verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Cmf-ro-Be5">
-                        <rect key="frame" x="113" y="329" width="222" height="26"/>
-                        <animations/>
-                        <popUpButtonCell key="cell" type="push" title="strech with keep image ratio" bezelStyle="rounded" alignment="left" lineBreakMode="truncatingTail" state="on" borderStyle="borderAndBezel" imageScaling="proportionallyDown" inset="2" selectedItem="5ie-tK-3yY" id="lpg-CF-VQ3">
-                            <behavior key="behavior" lightByBackground="YES" lightByGray="YES"/>
-                            <font key="font" metaFont="menu"/>
-                            <menu key="menu" id="HIs-ti-7q1">
-                                <items>
-                                    <menuItem title="strech with keep image ratio" state="on" id="5ie-tK-3yY">
-                                        <modifierMask key="keyEquivalentModifierMask"/>
-                                    </menuItem>
-                                    <menuItem title="strech maximal to screen" tag="1" id="iVp-Ep-OYA">
-                                        <modifierMask key="keyEquivalentModifierMask"/>
-                                    </menuItem>
-                                    <menuItem title="keep image original size" tag="2" id="nXD-VJ-W6I">
-                                        <modifierMask key="keyEquivalentModifierMask"/>
-                                    </menuItem>
-                                </items>
-                            </menu>
-                        </popUpButtonCell>
-                    </popUpButton>
                     <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="fXD-SA-3et">
-                        <rect key="frame" x="20" y="334" width="89" height="17"/>
+                        <rect key="frame" x="20" y="334" width="110" height="17"/>
                         <animations/>
-                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="View options:" id="vEo-Jt-50P">
+                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Anzeigeoptionen:" id="vEo-Jt-50P">
                             <font key="font" metaFont="system"/>
                             <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
                             <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                         </textFieldCell>
                     </textField>
                     <button fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="kHm-iW-jBX">
-                        <rect key="frame" x="18" y="302" width="357" height="18"/>
+                        <rect key="frame" x="18" y="302" width="383" height="18"/>
                         <animations/>
-                        <buttonCell key="cell" type="check" title="load animation at start into memory (saves CPU time)" bezelStyle="regularSquare" imagePosition="left" inset="2" id="F13-fV-gKv">
+                        <buttonCell key="cell" type="check" title="Lade Animation beim Start in den Speicher (spart CPU Zeit)" bezelStyle="regularSquare" imagePosition="left" inset="2" id="F13-fV-gKv">
                             <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                             <font key="font" metaFont="system"/>
                         </buttonCell>
                     </button>
-                    <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="oV9-Yk-r4r">
-                        <rect key="frame" x="389" y="13" width="82" height="32"/>
-                        <animations/>
-                        <buttonCell key="cell" type="push" title="OK" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="cbc-xy-mRP">
-                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
-                            <font key="font" metaFont="system"/>
-                            <string key="keyEquivalent" base64-UTF8="YES">
-DQ
-</string>
-                        </buttonCell>
-                        <connections>
-                            <action selector="closeConfigPos:" target="-2" id="ZgF-GZ-Ytd"/>
-                        </connections>
-                    </button>
                     <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="RVF-wA-M8z">
-                        <rect key="frame" x="18" y="91" width="143" height="17"/>
+                        <rect key="frame" x="18" y="91" width="182" height="17"/>
                         <animations/>
-                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Path to animated GIF:" id="n5q-02-QNa">
+                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Dateipfad zum Animirten GIF:" id="n5q-02-QNa">
                             <font key="font" metaFont="system"/>
                             <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
                             <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                         </textFieldCell>
                     </textField>
                     <textField verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="n2R-8Q-rKI">
-                        <rect key="frame" x="20" y="61" width="346" height="22"/>
+                        <rect key="frame" x="20" y="61" width="331" height="22"/>
                         <animations/>
-                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" alignment="left" title="file:///please/select/an/gif/animation.gif" drawsBackground="YES" id="Pkm-gg-pTx">
+                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" alignment="left" title="file:///bitte/wähle/eine/gif/animation.gif" drawsBackground="YES" id="Pkm-gg-pTx">
                             <font key="font" metaFont="system"/>
                             <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
                             <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                         </textFieldCell>
                     </textField>
                     <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="oeR-fn-jbT">
-                        <rect key="frame" x="14" y="13" width="103" height="32"/>
+                        <rect key="frame" x="14" y="13" width="107" height="32"/>
                         <animations/>
-                        <buttonCell key="cell" type="push" title="Cancel" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="xFM-F3-Tnm">
+                        <buttonCell key="cell" type="push" title="Abbrechen" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="xFM-F3-Tnm">
                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                             <font key="font" metaFont="system"/>
                             <string key="keyEquivalent" base64-UTF8="YES">
@@ -114,9 +79,9 @@ Gw
                         </connections>
                     </button>
                     <button fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="2Vl-6h-B2h">
-                        <rect key="frame" x="18" y="272" width="410" height="18"/>
+                        <rect key="frame" x="18" y="272" width="439" height="18"/>
                         <animations/>
-                        <buttonCell key="cell" type="check" title="Set frame rate manual (otherwise frame rate from GIF is used)" bezelStyle="regularSquare" imagePosition="left" alignment="left" inset="2" id="7lC-sW-T7r">
+                        <buttonCell key="cell" type="check" title="Setze Framerate manuell (ansonten wird die aus dem GIF verwendet)" bezelStyle="regularSquare" imagePosition="left" alignment="left" inset="2" id="7lC-sW-T7r">
                             <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                             <font key="font" metaFont="system"/>
                         </buttonCell>
@@ -133,9 +98,9 @@ Gw
                         </connections>
                     </slider>
                     <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="w1s-RE-AeI">
-                        <rect key="frame" x="18" y="244" width="127" height="17"/>
+                        <rect key="frame" x="18" y="244" width="133" height="17"/>
                         <animations/>
-                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Frames per second:" id="E2z-Kq-20H">
+                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Frames pro Sekunde:" id="E2z-Kq-20H">
                             <font key="font" metaFont="system"/>
                             <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
                             <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
@@ -176,7 +141,7 @@ Gw
                     <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="yfb-kL-Hbi">
                         <rect key="frame" x="18" y="157" width="119" height="17"/>
                         <animations/>
-                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Background color:" id="rci-LG-s3A">
+                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Hintergrundfarbe:" id="rci-LG-s3A">
                             <font key="font" metaFont="system"/>
                             <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
                             <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
@@ -192,9 +157,9 @@ Gw
                         </textFieldCell>
                     </textField>
                     <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="wPm-LD-3ir">
-                        <rect key="frame" x="368" y="55" width="103" height="32"/>
+                        <rect key="frame" x="353" y="55" width="118" height="32"/>
                         <animations/>
-                        <buttonCell key="cell" type="push" title="Select File" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="5Ro-dF-RHD">
+                        <buttonCell key="cell" type="push" title="Datei wählen" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="5Ro-dF-RHD">
                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                             <font key="font" metaFont="system"/>
                         </buttonCell>
@@ -203,28 +168,63 @@ Gw
                         </connections>
                     </button>
                     <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Kd9-dR-ges">
-                        <rect key="frame" x="18" y="122" width="299" height="17"/>
+                        <rect key="frame" x="18" y="122" width="305" height="17"/>
                         <animations/>
-                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Run screensaver in background (launch agent):" id="dxI-if-SV8">
+                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Bildschirmschoner als Hintergrund(launch agent):" id="dxI-if-SV8">
                             <font key="font" metaFont="system"/>
                             <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
                             <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                         </textFieldCell>
                     </textField>
                     <segmentedControl verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="3xC-QT-NED">
-                        <rect key="frame" x="327" y="118" width="137" height="24"/>
+                        <rect key="frame" x="326" y="118" width="141" height="24"/>
                         <animations/>
                         <segmentedCell key="cell" borderStyle="border" alignment="left" style="rounded" trackingMode="selectOne" id="5DN-LS-Kqw">
                             <font key="font" metaFont="system"/>
                             <segments>
-                                <segment label="load" width="65"/>
-                                <segment label="unload" width="65" selected="YES" tag="1"/>
+                                <segment label="starten"/>
+                                <segment label="stoppen" selected="YES" tag="1"/>
                             </segments>
                         </segmentedCell>
                         <connections>
                             <action selector="navigateSegmentButton:" target="-2" id="bCA-Fa-VYE"/>
                         </connections>
                     </segmentedControl>
+                    <popUpButton verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Cmf-ro-Be5">
+                        <rect key="frame" x="163" y="329" width="305" height="26"/>
+                        <animations/>
+                        <popUpButtonCell key="cell" type="push" title="strecke und erhalte Bildproportionen" bezelStyle="rounded" alignment="left" lineBreakMode="truncatingTail" state="on" borderStyle="borderAndBezel" imageScaling="proportionallyDown" inset="2" selectedItem="5ie-tK-3yY" id="lpg-CF-VQ3">
+                            <behavior key="behavior" lightByBackground="YES" lightByGray="YES"/>
+                            <font key="font" metaFont="menu"/>
+                            <menu key="menu" id="HIs-ti-7q1">
+                                <items>
+                                    <menuItem title="strecke und erhalte Bildproportionen" state="on" id="5ie-tK-3yY">
+                                        <modifierMask key="keyEquivalentModifierMask"/>
+                                    </menuItem>
+                                    <menuItem title="maximal an Bildschirm anpassen" tag="1" id="iVp-Ep-OYA">
+                                        <modifierMask key="keyEquivalentModifierMask"/>
+                                    </menuItem>
+                                    <menuItem title="originale Bildgröße erhalten" tag="2" id="nXD-VJ-W6I">
+                                        <modifierMask key="keyEquivalentModifierMask"/>
+                                    </menuItem>
+                                </items>
+                            </menu>
+                        </popUpButtonCell>
+                    </popUpButton>
+                    <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="oV9-Yk-r4r">
+                        <rect key="frame" x="352" y="13" width="119" height="32"/>
+                        <animations/>
+                        <buttonCell key="cell" type="push" title="Übernehmen" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="cbc-xy-mRP">
+                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                            <font key="font" metaFont="system"/>
+                            <string key="keyEquivalent" base64-UTF8="YES">
+DQ
+</string>
+                        </buttonCell>
+                        <connections>
+                            <action selector="closeConfigPos:" target="-2" id="ZgF-GZ-Ytd"/>
+                        </connections>
+                    </button>
                 </subviews>
                 <animations/>
             </view>

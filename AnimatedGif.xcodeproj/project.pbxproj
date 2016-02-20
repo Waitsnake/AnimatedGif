@@ -9,15 +9,17 @@
 /* Begin PBXBuildFile section */
 		CC24BA9B1BF124350045BDC7 /* AnimatedGifView.h in Headers */ = {isa = PBXBuildFile; fileRef = CC24BA9A1BF124350045BDC7 /* AnimatedGifView.h */; };
 		CC24BA9D1BF124350045BDC7 /* AnimatedGifView.m in Sources */ = {isa = PBXBuildFile; fileRef = CC24BA9C1BF124350045BDC7 /* AnimatedGifView.m */; };
-		CCFAED3F1BF1772C00CB8C3C /* Options.xib in Resources */ = {isa = PBXBuildFile; fileRef = CCFAED3E1BF1772C00CB8C3C /* Options.xib */; };
+		CCC3B9991C788F8E00FBE423 /* Options.xib in Resources */ = {isa = PBXBuildFile; fileRef = CCC3B99B1C788F8E00FBE423 /* Options.xib */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		CC1073C41C78947900AC5F63 /* es */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = es; path = es.lproj/Options.xib; sourceTree = "<group>"; };
 		CC24BA951BF124350045BDC7 /* AnimatedGif.saver */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = AnimatedGif.saver; sourceTree = BUILT_PRODUCTS_DIR; };
 		CC24BA991BF124350045BDC7 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		CC24BA9A1BF124350045BDC7 /* AnimatedGifView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AnimatedGifView.h; sourceTree = "<group>"; };
 		CC24BA9C1BF124350045BDC7 /* AnimatedGifView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AnimatedGifView.m; sourceTree = "<group>"; };
-		CCFAED3E1BF1772C00CB8C3C /* Options.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = Options.xib; sourceTree = "<group>"; };
+		CCC3B99A1C788F8E00FBE423 /* en */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = en; path = en.lproj/Options.xib; sourceTree = "<group>"; };
+		CCC3B99C1C788F9800FBE423 /* de */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = de; path = de.lproj/Options.xib; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -53,7 +55,7 @@
 				CC24BA9A1BF124350045BDC7 /* AnimatedGifView.h */,
 				CC24BA9C1BF124350045BDC7 /* AnimatedGifView.m */,
 				CC24BA981BF124350045BDC7 /* Supporting Files */,
-				CCFAED3E1BF1772C00CB8C3C /* Options.xib */,
+				CCC3B99B1C788F8E00FBE423 /* Options.xib */,
 			);
 			path = AnimatedGif;
 			sourceTree = "<group>";
@@ -118,6 +120,8 @@
 			hasScannedForEncodings = 0;
 			knownRegions = (
 				en,
+				de,
+				es,
 			);
 			mainGroup = CC24BA8B1BF124350045BDC7;
 			productRefGroup = CC24BA961BF124350045BDC7 /* Products */;
@@ -134,7 +138,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				CCFAED3F1BF1772C00CB8C3C /* Options.xib in Resources */,
+				CCC3B9991C788F8E00FBE423 /* Options.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -150,6 +154,19 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXVariantGroup section */
+		CCC3B99B1C788F8E00FBE423 /* Options.xib */ = {
+			isa = PBXVariantGroup;
+			children = (
+				CCC3B99A1C788F8E00FBE423 /* en */,
+				CCC3B99C1C788F9800FBE423 /* de */,
+				CC1073C41C78947900AC5F63 /* es */,
+			);
+			name = Options.xib;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
 		CC24BA9E1BF124350045BDC7 /* Debug */ = {
