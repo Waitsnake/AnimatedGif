@@ -9,6 +9,26 @@
 #import <ScreenSaver/ScreenSaver.h>
 #import <GLUT/GLUT.h>
 
+
+#define LOAD_BTN                    0
+#define UNLOAD_BTN                  1
+
+#define VIEW_OPT_STREACH_OPTIMAL    0
+#define VIEW_OPT_STREACH_MAXIMAL    1
+#define VIEW_OPT_KEEP_ORIG_SIZE     2
+#define MAX_VIEW_OPT                2
+
+#define SYNC_TO_VERTICAL            1
+#define DONT_SYNC                   0
+
+#define FRAME_COUNT_NOT_USED        -1
+#define FIRST_FRAME                 0
+
+#define DEFAULT_ANIME_TIME_INTER    1/15.0
+#define GL_ALPHA_OPAQUE             1.0f
+#define NS_ALPHA_OPAQUE             1.0
+
+
 @interface AnimatedGifView : ScreenSaverView {
     // keep track of whether or not drawRect: should erase the background
     NSMutableArray *animationImages;

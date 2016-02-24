@@ -8,14 +8,11 @@
 
 #import "AnimatedGifView.h"
 
-#define LOAD_BTN    0
-#define UNLOAD_BTN  1
-
 @implementation AnimatedGifView
 
 - (instancetype)initWithFrame:(NSRect)frame isPreview:(BOOL)isPreview
 {
-    currFrameCount = -1;
+    currFrameCount = FRAME_COUNT_NOT_USED;
     self = [super initWithFrame:frame isPreview:isPreview];
     
     // initalize screensaver defaults with an default value
@@ -25,7 +22,7 @@
     
     if (self) {
         self.glView = [self createGLView];
-        [self setAnimationTimeInterval:1/15.0];
+        [self setAnimationTimeInterval:DEFAULT_ANIME_TIME_INTER];
     }
     
     return self;
@@ -40,8 +37,7 @@
     NSOpenGLPixelFormat* format = [[NSOpenGLPixelFormat alloc] initWithAttributes:attribs];
     NSOpenGLView* glview = [[NSOpenGLView alloc] initWithFrame:NSZeroRect pixelFormat:format];
     
-    GLint swapInterval = 1; // request synchronization
-    //GLint swapInterval = 0; // disable synchronization
+    GLint swapInterval = SYNC_TO_VERTICAL;
     [[glview openGLContext] setValues:&swapInterval forParameter: NSOpenGLCPSwapInterval];
     
     return glview;
@@ -81,10 +77,10 @@
     img = [[NSImage alloc] initWithContentsOfURL:[NSURL URLWithString:gifFileName]];
     if (img)
     {
-        gifRep = [[img representations] objectAtIndex:0];
-        [gifRep setProperty:NSImageLoopCount withValue:@(0)]; //infinite loop
+        gifRep = [[img representations] objectAtIndex:FIRST_FRAME];
+        //[gifRep setProperty:NSImageLoopCount withValue:@(0)]; //infinite loop
         maxFrameCount = [[gifRep valueForProperty: NSImageFrameCount] integerValue];
-        currFrameCount = 0;
+        currFrameCount = FIRST_FRAME;
         
         if(frameRateManual)
         {
@@ -138,7 +134,7 @@
     }
     else
     {
-        currFrameCount = -1;
+        currFrameCount = FRAME_COUNT_NOT_USED;
     }
 }
 
@@ -155,7 +151,7 @@
         /*clean all precalulated bitmap images*/
         [animationImages removeAllObjects];
     }
-    currFrameCount = -1;
+    currFrameCount = FRAME_COUNT_NOT_USED;
 }
 
 - (BOOL)isOpaque {
@@ -171,7 +167,7 @@
     float screenRatio = [self pictureRatioFromWidth:screenRect.size.width andHeight:screenRect.size.height];
     float imgRatio = [self pictureRatioFromWidth:img.size.width andHeight:img.size.height];
     
-    if (viewOption==0)
+    if (viewOption==VIEW_OPT_STREACH_OPTIMAL)
     {
         // try to fit image optimal to screen
         if (imgRatio >= screenRatio)
@@ -185,11 +181,11 @@
             target.origin.x = (screenRect.size.width - target.size.width)/2;
         }
     }
-    else if (viewOption==1)
+    else if (viewOption==VIEW_OPT_STREACH_MAXIMAL)
     {
         target = screenRect;
     }
-    else if (viewOption==2)
+    else if (viewOption==VIEW_OPT_KEEP_ORIG_SIZE)
     {
         target.size.height = img.size.height;
         target.size.width = img.size.width;
@@ -198,6 +194,7 @@
     }
     else
     {
+        /*default is VIEW_OPT_KEEP_ORIG_SIZE*/
         // in case option in defaults file was too large we set it to last valid value
         target.size.height = img.size.height;
         target.size.width = img.size.width;
@@ -205,19 +202,19 @@
         target.origin.x = (screenRect.size.width - img.size.width)/2;
     }
     
-    if (currFrameCount == -1)
+    if (currFrameCount == FRAME_COUNT_NOT_USED)
     {
         if ([self isPreview] == TRUE)
         {
             // only clear screen with background color (not OpenGL)
-            [[NSColor colorWithDeviceRed: backgrRed green: backgrGreen blue: backgrBlue alpha: 1.0] set];
+            [[NSColor colorWithDeviceRed: backgrRed green: backgrGreen blue: backgrBlue alpha: NS_ALPHA_OPAQUE] set];
             [NSBezierPath fillRect: screenRect];
         }
         else
         {
             // only clear screen with background color (OpenGL)
             [self.glView.openGLContext makeCurrentContext];
-            glClearColor(backgrRed, backgrGreen, backgrBlue, 1.0f);
+            glClearColor(backgrRed, backgrGreen, backgrBlue, GL_ALPHA_OPAQUE);
             glClear(GL_COLOR_BUFFER_BIT);
             glFlush();
             [self setNeedsDisplay:YES];
@@ -236,7 +233,7 @@
             [gifRep setProperty:NSImageCurrentFrame withValue:@(currFrameCount)];
             
             // than clear screen with background color
-            [[NSColor colorWithDeviceRed: backgrRed green: backgrGreen blue: backgrBlue alpha: 1.0] set];
+            [[NSColor colorWithDeviceRed: backgrRed green: backgrGreen blue: backgrBlue alpha: NS_ALPHA_OPAQUE] set];
             [NSBezierPath fillRect: screenRect];
             
             // now draw frame
@@ -251,7 +248,7 @@
             [self.glView.openGLContext makeCurrentContext];
             
             // first clear screen with background color
-            glClearColor(backgrRed, backgrGreen, backgrBlue, 1.0f);
+            glClearColor(backgrRed, backgrGreen, backgrBlue, GL_ALPHA_OPAQUE);
             glClear(GL_COLOR_BUFFER_BIT);
             
             // Start phase
@@ -352,7 +349,7 @@
         }
         else
         {
-            currFrameCount = 0;
+            currFrameCount = FIRST_FRAME;
         }
     }
     
@@ -380,9 +377,9 @@
     float bgrGreen = [defaults floatForKey:@"BackgrGreen"];
     float bgrBlue = [defaults floatForKey:@"BackgrBlue"];
     NSInteger viewOpt = [defaults integerForKey:@"ViewOpt"];
-    if (viewOpt > 2)
+    if (viewOpt > MAX_VIEW_OPT)
     {
-        viewOpt = 0;
+        viewOpt = VIEW_OPT_STREACH_OPTIMAL;
     }
     
     // set file fps in GUI
@@ -410,7 +407,7 @@
     [self.popupButtonViewOptions selectItemWithTag:viewOpt];
     [self.sliderFpsManual setEnabled:frameRateManual];
     [self.labelFpsManual setStringValue:[self.sliderFpsManual stringValue]];
-    [self.colorWellBackgrColor setColor:[NSColor colorWithRed:bgrRed green:bgrGreen blue:bgrBlue alpha:1.0]];
+    [self.colorWellBackgrColor setColor:[NSColor colorWithRed:bgrRed green:bgrGreen blue:bgrBlue alpha:NS_ALPHA_OPAQUE]];
     
     // set sement button depending if the launchagent is active or not
     NSString *userLaunchAgentsPath = [[NSString alloc] initWithFormat:@"%@%@%@", @"/Users/", NSUserName(), @"/Library/LaunchAgents/com.stino.animatedgif.plist"];
