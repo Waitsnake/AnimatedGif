@@ -78,7 +78,6 @@
     if (img)
     {
         gifRep = [[img representations] objectAtIndex:FIRST_FRAME];
-        //[gifRep setProperty:NSImageLoopCount withValue:@(0)]; //infinite loop
         maxFrameCount = [[gifRep valueForProperty: NSImageFrameCount] integerValue];
         currFrameCount = FIRST_FRAME;
         
@@ -99,10 +98,19 @@
             
             // As workaround for the problem of NSBitmapImageRep class we use CGImageSourceCopyPropertiesAtIndex that allways gives back the real value
             CGImageSourceRef source = CGImageSourceCreateWithURL ( (__bridge CFURLRef) [NSURL URLWithString:gifFileName], NULL);
-            NSDictionary *properties = (__bridge_transfer NSDictionary *)CGImageSourceCopyPropertiesAtIndex(source, 0, nil);
-            float duration = [[[properties objectForKey:(__bridge NSString *)kCGImagePropertyGIFDictionary]
+            if (source)
+            {
+                CFDictionaryRef cfdProperties = CGImageSourceCopyPropertiesAtIndex(source, 0, nil);
+                NSDictionary *properties = CFBridgingRelease(cfdProperties);
+                float duration = [[[properties objectForKey:(__bridge NSString *)kCGImagePropertyGIFDictionary]
                                objectForKey:(__bridge NSString *) kCGImagePropertyGIFUnclampedDelayTime] doubleValue];
-            [self setAnimationTimeInterval:duration];
+                CFRelease(source);
+                [self setAnimationTimeInterval:duration];
+            }
+            else
+            {
+                [self setAnimationTimeInterval:DEFAULT_ANIME_TIME_INTER];
+            }
         }
         
         // add glview to screensaver view in case of not in preview mode
@@ -146,11 +154,14 @@
         // remove glview from screensaver view
         [self removeFromSuperview];
     }
-    if ([self isPreview] == FALSE)
+    if (   ([self isPreview] == FALSE)
+        && (loadAnimationToMem == TRUE))
     {
         /*clean all precalulated bitmap images*/
         [animationImages removeAllObjects];
+        animationImages = nil;
     }
+    img = nil;
     currFrameCount = FRAME_COUNT_NOT_USED;
 }
 
@@ -386,9 +397,11 @@
     CGImageSourceRef source = CGImageSourceCreateWithURL ( (__bridge CFURLRef) [NSURL URLWithString:gifFileName], NULL);
     if (source)
     {
-        NSDictionary *properties = (__bridge_transfer NSDictionary *)CGImageSourceCopyPropertiesAtIndex(source, 0, nil);
+        CFDictionaryRef cfdProperties = CGImageSourceCopyPropertiesAtIndex(source, 0, nil);
+        NSDictionary *properties = CFBridgingRelease(cfdProperties);
         float duration = [[[properties objectForKey:(__bridge NSString *)kCGImagePropertyGIFDictionary]
                        objectForKey:(__bridge NSString *) kCGImagePropertyGIFUnclampedDelayTime] doubleValue];
+        CFRelease(source);
         float fps = 1/duration;
         
         [self.labelFpsGif setStringValue:[NSString stringWithFormat:@"%2.1f", fps]];
@@ -535,9 +548,11 @@
         CGImageSourceRef source = CGImageSourceCreateWithURL ( (__bridge CFURLRef) [NSURL URLWithString:[self.textFieldFileUrl stringValue]], NULL);
         if (source)
         {
-            NSDictionary *properties = (__bridge_transfer NSDictionary *)CGImageSourceCopyPropertiesAtIndex(source, 0, nil);
+            CFDictionaryRef cfdProperties = CGImageSourceCopyPropertiesAtIndex(source, 0, nil);
+            NSDictionary *properties = CFBridgingRelease(cfdProperties);
             float duration = [[[properties objectForKey:(__bridge NSString *)kCGImagePropertyGIFDictionary]
                                objectForKey:(__bridge NSString *) kCGImagePropertyGIFUnclampedDelayTime] doubleValue];
+            CFRelease(source);
             float fps = 1/duration;
             
             [self.labelFpsGif setStringValue:[NSString stringWithFormat:@"%2.1f", fps]];
@@ -562,6 +577,7 @@
     // saves the agent plist file
     NSString *userLaunchAgentsPath = [[NSString alloc] initWithFormat:@"%@%@%@", @"/Users/", NSUserName(), @"/Library/LaunchAgents/com.stino.animatedgif.plist"];
     [plist writeToFile:userLaunchAgentsPath atomically:YES];
+    [plist removeAllObjects];
     
     // start the launch agent
     NSString *cmdstr = [[NSString alloc] initWithFormat:@"launchctl load %@ &", userLaunchAgentsPath];
