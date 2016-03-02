@@ -199,13 +199,16 @@ Gw
                             <font key="font" metaFont="menu"/>
                             <menu key="menu" id="HIs-ti-7q1">
                                 <items>
-                                    <menuItem title="strecke und erhalte Bildproportionen" state="on" id="5ie-tK-3yY">
+                                    <menuItem title="strecke und erhalte Bildproportionen" tag="0" state="on" id="5ie-tK-3yY">
                                         <modifierMask key="keyEquivalentModifierMask"/>
                                     </menuItem>
                                     <menuItem title="maximal an Bildschirm anpassen" tag="1" id="iVp-Ep-OYA">
                                         <modifierMask key="keyEquivalentModifierMask"/>
                                     </menuItem>
                                     <menuItem title="originale Bildgröße erhalten" tag="2" id="nXD-VJ-W6I">
+                                        <modifierMask key="keyEquivalentModifierMask"/>
+                                    </menuItem>
+                                    <menuItem title="strecke auf schmalste Seite" tag="3" id="nXD-VJ-W7I">
                                         <modifierMask key="keyEquivalentModifierMask"/>
                                     </menuItem>
                                 </items>
