@@ -13,10 +13,11 @@
 #define LOAD_BTN                    0
 #define UNLOAD_BTN                  1
 
-#define VIEW_OPT_STREACH_OPTIMAL    0
-#define VIEW_OPT_STREACH_MAXIMAL    1
+#define VIEW_OPT_STRETCH_OPTIMAL    0
+#define VIEW_OPT_STRETCH_MAXIMAL    1
 #define VIEW_OPT_KEEP_ORIG_SIZE     2
-#define MAX_VIEW_OPT                2
+#define VIEW_OPT_STRETCH_SMALL_SIDE 3
+#define MAX_VIEW_OPT                3
 
 #define SYNC_TO_VERTICAL            1
 #define DONT_SYNC                   0

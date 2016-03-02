@@ -178,30 +178,54 @@
     float screenRatio = [self pictureRatioFromWidth:screenRect.size.width andHeight:screenRect.size.height];
     float imgRatio = [self pictureRatioFromWidth:img.size.width andHeight:img.size.height];
     
-    if (viewOption==VIEW_OPT_STREACH_OPTIMAL)
+    if (viewOption==VIEW_OPT_STRETCH_OPTIMAL)
     {
-        // try to fit image optimal to screen
+        // fit image optimal to screen
         if (imgRatio >= screenRatio)
         {
             target.size.height = [self calcHeightFromRatio:imgRatio andWidth:screenRect.size.width];
             target.origin.y = (screenRect.size.height - target.size.height)/2;
+            target.size.width = screenRect.size.width;
+            target.origin.x = screenRect.origin.x;
         }
         else
         {
             target.size.width = [self calcWidthFromRatio:imgRatio andHeight:screenRect.size.height];
             target.origin.x = (screenRect.size.width - target.size.width)/2;
+            target.size.height = screenRect.size.height;
+            target.origin.y = screenRect.origin.y;
         }
     }
-    else if (viewOption==VIEW_OPT_STREACH_MAXIMAL)
+    else if (viewOption==VIEW_OPT_STRETCH_MAXIMAL)
     {
+        // stretch image maximal to screen
         target = screenRect;
     }
     else if (viewOption==VIEW_OPT_KEEP_ORIG_SIZE)
     {
+        // keep original size of image
         target.size.height = img.size.height;
         target.size.width = img.size.width;
         target.origin.y = (screenRect.size.height - img.size.height)/2;
         target.origin.x = (screenRect.size.width - img.size.width)/2;
+    }
+    else if (viewOption==VIEW_OPT_STRETCH_SMALL_SIDE)
+    {
+        // stretch image to smallest side
+        if (imgRatio >= screenRatio)
+        {
+            target.size.height = screenRect.size.height;
+            target.origin.y = screenRect.origin.y;
+            target.size.width = [self calcWidthFromRatio:imgRatio andHeight:screenRect.size.height];
+            target.origin.x = -1*(target.size.width - screenRect.size.width)/2;
+        }
+        else
+        {
+            target.size.width = screenRect.size.width;
+            target.origin.x = screenRect.origin.x;
+            target.size.height = [self calcHeightFromRatio:imgRatio andWidth:screenRect.size.width];
+            target.origin.y = -1*(target.size.height - screenRect.size.height)/2;
+        }
     }
     else
     {
@@ -390,7 +414,7 @@
     NSInteger viewOpt = [defaults integerForKey:@"ViewOpt"];
     if (viewOpt > MAX_VIEW_OPT)
     {
-        viewOpt = VIEW_OPT_STREACH_OPTIMAL;
+        viewOpt = VIEW_OPT_STRETCH_OPTIMAL;
     }
     
     // set file fps in GUI
