@@ -77,7 +77,7 @@
     img = [[NSImage alloc] initWithContentsOfURL:[NSURL URLWithString:gifFileName]];
     if (img)
     {
-        gifRep = [[img representations] objectAtIndex:FIRST_FRAME];
+        gifRep = (NSBitmapImageRep *)[[img representations] objectAtIndex:FIRST_FRAME];
         maxFrameCount = [[gifRep valueForProperty: NSImageFrameCount] integerValue];
         currFrameCount = FIRST_FRAME;
         
