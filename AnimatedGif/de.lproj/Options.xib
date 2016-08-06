@@ -47,7 +47,7 @@
                     </button>
                     <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="RVF-wA-M8z">
                         <rect key="frame" x="18" y="91" width="449" height="17"/>
-                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Dateipfad zum Animirten GIF:" id="n5q-02-QNa">
+                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Dateipfad zum animierten GIF:" id="n5q-02-QNa">
                             <font key="font" metaFont="system"/>
                             <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
                             <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
@@ -76,7 +76,7 @@ Gw
                     </button>
                     <button fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="2Vl-6h-B2h">
                         <rect key="frame" x="18" y="272" width="449" height="18"/>
-                        <buttonCell key="cell" type="check" title="Setze Framerate manuell (ansonten wird die aus dem GIF verwendet)" bezelStyle="regularSquare" imagePosition="left" alignment="left" inset="2" id="7lC-sW-T7r">
+                        <buttonCell key="cell" type="check" title="Setze Framerate manuell (ansonsten wird die aus dem GIF verwendet)" bezelStyle="regularSquare" imagePosition="left" alignment="left" inset="2" id="7lC-sW-T7r">
                             <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                             <font key="font" metaFont="system"/>
                         </buttonCell>
