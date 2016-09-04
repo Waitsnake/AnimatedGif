@@ -594,6 +594,16 @@
     // create the plist agent file
     NSMutableDictionary *plist = [[NSMutableDictionary alloc] init];
     
+    // check if LaunchAgend directory is there or not
+    NSString *userLaunchAgentsDir = [[NSString alloc] initWithFormat:@"%@%@%@", @"/Users/", NSUserName(), @"/Library/LaunchAgents"];
+    BOOL launchAgentDirExists = [[NSFileManager defaultManager] fileExistsAtPath:userLaunchAgentsDir];
+    if (launchAgentDirExists == NO)
+    {
+        // if directory is not there create it
+        [[NSFileManager defaultManager] createDirectoryAtPath:userLaunchAgentsDir withIntermediateDirectories:YES attributes:nil error:nil];
+    }
+    
+    
     // set values here...
     NSDictionary *cfg  = @{@"Label":@"com.stino.animatedgif", @"ProgramArguments":@[@"/System/Library/Frameworks/ScreenSaver.framework/Resources/ScreenSaverEngine.app/Contents/MacOS/ScreenSaverEngine",@"-background"], @"KeepAlive":@{@"OtherJobEnabled":@{@"com.apple.SystemUIServer.agent":@YES,@"com.apple.Finder":@YES,@"com.apple.Dock.agent":@YES}}, @"ThrottleInterval":@0};
     [plist addEntriesFromDictionary:cfg];
