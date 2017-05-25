@@ -12,13 +12,14 @@
 
 - (instancetype)initWithFrame:(NSRect)frame isPreview:(BOOL)isPreview
 {
+    trigByTimer = FALSE;
     currFrameCount = FRAME_COUNT_NOT_USED;
     self = [super initWithFrame:frame isPreview:isPreview];
     
     // initalize screensaver defaults with an default value
     ScreenSaverDefaults *defaults = [ScreenSaverDefaults defaultsForModuleWithName:[[NSBundle bundleForClass: [self class]] bundleIdentifier]];
     [defaults registerDefaults:[NSDictionary dictionaryWithObjectsAndKeys:
-                                 @"file:///please/select/an/gif/animation.gif", @"GifFileName", @"15.0", @"GifFrameRate", @"NO", @"GifFrameRateManual", @"0", @"ViewOpt", @"0.0", @"BackgrRed", @"0.0", @"BackgrGreen", @"0.0", @"BackgrBlue", @"NO", @"LoadAniToMem",nil]];
+                                 @"file:///please/select/an/gif/animation.gif", @"GifFileName", @"15.0", @"GifFrameRate", @"NO", @"GifFrameRateManual", @"0", @"ViewOpt", @"0.0", @"BackgrRed", @"0.0", @"BackgrGreen", @"0.0", @"BackgrBlue", @"NO", @"LoadAniToMem", @"5", @"ChangeInterval",nil]];
     
     if (self) {
         self.glView = [self createGLView];
@@ -57,9 +58,21 @@
 }
 
 
+- (void)timerMethod
+{
+    trigByTimer = TRUE;
+    [self stopAnimation];
+    [self startAnimation];
+    trigByTimer = FALSE;
+}
+
 - (void)startAnimation
 {
-    [super startAnimation];
+    if (trigByTimer == FALSE)
+    {
+        // only call super method in case startAnimation is not called by timerMethod
+        [super startAnimation];
+    }
     
     // get filename from screensaver defaults
     ScreenSaverDefaults *defaults = [ScreenSaverDefaults defaultsForModuleWithName:[[NSBundle bundleForClass: [self class]] bundleIdentifier]];
@@ -71,7 +84,16 @@
     backgrRed = [defaults floatForKey:@"BackgrRed"];
     backgrGreen = [defaults floatForKey:@"BackgrGreen"];
     backgrBlue = [defaults floatForKey:@"BackgrBlue"];
+    NSInteger changeIntervalInSec = [defaults integerForKey:@"ChangeInterval"] * 60;
+    BOOL isADir = [self isDir:gifFileName];
 
+    // check if it is a file or a directory
+    if (isADir)
+    {
+        // select a random file from directory
+        gifFileName = [self getRandomGifFile:gifFileName];
+
+    }
     
     // load GIF image
     img = [[NSImage alloc] initWithContentsOfURL:[NSURL URLWithString:gifFileName]];
@@ -144,16 +166,35 @@
     {
         currFrameCount = FRAME_COUNT_NOT_USED;
     }
+    
+    // check if it is a file or a directory
+    if (isADir)
+    {
+
+        // start a one-time timer at end of startAnimation otherwise the GIF loading times are part of timer
+        [NSTimer scheduledTimerWithTimeInterval:changeIntervalInSec
+                                         target:self
+                                       selector:@selector(timerMethod)
+                                       userInfo:nil
+                                        repeats:NO];
+    }
 }
 
 - (void)stopAnimation
 {
-    [super stopAnimation];
-    if ([self isPreview] == FALSE)
+    if (trigByTimer == FALSE)
     {
-        // remove glview from screensaver view
-        [self removeFromSuperview];
+        // only call super method in case stopAnimation is not called by timerMethod
+        [super stopAnimation];
+
+        // only remove GL view in case stopAnimation is not called by timerMethod
+        if ([self isPreview] == FALSE)
+        {
+            // remove glview from screensaver view
+            [self removeFromSuperview];
+        }
     }
+    
     if (   ([self isPreview] == FALSE)
         && (loadAnimationToMem == TRUE))
     {
@@ -165,7 +206,8 @@
     currFrameCount = FRAME_COUNT_NOT_USED;
 }
 
-- (BOOL)isOpaque {
+- (BOOL)isOpaque
+{
     // this keeps Cocoa from unneccessarily redrawing our superview
     return YES;
 }
@@ -412,27 +454,45 @@
     float bgrGreen = [defaults floatForKey:@"BackgrGreen"];
     float bgrBlue = [defaults floatForKey:@"BackgrBlue"];
     NSInteger viewOpt = [defaults integerForKey:@"ViewOpt"];
+    NSInteger changeInter = [defaults integerForKey:@"ChangeInterval"];
+    
+    // in the rarely case of an invalid value from default file we set an valid option
     if (viewOpt > MAX_VIEW_OPT)
     {
         viewOpt = VIEW_OPT_STRETCH_OPTIMAL;
     }
     
-    // set file fps in GUI
-    CGImageSourceRef source = CGImageSourceCreateWithURL ( (__bridge CFURLRef) [NSURL URLWithString:gifFileName], NULL);
-    if (source)
+    if ([self isDir:gifFileName])
     {
-        CFDictionaryRef cfdProperties = CGImageSourceCopyPropertiesAtIndex(source, 0, nil);
-        NSDictionary *properties = CFBridgingRelease(cfdProperties);
-        float duration = [[[properties objectForKey:(__bridge NSString *)kCGImagePropertyGIFDictionary]
-                       objectForKey:(__bridge NSString *) kCGImagePropertyGIFUnclampedDelayTime] doubleValue];
-        CFRelease(source);
-        float fps = 1/duration;
+        // if we have an directory an fps value for a file makes not much sense
+        // we could calculate it for an randomly selected file but this would make thinks to complex
+        [self.labelFpsGif setStringValue:@"(dir)"];
         
-        [self.labelFpsGif setStringValue:[NSString stringWithFormat:@"%2.1f", fps]];
+        // enable time interval slider only in case that an directory is selected
+        [self.sliderChangeInterval setEnabled:YES];
     }
     else
     {
-        [self.labelFpsGif setStringValue:@"0.0"];
+        // set file fps in GUI
+        CGImageSourceRef source = CGImageSourceCreateWithURL ( (__bridge CFURLRef) [NSURL URLWithString:gifFileName], NULL);
+        if (source)
+        {
+            CFDictionaryRef cfdProperties = CGImageSourceCopyPropertiesAtIndex(source, 0, nil);
+            NSDictionary *properties = CFBridgingRelease(cfdProperties);
+            float duration = [[[properties objectForKey:(__bridge NSString *)kCGImagePropertyGIFDictionary]
+                               objectForKey:(__bridge NSString *) kCGImagePropertyGIFUnclampedDelayTime] doubleValue];
+            CFRelease(source);
+            float fps = 1/duration;
+            
+            [self.labelFpsGif setStringValue:[NSString stringWithFormat:@"%2.1f", fps]];
+        }
+        else
+        {
+            [self.labelFpsGif setStringValue:@"0.0"];
+        }
+        
+        // disable time interval slider in case an file is selected
+        [self.sliderChangeInterval setEnabled:NO];
     }
     
     
@@ -442,6 +502,8 @@
     [self.checkButtonSetFpsManual setState:frameRateManual];
     [self.checkButtonLoadIntoMem setState:loadAniToMem];
     [self.popupButtonViewOptions selectItemWithTag:viewOpt];
+    [self.sliderChangeInterval setIntegerValue:changeInter];
+    [self.labelChangeInterval setStringValue:[self.sliderChangeInterval stringValue]];
     [self.sliderFpsManual setEnabled:frameRateManual];
     [self.labelFpsManual setStringValue:[self.sliderFpsManual stringValue]];
     [self.colorWellBackgrColor setColor:[NSColor colorWithRed:bgrRed green:bgrGreen blue:bgrBlue alpha:NS_ALPHA_OPAQUE]];
@@ -482,7 +544,8 @@
 }
 
 
-- (IBAction)closeConfigOk:(id)sender {
+- (IBAction)closeConfigOk:(id)sender
+{
     // read values from GUI elements
     float frameRate = [self.sliderFpsManual floatValue];
     NSString *gifFileName = [self.textFieldFileUrl stringValue];
@@ -490,6 +553,7 @@
     BOOL loadAniToMem = self.checkButtonLoadIntoMem.state;
     NSInteger viewOpt = self.popupButtonViewOptions.selectedTag;
     NSColor *colorPicked = self.colorWellBackgrColor.color;
+    NSInteger changeInt = [self.sliderChangeInterval integerValue];
     
     // write values back to screensver defaults
     ScreenSaverDefaults *defaults = [ScreenSaverDefaults defaultsForModuleWithName:[[NSBundle bundleForClass: [self class]] bundleIdentifier]];
@@ -501,6 +565,7 @@
     [defaults setFloat:colorPicked.redComponent forKey:@"BackgrRed"];
     [defaults setFloat:colorPicked.greenComponent forKey:@"BackgrGreen"];
     [defaults setFloat:colorPicked.blueComponent forKey:@"BackgrBlue"];
+    [defaults setInteger:changeInt forKey:@"ChangeInterval"];
     [defaults synchronize];
     
     // set new values to object attributes
@@ -514,13 +579,15 @@
     [[NSApplication sharedApplication] endSheet:self.optionsPanel];
 }
 
-- (IBAction)closeConfigCancel:(id)sender {
+- (IBAction)closeConfigCancel:(id)sender
+{
     // close color dialog and options dialog
     [[NSColorPanel sharedColorPanel] close];
     [[NSApplication sharedApplication] endSheet:self.optionsPanel];
 }
 
-- (IBAction)pressCheckboxSetFpsManual:(id)sender {
+- (IBAction)pressCheckboxSetFpsManual:(id)sender
+{
     // enable or disable slider depending on checkbox
     BOOL frameRateManual = self.checkButtonSetFpsManual.state;
     if (frameRateManual)
@@ -533,12 +600,22 @@
     }
 }
 
-- (IBAction)selectSliderFpsManual:(id)sender {
+- (IBAction)selectSliderFpsManual:(id)sender
+{
     // update label with actual selected value of slider
     [self.labelFpsManual setStringValue:[self.sliderFpsManual stringValue]];
 }
 
-- (IBAction)sendFileButtonAction:(id)sender{
+
+- (IBAction)selectSliderChangeInterval:(id)sender
+{
+    // update label with actual selected value of slider
+    [self.labelChangeInterval setStringValue:[self.sliderChangeInterval stringValue]];
+}
+
+
+- (IBAction)sendFileButtonAction:(id)sender
+{
     
     NSOpenPanel* openDlg = [NSOpenPanel openPanel];
     
@@ -546,7 +623,7 @@
     [openDlg setCanChooseFiles:YES];
     
     // Disable the selection of directories in the dialog.
-    [openDlg setCanChooseDirectories:NO];
+    [openDlg setCanChooseDirectories:YES];
     
     // Disable the selection of more than one file
     [openDlg setAllowsMultipleSelection:NO];
@@ -565,32 +642,51 @@
         // files and directories selected.
         NSArray* files = [openDlg URLs];
         
-        // set GUI element with selected URL
-        [self.textFieldFileUrl setStringValue:[files objectAtIndex:0]];
+        NSURL *newSelectedFileOrDir = [files objectAtIndex:0];
         
-        // update file fps in GUI
-        CGImageSourceRef source = CGImageSourceCreateWithURL ( (__bridge CFURLRef) [NSURL URLWithString:[self.textFieldFileUrl stringValue]], NULL);
-        if (source)
+        // set GUI element with selected URL
+        [self.textFieldFileUrl setStringValue:newSelectedFileOrDir.absoluteString];
+        
+        
+        if ([self isDir:newSelectedFileOrDir.absoluteString])
         {
-            CFDictionaryRef cfdProperties = CGImageSourceCopyPropertiesAtIndex(source, 0, nil);
-            NSDictionary *properties = CFBridgingRelease(cfdProperties);
-            float duration = [[[properties objectForKey:(__bridge NSString *)kCGImagePropertyGIFDictionary]
-                               objectForKey:(__bridge NSString *) kCGImagePropertyGIFUnclampedDelayTime] doubleValue];
-            CFRelease(source);
-            float fps = 1/duration;
+            // if we have an directory an fps value for a file makes not much sense
+            // we could calculate it for an randomly selected file but this would make thinks to complex
+            [self.labelFpsGif setStringValue:@"(dir)"];
             
-            [self.labelFpsGif setStringValue:[NSString stringWithFormat:@"%2.1f", fps]];
+            // enable time interval slider only in case that an directory is selected
+            [self.sliderChangeInterval setEnabled:YES];
         }
         else
         {
-            [self.labelFpsGif setStringValue:@"0.0"];
+            // update file fps in GUI
+            CGImageSourceRef source = CGImageSourceCreateWithURL ( (__bridge CFURLRef) [NSURL URLWithString:newSelectedFileOrDir.absoluteString], NULL);
+            if (source)
+            {
+                CFDictionaryRef cfdProperties = CGImageSourceCopyPropertiesAtIndex(source, 0, nil);
+                NSDictionary *properties = CFBridgingRelease(cfdProperties);
+                float duration = [[[properties objectForKey:(__bridge NSString *)kCGImagePropertyGIFDictionary]
+                                   objectForKey:(__bridge NSString *) kCGImagePropertyGIFUnclampedDelayTime] doubleValue];
+                CFRelease(source);
+                float fps = 1/duration;
+                
+                [self.labelFpsGif setStringValue:[NSString stringWithFormat:@"%2.1f", fps]];
+            }
+            else
+            {
+                [self.labelFpsGif setStringValue:@"0.0"];
+            }
+            
+            // disable time interval slider only in case that an file is selected
+            [self.sliderChangeInterval setEnabled:NO];
         }
         
     }
     
 }
 
-- (void)loadAgent {
+- (void)loadAgent
+{
     // create the plist agent file
     NSMutableDictionary *plist = [[NSMutableDictionary alloc] init];
     
@@ -618,7 +714,8 @@
     system([cmdstr cStringUsingEncoding:NSUTF8StringEncoding]);
 }
 
-- (void)unloadAgent {
+- (void)unloadAgent
+{
     // stop the launch agent
     NSString *userLaunchAgentsPath = [[NSString alloc] initWithFormat:@"%@%@%@", @"/Users/", NSUserName(), @"/Library/LaunchAgents/com.stino.animatedgif.plist"];
     NSString *cmdstr = [[NSString alloc] initWithFormat:@"%@%@", @"launchctl unload ", userLaunchAgentsPath];
@@ -628,16 +725,102 @@
     [[NSFileManager defaultManager] removeItemAtPath:userLaunchAgentsPath error:nil];
 }
 
-- (float)pictureRatioFromWidth:(float)iWidth andHeight:(float)iHeight {
+- (float)pictureRatioFromWidth:(float)iWidth andHeight:(float)iHeight
+{
     return iWidth/iHeight;
 }
 
-- (float)calcWidthFromRatio:(float)iRatio andHeight:(float)iHeight {
+- (float)calcWidthFromRatio:(float)iRatio andHeight:(float)iHeight
+{
     return iRatio*iHeight;
 }
 
-- (float)calcHeightFromRatio:(float)iRatio andWidth:(float)iWidth {
+- (float)calcHeightFromRatio:(float)iRatio andWidth:(float)iWidth
+{
     return iWidth/iRatio;
+}
+
+- (BOOL)isDir:(NSString*)fileOrDir
+{
+    BOOL pathExist = FALSE;
+    BOOL isDir = FALSE;
+    
+    // create an NSURL object from the NSString containing an URL
+    NSURL *fileOrDirUrl = [NSURL URLWithString:fileOrDir];
+    
+    // fileExistsAtPath:isDirectory only works with classical Path
+    NSString *fileOrDirPath = [fileOrDirUrl path];
+    
+    // check if user selected an directory or path
+    pathExist = [[NSFileManager defaultManager] fileExistsAtPath:fileOrDirPath isDirectory:&isDir];
+    
+    if (pathExist==TRUE)
+    {
+        // path was found
+        
+        if (isDir==TRUE)
+        {
+            return TRUE;
+        }
+        else
+        {
+            return FALSE;
+        }
+    }
+    else
+    {
+        return FALSE;
+    }
+}
+
+- (NSString *)getRandomGifFile:(NSString*)fileOrDir
+{
+    // check if it is a file or directory
+    BOOL isDir = [self isDir:fileOrDir];
+
+    if (isDir==TRUE)
+    {
+        // we have an directory
+            
+        // an array of all files types and also all sub-directories
+        NSArray *files = [[NSFileManager defaultManager] contentsOfDirectoryAtURL:[NSURL URLWithString:fileOrDir] includingPropertiesForKeys:@[] options:NSDirectoryEnumerationSkipsHiddenFiles error:nil];
+            
+        // create an filter for GIF files
+        NSPredicate *predicate = [NSPredicate predicateWithFormat:@"pathExtension == 'gif'"];
+            
+        // applie filer for GIF files only to an new array
+        NSArray *filesFilter = [files filteredArrayUsingPredicate:predicate];
+
+        if (filesFilter)
+        {
+            // directory includes one or more GIF files
+                
+            // how many GIF files we have found
+            NSInteger numberOfFiles = [filesFilter count];
+                
+            // generate an random number with upper boundery of the number of found GIF files
+            NSInteger randFile = (NSInteger)arc4random_uniform((u_int32_t)numberOfFiles);
+                
+            // return a NSString of with an URL of the randomly selected GIF in the list
+            return [[filesFilter objectAtIndex:randFile] absoluteString];
+        }
+        else
+        {
+            // directory includes not a single GIF
+                
+            // return an empty NSString
+            return @"";
+        }
+        
+    }
+    else
+    {
+        // a file was found
+            
+        // return string as it is
+        return fileOrDir;
+    }
+
 }
 
 @end

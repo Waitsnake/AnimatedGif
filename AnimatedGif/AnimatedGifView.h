@@ -42,6 +42,7 @@
     float backgrGreen;
     float backgrBlue;
     BOOL loadAnimationToMem;
+    BOOL trigByTimer;
 }
 
 - (NSOpenGLView *)createGLView;
@@ -50,11 +51,16 @@
 - (float)calcHeightFromRatio:(float)iRatio andWidth:(float)iWidth;
 - (void)loadAgent;
 - (void)unloadAgent;
+- (BOOL)isDir:(NSString*)fileOrDir;
+- (NSString *)getRandomGifFile:(NSString*)fileOrDir;
+- (void)timerMethod;
 
 @property (nonatomic, retain) NSOpenGLView* glView;
 @property (assign) IBOutlet NSPanel *optionsPanel;
 @property (assign) IBOutlet NSTextField *textFieldFileUrl;
 @property (assign) IBOutlet NSSlider *sliderFpsManual;
+@property (assign) IBOutlet NSSlider *sliderChangeInterval;
+@property (assign) IBOutlet NSTextField *labelChangeInterval;
 @property (assign) IBOutlet NSButton *checkButtonSetFpsManual;
 @property (assign) IBOutlet NSButton *checkButtonLoadIntoMem;
 @property (assign) IBOutlet NSColorWell *colorWellBackgrColor;
