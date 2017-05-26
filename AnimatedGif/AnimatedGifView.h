@@ -12,6 +12,8 @@
 
 #define LOAD_BTN                    0
 #define UNLOAD_BTN                  1
+#define FILE_MODE                   0
+#define FOLDER_MODE                 1
 
 #define VIEW_OPT_STRETCH_OPTIMAL    0
 #define VIEW_OPT_STRETCH_MAXIMAL    1
@@ -54,19 +56,34 @@
 - (BOOL)isDir:(NSString*)fileOrDir;
 - (NSString *)getRandomGifFile:(NSString*)fileOrDir;
 - (void)timerMethod;
+- (void)enableSliderChangeInterval:(BOOL)enable;
+- (void)enableSliderFpsManual:(BOOL)enable;
 
 @property (nonatomic, retain) NSOpenGLView* glView;
 @property (assign) IBOutlet NSPanel *optionsPanel;
 @property (assign) IBOutlet NSTextField *textFieldFileUrl;
-@property (assign) IBOutlet NSSlider *sliderFpsManual;
-@property (assign) IBOutlet NSSlider *sliderChangeInterval;
-@property (assign) IBOutlet NSTextField *labelChangeInterval;
-@property (assign) IBOutlet NSButton *checkButtonSetFpsManual;
 @property (assign) IBOutlet NSButton *checkButtonLoadIntoMem;
 @property (assign) IBOutlet NSColorWell *colorWellBackgrColor;
-@property (assign) IBOutlet NSTextField *labelFpsManual;
-@property (assign) IBOutlet NSTextField *labelFpsGif;
 @property (assign) IBOutlet NSSegmentedControl *segmentButtonLaunchAgent;
 @property (assign) IBOutlet NSPopUpButton *popupButtonViewOptions;
+@property (assign) IBOutlet NSSegmentedControl *segmentFileOrFolderMode;
+
+@property (assign) IBOutlet NSSlider *sliderChangeInterval;
+@property (assign) IBOutlet NSTextField *labelChangeInterval;
+@property (assign) IBOutlet NSTextField *labelChIntT1;
+@property (assign) IBOutlet NSTextField *labelChIntT2;
+@property (assign) IBOutlet NSTextField *labelChIntT3;
+@property (assign) IBOutlet NSTextField *labelChIntT4;
+
+@property (assign) IBOutlet NSSlider *sliderFpsManual;
+@property (assign) IBOutlet NSTextField *labelFpsManual;
+@property (assign) IBOutlet NSTextField *labelFpsGif;
+@property (assign) IBOutlet NSButton *checkButtonSetFpsManual;
+@property (assign) IBOutlet NSTextField *labelFpsT1;
+@property (assign) IBOutlet NSTextField *labelFpsT2;
+@property (assign) IBOutlet NSTextField *labelFpsT3;
+@property (assign) IBOutlet NSTextField *labelFpsT4;
+@property (assign) IBOutlet NSTextField *labelFpsT5;
+@property (assign) IBOutlet NSTextField *labelFpsT6;
 
 @end

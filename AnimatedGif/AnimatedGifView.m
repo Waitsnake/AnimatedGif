@@ -474,7 +474,9 @@
         [self.labelFpsGif setStringValue:@"(dir)"];
         
         // enable time interval slider only in case that an directory is selected
-        [self.sliderChangeInterval setEnabled:YES];
+        [self enableSliderChangeInterval:YES];
+        // show folder mode
+        self.segmentFileOrFolderMode.selectedSegment = FOLDER_MODE;
     }
     else
     {
@@ -497,7 +499,9 @@
         }
         
         // disable time interval slider in case an file is selected
-        [self.sliderChangeInterval setEnabled:NO];
+        [self enableSliderChangeInterval:NO];
+        // show file mode
+        self.segmentFileOrFolderMode.selectedSegment = FILE_MODE;
     }
     
     
@@ -509,7 +513,7 @@
     [self.popupButtonViewOptions selectItemWithTag:viewOpt];
     [self.sliderChangeInterval setIntegerValue:changeInter];
     [self.labelChangeInterval setStringValue:[self.sliderChangeInterval stringValue]];
-    [self.sliderFpsManual setEnabled:frameRateManual];
+    [self enableSliderFpsManual:frameRateManual];
     [self.labelFpsManual setStringValue:[self.sliderFpsManual stringValue]];
     [self.colorWellBackgrColor setColor:[NSColor colorWithRed:bgrRed green:bgrGreen blue:bgrBlue alpha:NS_ALPHA_OPAQUE]];
     
@@ -597,11 +601,11 @@
     BOOL frameRateManual = self.checkButtonSetFpsManual.state;
     if (frameRateManual)
     {
-        [self.sliderFpsManual setEnabled:YES];
+        [self enableSliderFpsManual:YES];
     }
     else
     {
-        [self.sliderFpsManual setEnabled:NO];
+        [self enableSliderFpsManual:NO];
     }
 }
 
@@ -618,6 +622,54 @@
     [self.labelChangeInterval setStringValue:[self.sliderChangeInterval stringValue]];
 }
 
+- (void)enableSliderChangeInterval:(BOOL)enable
+{
+    if (enable==TRUE)
+    {
+        [self.sliderChangeInterval setEnabled:YES];
+        [self.labelChangeInterval setTextColor:[NSColor blackColor]];
+        [self.labelChIntT1 setTextColor:[NSColor blackColor]];
+        [self.labelChIntT2 setTextColor:[NSColor blackColor]];
+        [self.labelChIntT3 setTextColor:[NSColor blackColor]];
+        [self.labelChIntT4 setTextColor:[NSColor blackColor]];
+    }
+    else
+    {
+        [self.sliderChangeInterval setEnabled:YES];
+        [self.labelChangeInterval setTextColor:[NSColor lightGrayColor]];
+        [self.labelChIntT1 setTextColor:[NSColor lightGrayColor]];
+        [self.labelChIntT2 setTextColor:[NSColor lightGrayColor]];
+        [self.labelChIntT3 setTextColor:[NSColor lightGrayColor]];
+        [self.labelChIntT4 setTextColor:[NSColor lightGrayColor]];
+    }
+}
+- (void)enableSliderFpsManual:(BOOL)enable
+{
+    if (enable==TRUE)
+    {
+        [self.sliderFpsManual setEnabled:YES];
+        [self.labelFpsGif setTextColor:[NSColor blackColor]];
+        [self.labelFpsManual setTextColor:[NSColor blackColor]];
+        [self.labelFpsT1 setTextColor:[NSColor blackColor]];
+        [self.labelFpsT2 setTextColor:[NSColor blackColor]];
+        [self.labelFpsT3 setTextColor:[NSColor blackColor]];
+        [self.labelFpsT4 setTextColor:[NSColor blackColor]];
+        [self.labelFpsT5 setTextColor:[NSColor blackColor]];
+        [self.labelFpsT6 setTextColor:[NSColor blackColor]];
+    }
+    else
+    {
+        [self.sliderFpsManual setEnabled:NO];
+        [self.labelFpsGif setTextColor:[NSColor lightGrayColor]];
+        [self.labelFpsManual setTextColor:[NSColor lightGrayColor]];
+        [self.labelFpsT1 setTextColor:[NSColor lightGrayColor]];
+        [self.labelFpsT2 setTextColor:[NSColor lightGrayColor]];
+        [self.labelFpsT3 setTextColor:[NSColor lightGrayColor]];
+        [self.labelFpsT4 setTextColor:[NSColor lightGrayColor]];
+        [self.labelFpsT5 setTextColor:[NSColor lightGrayColor]];
+        [self.labelFpsT6 setTextColor:[NSColor lightGrayColor]];
+    }
+}
 
 - (IBAction)sendFileButtonAction:(id)sender
 {
@@ -660,7 +712,9 @@
             [self.labelFpsGif setStringValue:@"(dir)"];
             
             // enable time interval slider only in case that an directory is selected
-            [self.sliderChangeInterval setEnabled:YES];
+            [self enableSliderChangeInterval:YES];
+            // show folder mode
+            self.segmentFileOrFolderMode.selectedSegment = FOLDER_MODE;
         }
         else
         {
@@ -683,7 +737,9 @@
             }
             
             // disable time interval slider only in case that an file is selected
-            [self.sliderChangeInterval setEnabled:NO];
+            [self enableSliderChangeInterval:NO];
+            // show file mode
+            self.segmentFileOrFolderMode.selectedSegment = FILE_MODE;
         }
         
     }
