@@ -16,7 +16,7 @@
     currFrameCount = FRAME_COUNT_NOT_USED;
     self = [super initWithFrame:frame isPreview:isPreview];
     
-    // initalize screensaver defaults with an default value
+    // initialize screensaver defaults with an default value
     ScreenSaverDefaults *defaults = [ScreenSaverDefaults defaultsForModuleWithName:[[NSBundle bundleForClass: [self class]] bundleIdentifier]];
     [defaults registerDefaults:[NSDictionary dictionaryWithObjectsAndKeys:
                                  @"file:///please/select/an/gif/animation.gif", @"GifFileName", @"15.0", @"GifFrameRate", @"NO", @"GifFrameRateManual", @"0", @"ViewOpt", @"0.0", @"BackgrRed", @"0.0", @"BackgrGreen", @"0.0", @"BackgrBlue", @"NO", @"LoadAniToMem", @"5", @"ChangeInterval",nil]];
@@ -60,8 +60,13 @@
 
 - (void)timerMethod
 {
+    // after change timer is running out this method is called
+    
+    // the animation of last GIF is stopped an memory cleaned, but without destroying GL view or telling the screensaver engine about it (no call of super method; handled by trigByTimer=TRUE)
     trigByTimer = TRUE;
     [self stopAnimation];
+    
+    // the animation is start again witch randomly pics a new GIF from folder and start the change timer again, but without telling the screensaver engine about it (no call of super method; handled by trigByTimer=TRUE)
     [self startAnimation];
     trigByTimer = FALSE;
 }
@@ -118,7 +123,7 @@
             [self setAnimationTimeInterval:currFrameDuration];
              */
             
-            // As workaround for the problem of NSBitmapImageRep class we use CGImageSourceCopyPropertiesAtIndex that allways gives back the real value
+            // As workaround for the problem of NSBitmapImageRep class we use CGImageSourceCopyPropertiesAtIndex that always gives back the real value
             CGImageSourceRef source = CGImageSourceCreateWithURL ( (__bridge CFURLRef) [NSURL URLWithString:gifFileName], NULL);
             if (source)
             {
@@ -141,7 +146,7 @@
             [self addSubview:self.glView];
         }
         
-        // in case of no review mode and active config option create an array in memory with all frames of bitmap in bitmap format (can be used directly as opengl texture)
+        // in case of no review mode and active config option create an array in memory with all frames of bitmap in bitmap format (can be used directly as OpenGL texture)
         if (   ([self isPreview] == FALSE)
             && (loadAnimationToMem == TRUE)
            )
@@ -154,7 +159,7 @@
                 // thats why we execute bitmapData here during startAnimation and not in animateOneFrame. the start of screensaver will be than slower of cause, but during animation itself we need less CPU time
                 unsigned char *data = [gifRep bitmapData];
                 unsigned long size = [gifRep bytesPerPlane]*sizeof(unsigned char);
-                // copy the bitmap data into an NSData object, that can be save transfered to animateOneFrame
+                // copy the bitmap data into an NSData object, that can be save transferred to animateOneFrame
                 NSData *imgData = [[NSData alloc] initWithBytes:data length:size];
                 [animationImages addObject:imgData];
                 
@@ -198,7 +203,7 @@
     if (   ([self isPreview] == FALSE)
         && (loadAnimationToMem == TRUE))
     {
-        /*clean all precalulated bitmap images*/
+        /*clean all pre-calculated bitmap images*/
         [animationImages removeAllObjects];
         animationImages = nil;
     }
@@ -208,7 +213,7 @@
 
 - (BOOL)isOpaque
 {
-    // this keeps Cocoa from unneccessarily redrawing our superview
+    // this keeps Cocoa from unnecessarily redrawing our superview
     return YES;
 }
 
@@ -304,7 +309,7 @@
         if ([self isPreview] == TRUE)
         {
             
-            // In Prefiew Mode OpenGL leads to crashes (?) so we make a classical image draw
+            // In Preview Mode OpenGL leads to crashes (?) so we make a classical image draw
             
             //select current frame from GIF (Hint: gifRep is a sub-object from img)
             [gifRep setProperty:NSImageCurrentFrame withValue:@(currFrameCount)];
@@ -331,7 +336,7 @@
             // Start phase
             glPushMatrix();
             
-            // defines the pixel resolution of the screen (can be smaler than real screen, but than you will see pixels)
+            // defines the pixel resolution of the screen (can be smaller than real screen, but than you will see pixels)
             glOrtho(0,screenRect.size.width,screenRect.size.height,0,-1,1);
             
             glEnable(GL_TEXTURE_2D);
@@ -385,7 +390,7 @@
             
             glGenerateMipmap(GL_TEXTURE_2D);
             
-            // define the target position of texture (related to screen defined by glOrtho) witch makes the texture visable
+            // define the target position of texture (related to screen defined by glOrtho) witch makes the texture visible
             float x = target.origin.x;
             float y = target.origin.y;
             float iheight = target.size.height;
@@ -412,7 +417,7 @@
             
             [self setNeedsDisplay:YES];
             
-            // we change the window level only, if not in preview mode and if the level is allready set by the ScreenSaverEngine to desktop level or lower. This allows the screensaver to be used in normal mode, when a screensaver is on the highest window level and not in background
+            // we change the window level only, if not in preview mode and if the level is already set by the ScreenSaverEngine to desktop level or lower. This allows the screensaver to be used in normal mode, when a screensaver is on the highest window level and not in background
             if (self.window.level <= kCGDesktopWindowLevel) {
                 //  set the window level to desktop level, that fixes the problem that after an mission control switch the window is hided. because ScreenSaverEngine set the window level one step to low (kCGDesktopWindowLevel-1) to work correct with mission control that requires exactly kCGDesktopWindowLevel.
                 [self.window setLevel:kCGDesktopWindowLevel];
@@ -496,7 +501,7 @@
     }
     
     
-    // set the visable value in dialog to the last saved value
+    // set the visible value in dialog to the last saved value
     [self.textFieldFileUrl setStringValue:gifFileName];
     [self.sliderFpsManual setDoubleValue:frameRate];
     [self.checkButtonSetFpsManual setState:frameRateManual];
@@ -508,7 +513,7 @@
     [self.labelFpsManual setStringValue:[self.sliderFpsManual stringValue]];
     [self.colorWellBackgrColor setColor:[NSColor colorWithRed:bgrRed green:bgrGreen blue:bgrBlue alpha:NS_ALPHA_OPAQUE]];
     
-    // set sement button depending if the launchagent is active or not
+    // set segment button depending if the launch-agent is active or not
     NSString *userLaunchAgentsPath = [[NSString alloc] initWithFormat:@"%@%@%@", @"/Users/", NSUserName(), @"/Library/LaunchAgents/com.stino.animatedgif.plist"];
     BOOL launchAgentFileExists = [[NSFileManager defaultManager] fileExistsAtPath:userLaunchAgentsPath];
     if (launchAgentFileExists == YES)
@@ -555,7 +560,7 @@
     NSColor *colorPicked = self.colorWellBackgrColor.color;
     NSInteger changeInt = [self.sliderChangeInterval integerValue];
     
-    // write values back to screensver defaults
+    // write values back to screensaver defaults
     ScreenSaverDefaults *defaults = [ScreenSaverDefaults defaultsForModuleWithName:[[NSBundle bundleForClass: [self class]] bundleIdentifier]];
     [defaults setObject:gifFileName forKey:@"GifFileName"];
     [defaults setFloat:frameRate forKey:@"GifFrameRate"];
@@ -622,7 +627,7 @@
     // Enable the selection of files in the dialog.
     [openDlg setCanChooseFiles:YES];
     
-    // Disable the selection of directories in the dialog.
+    // Enable the selection of directories in the dialog.
     [openDlg setCanChooseDirectories:YES];
     
     // Disable the selection of more than one file
@@ -690,7 +695,7 @@
     // create the plist agent file
     NSMutableDictionary *plist = [[NSMutableDictionary alloc] init];
     
-    // check if LaunchAgend directory is there or not
+    // check if Launch-Agent directory is there or not
     NSString *userLaunchAgentsDir = [[NSString alloc] initWithFormat:@"%@%@%@", @"/Users/", NSUserName(), @"/Library/LaunchAgents"];
     BOOL launchAgentDirExists = [[NSFileManager defaultManager] fileExistsAtPath:userLaunchAgentsDir];
     if (launchAgentDirExists == NO)
@@ -788,7 +793,7 @@
         // create an filter for GIF files
         NSPredicate *predicate = [NSPredicate predicateWithFormat:@"pathExtension == 'gif'"];
             
-        // applie filer for GIF files only to an new array
+        // apply filer for GIF files only to an new array
         NSArray *filesFilter = [files filteredArrayUsingPredicate:predicate];
 
         if (filesFilter)
@@ -798,7 +803,7 @@
             // how many GIF files we have found
             NSInteger numberOfFiles = [filesFilter count];
                 
-            // generate an random number with upper boundery of the number of found GIF files
+            // generate an random number with upper boundary of the number of found GIF files
             NSInteger randFile = (NSInteger)arc4random_uniform((u_int32_t)numberOfFiles);
                 
             // return a NSString of with an URL of the randomly selected GIF in the list
