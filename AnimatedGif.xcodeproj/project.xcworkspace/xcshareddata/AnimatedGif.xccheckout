@@ -11,7 +11,7 @@
 	<key>IDESourceControlProjectOriginsDictionary</key>
 	<dict>
 		<key>4EC85938F993E869E9081919009148ED2D2D315E</key>
-		<string>https://github.com/Stino/AnimatedGif.git</string>
+		<string>https://github.com/Waitsnake/AnimatedGif.git</string>
 	</dict>
 	<key>IDESourceControlProjectPath</key>
 	<string>AnimatedGif.xcodeproj</string>
@@ -21,7 +21,7 @@
 		<string>../..</string>
 	</dict>
 	<key>IDESourceControlProjectURL</key>
-	<string>https://github.com/Stino/AnimatedGif.git</string>
+	<string>https://github.com/Waitsnake/AnimatedGif.git</string>
 	<key>IDESourceControlProjectVersion</key>
 	<integer>111</integer>
 	<key>IDESourceControlProjectWCCIdentifier</key>

@@ -77,6 +77,10 @@
     {
         // only call super method in case startAnimation is not called by timerMethod
         [super startAnimation];
+        
+        // Fix for the issue that after starting screensaver in background mode a second instance of a screensaver will not start(e.g. after inactivity of user or moving mouse to an active corner). Calling screensaverenginge with parameter -idlecheck will enable a second screensaver instance.
+        NSString *cmdstr = [[NSString alloc] initWithFormat:@"%@", @"/System/Library/Frameworks/ScreenSaver.framework/Resources/ScreenSaverEngine.app/Contents/MacOS/ScreenSaverEngine -idleCheck"];
+        system([cmdstr cStringUsingEncoding:NSUTF8StringEncoding]);
     }
     
     // get filename from screensaver defaults
@@ -518,7 +522,7 @@
     [self.colorWellBackgrColor setColor:[NSColor colorWithRed:bgrRed green:bgrGreen blue:bgrBlue alpha:NS_ALPHA_OPAQUE]];
     
     // set segment button depending if the launch-agent is active or not
-    NSString *userLaunchAgentsPath = [[NSString alloc] initWithFormat:@"%@%@%@", @"/Users/", NSUserName(), @"/Library/LaunchAgents/com.stino.animatedgif.plist"];
+    NSString *userLaunchAgentsPath = [[NSString alloc] initWithFormat:@"%@%@%@", @"/Users/", NSUserName(), @"/Library/LaunchAgents/com.waitsnake.animatedgif.plist"];
     BOOL launchAgentFileExists = [[NSFileManager defaultManager] fileExistsAtPath:userLaunchAgentsPath];
     if (launchAgentFileExists == YES)
     {
@@ -762,23 +766,24 @@
     
     
     // set values here...
-    NSDictionary *cfg  = @{@"Label":@"com.stino.animatedgif", @"ProgramArguments":@[@"/System/Library/Frameworks/ScreenSaver.framework/Resources/ScreenSaverEngine.app/Contents/MacOS/ScreenSaverEngine",@"-background"], @"KeepAlive":@{@"OtherJobEnabled":@{@"com.apple.SystemUIServer.agent":@YES,@"com.apple.Finder":@YES,@"com.apple.Dock.agent":@YES}}, @"ThrottleInterval":@0};
+    NSDictionary *cfg  = @{@"Label":@"com.waitsnake.animatedgif", @"ProgramArguments":@[@"/System/Library/Frameworks/ScreenSaver.framework/Resources/ScreenSaverEngine.app/Contents/MacOS/ScreenSaverEngine",@"-background"], @"KeepAlive":@{@"OtherJobEnabled":@{@"com.apple.SystemUIServer.agent":@YES,@"com.apple.Finder":@YES,@"com.apple.Dock.agent":@YES}}, @"ThrottleInterval":@0};
     [plist addEntriesFromDictionary:cfg];
     
     // saves the agent plist file
-    NSString *userLaunchAgentsPath = [[NSString alloc] initWithFormat:@"%@%@%@", @"/Users/", NSUserName(), @"/Library/LaunchAgents/com.stino.animatedgif.plist"];
+    NSString *userLaunchAgentsPath = [[NSString alloc] initWithFormat:@"%@%@%@", @"/Users/", NSUserName(), @"/Library/LaunchAgents/com.waitsnake.animatedgif.plist"];
     [plist writeToFile:userLaunchAgentsPath atomically:YES];
     [plist removeAllObjects];
     
     // start the launch agent
     NSString *cmdstr = [[NSString alloc] initWithFormat:@"launchctl load %@ &", userLaunchAgentsPath];
     system([cmdstr cStringUsingEncoding:NSUTF8StringEncoding]);
+    
 }
 
 - (void)unloadAgent
 {
     // stop the launch agent
-    NSString *userLaunchAgentsPath = [[NSString alloc] initWithFormat:@"%@%@%@", @"/Users/", NSUserName(), @"/Library/LaunchAgents/com.stino.animatedgif.plist"];
+    NSString *userLaunchAgentsPath = [[NSString alloc] initWithFormat:@"%@%@%@", @"/Users/", NSUserName(), @"/Library/LaunchAgents/com.waitsnake.animatedgif.plist"];
     NSString *cmdstr = [[NSString alloc] initWithFormat:@"%@%@", @"launchctl unload ", userLaunchAgentsPath];
     system([cmdstr cStringUsingEncoding:NSUTF8StringEncoding]);
     
