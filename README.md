@@ -28,8 +28,9 @@ The latest release was compiled with Xcode 7.3.1 with SDK for OSX 10.11 El Capit
 
 ## Uninstall AnimatedGif
 1. Open ***System Preferences -> Desktop and Screensaver***
-2. Right click the AnimatedGif Screensaver and select "Delete AnimatedGif"
-3. Click on "Move to Trash" to confirm
+2. Click "Screen Saver Options" and stop the background mode if it was enabled and close options.
+3. Right click the AnimatedGif Screensaver and select "Delete AnimatedGif"
+4. Click on "Move to Trash" to confirm
 <br>
 
 
