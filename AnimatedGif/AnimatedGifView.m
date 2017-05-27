@@ -71,6 +71,16 @@
     trigByTimer = FALSE;
 }
 
+- (void) receiveWakeNote: (NSNotification*) note
+{
+    // Event is fired after return from sleep.
+    
+    // Simply kill screensaverengine. If it was in background mode the launchd should restart the screensaver in background mode. It is a bit hard but works until I found a cleaner way to restore the glview that stays white.
+    NSString *cmdstr = [[NSString alloc] initWithFormat:@"%@", @"killall ScreenSaverEngine"];
+    system([cmdstr cStringUsingEncoding:NSUTF8StringEncoding]);
+    
+}
+
 - (void)startAnimation
 {
     if (trigByTimer == FALSE)
@@ -81,6 +91,11 @@
         // Fix for the issue that after starting screensaver in background mode a second instance of a screensaver will not start(e.g. after inactivity of user or moving mouse to an active corner). Calling screensaverenginge with parameter -idlecheck will enable a second screensaver instance.
         NSString *cmdstr = [[NSString alloc] initWithFormat:@"%@", @"/System/Library/Frameworks/ScreenSaver.framework/Resources/ScreenSaverEngine.app/Contents/MacOS/ScreenSaverEngine -idleCheck"];
         system([cmdstr cStringUsingEncoding:NSUTF8StringEncoding]);
+        
+        // Fix for issue that glview is not working(stay white) after return from sleep. Register for event that is fired after return from sleep.
+        [[[NSWorkspace sharedWorkspace] notificationCenter] addObserver: self
+                                                               selector: @selector(receiveWakeNote:)
+                                                                   name: NSWorkspaceDidWakeNotification object: NULL];
     }
     
     // get filename from screensaver defaults
