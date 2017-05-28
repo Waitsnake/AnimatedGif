@@ -491,6 +491,7 @@
         // if we have an directory an fps value for a file makes not much sense
         // we could calculate it for an randomly selected file but this would make thinks to complex
         [self.labelFpsGif setStringValue:@"(dir)"];
+        [self hideFpsFromFile:YES];
         
         // enable time interval slider only in case that an directory is selected
         [self enableSliderChangeInterval:YES];
@@ -516,6 +517,7 @@
         {
             [self.labelFpsGif setStringValue:@"0.0"];
         }
+        [self hideFpsFromFile:NO];
         
         // disable time interval slider in case an file is selected
         [self enableSliderChangeInterval:NO];
@@ -662,6 +664,7 @@
         [self.labelChIntT4 setTextColor:[NSColor lightGrayColor]];
     }
 }
+
 - (void)enableSliderFpsManual:(BOOL)enable
 {
     if (enable==TRUE)
@@ -687,6 +690,22 @@
         [self.labelFpsT4 setTextColor:[NSColor lightGrayColor]];
         [self.labelFpsT5 setTextColor:[NSColor lightGrayColor]];
         [self.labelFpsT6 setTextColor:[NSColor lightGrayColor]];
+    }
+}
+
+- (void)hideFpsFromFile:(BOOL)hide
+{
+    if (hide==TRUE)
+    {
+        [self.labelFpsGif setHidden:YES];
+        [self.labelFpsT2 setHidden:YES];
+        [self.labelFpsT3 setHidden:YES];
+    }
+    else
+    {
+        [self.labelFpsGif setHidden:NO];
+        [self.labelFpsT2 setHidden:NO];
+        [self.labelFpsT3 setHidden:NO];
     }
 }
 
@@ -729,6 +748,7 @@
             // if we have an directory an fps value for a file makes not much sense
             // we could calculate it for an randomly selected file but this would make thinks to complex
             [self.labelFpsGif setStringValue:@"(dir)"];
+            [self hideFpsFromFile:YES];
             
             // enable time interval slider only in case that an directory is selected
             [self enableSliderChangeInterval:YES];
@@ -754,6 +774,7 @@
             {
                 [self.labelFpsGif setStringValue:@"0.0"];
             }
+            [self hideFpsFromFile:NO];
             
             // disable time interval slider only in case that an file is selected
             [self enableSliderChangeInterval:NO];

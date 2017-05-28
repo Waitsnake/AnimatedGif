@@ -58,7 +58,8 @@
 - (void)timerMethod;
 - (void)enableSliderChangeInterval:(BOOL)enable;
 - (void)enableSliderFpsManual:(BOOL)enable;
-- (void) receiveWakeNote: (NSNotification*) note;
+- (void)receiveWakeNote: (NSNotification*) note;
+- (void)hideFpsFromFile:(BOOL)hide;
 
 @property (nonatomic, retain) NSOpenGLView* glView;
 @property (assign) IBOutlet NSPanel *optionsPanel;
