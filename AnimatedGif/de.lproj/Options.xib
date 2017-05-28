@@ -84,10 +84,6 @@
                             <action selector="pressCheckboxSetFpsManual:" target="-2" id="vA8-am-Y4q"/>
                         </connections>
                     </button>
-                    <colorWell fixedFrame="YES" continuous="NO" translatesAutoresizingMaskIntoConstraints="NO" id="bxi-1B-SU5">
-                        <rect key="frame" x="160" y="186" width="44" height="23"/>
-                        <color key="color" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
-                    </colorWell>
                     <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="yfb-kL-Hbi">
                         <rect key="frame" x="18" y="186" width="119" height="17"/>
                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Hintergrundfarbe:" id="rci-LG-s3A">
@@ -304,6 +300,10 @@ DQ
                             </segments>
                         </segmentedCell>
                     </segmentedControl>
+                    <colorWell fixedFrame="YES" continuous="NO" translatesAutoresizingMaskIntoConstraints="NO" id="bxi-1B-SU5">
+                        <rect key="frame" x="160" y="183" width="44" height="23"/>
+                        <color key="color" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
+                    </colorWell>
                 </subviews>
             </view>
             <connections>

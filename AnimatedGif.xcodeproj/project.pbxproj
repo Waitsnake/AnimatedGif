@@ -20,6 +20,7 @@
 		CC24BA991BF124350045BDC7 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		CC24BA9A1BF124350045BDC7 /* AnimatedGifView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AnimatedGifView.h; sourceTree = "<group>"; };
 		CC24BA9C1BF124350045BDC7 /* AnimatedGifView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AnimatedGifView.m; sourceTree = "<group>"; };
+		CC39BE001EDAD834008FCA5C /* ja */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = ja; path = ja.lproj/Options.xib; sourceTree = "<group>"; };
 		CC4486F01C8A3A50008520D2 /* thumbnail.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = thumbnail.png; path = extra/thumbnail.png; sourceTree = SOURCE_ROOT; };
 		CC4486F11C8A3A50008520D2 /* thumbnail@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "thumbnail@2x.png"; path = "extra/thumbnail@2x.png"; sourceTree = SOURCE_ROOT; };
 		CCC3B99A1C788F8E00FBE423 /* en */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = en; path = en.lproj/Options.xib; sourceTree = "<group>"; };
@@ -128,6 +129,7 @@
 				en,
 				de,
 				es,
+				ja,
 			);
 			mainGroup = CC24BA8B1BF124350045BDC7;
 			productRefGroup = CC24BA961BF124350045BDC7 /* Products */;
@@ -170,6 +172,7 @@
 				CCC3B99A1C788F8E00FBE423 /* en */,
 				CCC3B99C1C788F9800FBE423 /* de */,
 				CC1073C41C78947900AC5F63 /* es */,
+				CC39BE001EDAD834008FCA5C /* ja */,
 			);
 			name = Options.xib;
 			sourceTree = "<group>";
