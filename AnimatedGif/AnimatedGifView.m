@@ -656,7 +656,7 @@
     }
     else
     {
-        [self.sliderChangeInterval setEnabled:YES];
+        [self.sliderChangeInterval setEnabled:NO];
         [self.labelChangeInterval setTextColor:[NSColor lightGrayColor]];
         [self.labelChIntT1 setTextColor:[NSColor lightGrayColor]];
         [self.labelChIntT2 setTextColor:[NSColor lightGrayColor]];
