@@ -23,10 +23,10 @@ The latest release was compiled with Xcode 7.3.1 with SDK for OSX 10.11 El Capit
 4. Select the AnimatedGif Screensaver
 5. Click "Screen Saver Options" below the screensaver preview
 6. Select your .gif file and adjust other settings to your liking
-<p align="center">
+<p align="left">
 <img src="readme_extra/screensaver.png?raw=true" width="500"/>
 </p>
-<p align="center">
+<p align="left">
 <img src="readme_extra/options.png?raw=true" width="500"/>
 </p>
 <br>
@@ -37,10 +37,10 @@ The latest release was compiled with Xcode 7.3.1 with SDK for OSX 10.11 El Capit
 2. Click "Screen Saver Options" and stop the background mode if it was enabled and close options.
 3. Right click the AnimatedGif Screensaver and select "Delete AnimatedGif"
 4. Click on "Move to Trash" to confirm
-<p align="center">
+<p align="left">
 <img src="readme_extra/delete1.png?raw=true" width="500"/>
 </p>
-<p align="center">
+<p align="left">
 <img src="readme_extra/delete2.png?raw=true" width="500"/>
 </p>
 <br>
