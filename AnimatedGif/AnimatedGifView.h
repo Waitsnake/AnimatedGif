@@ -12,8 +12,6 @@
 
 #define LOAD_BTN                    0
 #define UNLOAD_BTN                  1
-#define FILE_MODE                   0
-#define FOLDER_MODE                 1
 
 #define VIEW_OPT_STRETCH_OPTIMAL    0
 #define VIEW_OPT_STRETCH_MAXIMAL    1
@@ -68,7 +66,6 @@
 @property (assign) IBOutlet NSColorWell *colorWellBackgrColor;
 @property (assign) IBOutlet NSSegmentedControl *segmentButtonLaunchAgent;
 @property (assign) IBOutlet NSPopUpButton *popupButtonViewOptions;
-@property (assign) IBOutlet NSSegmentedControl *segmentFileOrFolderMode;
 
 @property (assign) IBOutlet NSSlider *sliderChangeInterval;
 @property (assign) IBOutlet NSTextField *labelChangeInterval;

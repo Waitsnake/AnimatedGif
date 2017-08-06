@@ -19,7 +19,7 @@
     // initialize screensaver defaults with an default value
     ScreenSaverDefaults *defaults = [ScreenSaverDefaults defaultsForModuleWithName:[[NSBundle bundleForClass: [self class]] bundleIdentifier]];
     [defaults registerDefaults:[NSDictionary dictionaryWithObjectsAndKeys:
-                                 @"file:///please/select/an/gif/animation.gif", @"GifFileName", @"15.0", @"GifFrameRate", @"NO", @"GifFrameRateManual", @"0", @"ViewOpt", @"0.0", @"BackgrRed", @"0.0", @"BackgrGreen", @"0.0", @"BackgrBlue", @"NO", @"LoadAniToMem", @"5", @"ChangeInterval",nil]];
+                                 @"file:///please/select/an/gif/animation.gif", @"GifFileName", @"30.0", @"GifFrameRate", @"NO", @"GifFrameRateManual", @"0", @"ViewOpt", @"0.0", @"BackgrRed", @"0.0", @"BackgrGreen", @"0.0", @"BackgrBlue", @"NO", @"LoadAniToMem", @"5", @"ChangeInterval",nil]];
     
     if (self) {
         self.glView = [self createGLView];
@@ -495,8 +495,6 @@
         
         // enable time interval slider only in case that an directory is selected
         [self enableSliderChangeInterval:YES];
-        // show folder mode
-        self.segmentFileOrFolderMode.selectedSegment = FOLDER_MODE;
     }
     else
     {
@@ -521,8 +519,6 @@
         
         // disable time interval slider in case an file is selected
         [self enableSliderChangeInterval:NO];
-        // show file mode
-        self.segmentFileOrFolderMode.selectedSegment = FILE_MODE;
     }
     
     
@@ -723,8 +719,17 @@
     // Disable the selection of more than one file
     [openDlg setAllowsMultipleSelection:NO];
 
-    // set dialog to last selected file
-    [openDlg setDirectoryURL:[NSURL URLWithString:[self.textFieldFileUrl stringValue]]];
+    // set dialog to one levele obove of last selected file/directory
+    if ([self isDir:[self.textFieldFileUrl stringValue]])
+    {
+        // in case of an directory remove one level of path before open it
+        [openDlg setDirectoryURL:[[NSURL URLWithString:[self.textFieldFileUrl stringValue]] URLByDeletingLastPathComponent]];
+    }
+    else
+    {
+        // in case of an file remove two level of path before open it
+        [openDlg setDirectoryURL:[[[NSURL URLWithString:[self.textFieldFileUrl stringValue]] URLByDeletingLastPathComponent] URLByDeletingLastPathComponent]];
+    }
     
     // try to 'focus' only on GIF files (Yes, I know all image types are working with NSImage)
     [openDlg setAllowedFileTypes:[[NSArray alloc] initWithObjects:@"gif", @"GIF", nil]];
@@ -752,8 +757,6 @@
             
             // enable time interval slider only in case that an directory is selected
             [self enableSliderChangeInterval:YES];
-            // show folder mode
-            self.segmentFileOrFolderMode.selectedSegment = FOLDER_MODE;
         }
         else
         {
@@ -778,8 +781,6 @@
             
             // disable time interval slider only in case that an file is selected
             [self enableSliderChangeInterval:NO];
-            // show file mode
-            self.segmentFileOrFolderMode.selectedSegment = FILE_MODE;
         }
         
     }
