@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="10117" systemVersion="15G1510" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" customObjectInstantitationMethod="direct">
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="10117" systemVersion="15G1611" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" customObjectInstantitationMethod="direct">
     <dependencies>
         <deployment identifier="macosx"/>
         <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="10117"/>
@@ -51,8 +51,8 @@
                         </textFieldCell>
                     </textField>
                     <button fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="kHm-iW-jBX">
-                        <rect key="frame" x="18" y="431" width="349" height="18"/>
-                        <buttonCell key="cell" type="check" title="アニメーションをメモリに読み込み（CPU時間を節約する）" bezelStyle="regularSquare" imagePosition="left" inset="2" id="F13-fV-gKv">
+                        <rect key="frame" x="18" y="431" width="337" height="18"/>
+                        <buttonCell key="cell" type="check" title="アニメーションをメモリに読み込む (CPU時間を短縮する)" bezelStyle="regularSquare" imagePosition="left" inset="2" id="F13-fV-gKv">
                             <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                             <font key="font" size="13" name=".HiraKakuInterface-W3"/>
                         </buttonCell>
@@ -101,7 +101,7 @@ Gw
                     </button>
                     <button fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="2Vl-6h-B2h">
                         <rect key="frame" x="18" y="401" width="264" height="18"/>
-                        <buttonCell key="cell" type="check" title="フレームレートのマニュアルを設定します" bezelStyle="regularSquare" imagePosition="left" alignment="left" inset="2" id="7lC-sW-T7r">
+                        <buttonCell key="cell" type="check" title="フレームレートをマニュアルで設定" bezelStyle="regularSquare" imagePosition="left" alignment="left" inset="2" id="7lC-sW-T7r">
                             <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                             <font key="font" size="13" name=".HiraKakuInterface-W3"/>
                         </buttonCell>
@@ -127,12 +127,12 @@ Gw
                     </textField>
                     <popUpButton verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Cmf-ro-Be5">
                         <rect key="frame" x="140" y="458" width="352" height="26"/>
-                        <popUpButtonCell key="cell" type="push" title="キープイメージ比率によるストレッチ" bezelStyle="rounded" alignment="left" lineBreakMode="truncatingTail" state="on" borderStyle="borderAndBezel" imageScaling="proportionallyDown" inset="2" selectedItem="5ie-tK-3yY" id="lpg-CF-VQ3">
+                        <popUpButtonCell key="cell" type="push" title="元の画像の比率を維持して拡大する" bezelStyle="rounded" alignment="left" lineBreakMode="truncatingTail" state="on" borderStyle="borderAndBezel" imageScaling="proportionallyDown" inset="2" selectedItem="5ie-tK-3yY" id="lpg-CF-VQ3">
                             <behavior key="behavior" lightByBackground="YES" lightByGray="YES"/>
                             <font key="font" metaFont="menu"/>
                             <menu key="menu" id="HIs-ti-7q1">
                                 <items>
-                                    <menuItem title="キープイメージ比率によるストレッチ" state="on" id="5ie-tK-3yY">
+                                    <menuItem title="元の画像の比率を維持して拡大する" state="on" id="5ie-tK-3yY">
                                         <modifierMask key="keyEquivalentModifierMask"/>
                                     </menuItem>
                                     <menuItem title="最大限に画面に拡大" tag="1" id="iVp-Ep-OYA">
@@ -141,7 +141,7 @@ Gw
                                     <menuItem title="元の画像サイズを維持する" tag="2" id="nXD-VJ-W6I">
                                         <modifierMask key="keyEquivalentModifierMask"/>
                                     </menuItem>
-                                    <menuItem title="最小の側面に拡張する" tag="3" id="nXD-VJ-W7I">
+                                    <menuItem title="画像の短辺を拡大する" tag="3" id="nXD-VJ-W7I">
                                         <modifierMask key="keyEquivalentModifierMask"/>
                                     </menuItem>
                                 </items>
@@ -169,8 +169,8 @@ Gw
                         </connections>
                     </slider>
                     <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="cqv-N1-JI2">
-                        <rect key="frame" x="18" y="279" width="289" height="17"/>
-                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="GIFのランダムな変更（ディレクトリモードのみ）：" id="j2v-em-RI6">
+                        <rect key="frame" x="18" y="279" width="358" height="17"/>
+                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="GIFをランダムに変更する時間(分)（ディレクトリモードのみ）：" id="j2v-em-RI6">
                             <font key="font" metaFont="system"/>
                             <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
                             <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
