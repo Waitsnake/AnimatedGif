@@ -239,10 +239,13 @@
 - (void)animateOneFrame
 {
     // set some values screensaver and GIF image size
+    NSRect mainScreenRect = [[NSScreen mainScreen] frame];
     NSRect screenRect = [self bounds];
     NSRect target = screenRect;
     float screenRatio = [self pictureRatioFromWidth:screenRect.size.width andHeight:screenRect.size.height];
     float imgRatio = [self pictureRatioFromWidth:img.size.width andHeight:img.size.height];
+    CGFloat scaledHeight;
+    CGFloat scaledWidth;
     
     if (viewOption==VIEW_OPT_STRETCH_OPTIMAL)
     {
@@ -269,11 +272,24 @@
     }
     else if (viewOption==VIEW_OPT_KEEP_ORIG_SIZE)
     {
-        // keep original size of image
-        target.size.height = img.size.height;
-        target.size.width = img.size.width;
-        target.origin.y = (screenRect.size.height - img.size.height)/2;
-        target.origin.x = (screenRect.size.width - img.size.width)/2;
+        if ([self isPreview] == FALSE)
+        {
+            // in case of NO preview mode: simply keep original size of image
+            target.size.height = img.size.height;
+            target.size.width = img.size.width;
+            target.origin.y = (screenRect.size.height - img.size.height)/2;
+            target.origin.x = (screenRect.size.width - img.size.width)/2;
+        }
+        else
+        {
+            // in case of preview mode: we also need to calculate the ratio between the size of the physical main screen and the size of the preview window to scale the image down.
+            scaledHeight = screenRect.size.height / mainScreenRect.size.height * img.size.height;
+            scaledWidth = screenRect.size.width / mainScreenRect.size.width * img.size.width;
+            target.size.height = scaledHeight;
+            target.size.width = scaledWidth;
+            target.origin.y = (screenRect.size.height - scaledHeight)/2;
+            target.origin.x = (screenRect.size.width - scaledWidth)/2;
+        }
     }
     else if (viewOption==VIEW_OPT_STRETCH_SMALL_SIDE)
     {
@@ -295,12 +311,9 @@
     }
     else
     {
-        /*default is VIEW_OPT_KEEP_ORIG_SIZE*/
-        // in case option in defaults file was too large we set it to last valid value
-        target.size.height = img.size.height;
-        target.size.width = img.size.width;
-        target.origin.y = (screenRect.size.height - img.size.height)/2;
-        target.origin.x = (screenRect.size.width - img.size.width)/2;
+        /*default is VIEW_OPT_STRETCH_MAXIMAL*/
+        // stretch image maximal to screen
+        target = screenRect;
     }
     
     if (currFrameCount == FRAME_COUNT_NOT_USED)
