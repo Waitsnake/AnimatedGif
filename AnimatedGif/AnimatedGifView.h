@@ -43,6 +43,8 @@
     float backgrBlue;
     BOOL loadAnimationToMem;
     BOOL trigByTimer;
+    NSRect screenRect;
+    NSRect targetRect;
 }
 
 - (NSOpenGLView *)createGLView;
@@ -58,6 +60,8 @@
 - (void)enableSliderFpsManual:(BOOL)enable;
 - (void)receiveWakeNote: (NSNotification*) note;
 - (void)hideFpsFromFile:(BOOL)hide;
+- (BOOL)loadGifFromFile:(NSString*)gifFileName andUseManualFps: (BOOL)manualFpsActive withFps: (float)fps;
+- (NSRect)calcTargetRectFromOptions;
 
 @property (nonatomic, retain) NSOpenGLView* glView;
 @property (assign) IBOutlet NSPanel *optionsPanel;

@@ -50,13 +50,17 @@
     [self.glView setFrameSize:newSize];
 }
 
+- (BOOL)isOpaque
+{
+    // this keeps Cocoa from unnecessarily redrawing our superview
+    return YES;
+}
 
 - (void)dealloc
 {
     [self.glView removeFromSuperview];
     self.glView = nil;
 }
-
 
 - (void)timerMethod
 {
@@ -109,93 +113,30 @@
     backgrGreen = [defaults floatForKey:@"BackgrGreen"];
     backgrBlue = [defaults floatForKey:@"BackgrBlue"];
     NSInteger changeIntervalInSec = [defaults integerForKey:@"ChangeInterval"] * 60;
-    BOOL isADir = [self isDir:gifFileName];
-
-    // check if it is a file or a directory
-    if (isADir)
-    {
-        // select a random file from directory
-        gifFileName = [self getRandomGifFile:gifFileName];
-
-    }
+    
+    // select a random file from directory or keep the file if it was allready a file
+    NSString *newGifFileName = [self getRandomGifFile:gifFileName];
     
     // load GIF image
-    img = [[NSImage alloc] initWithContentsOfURL:[NSURL URLWithString:gifFileName]];
-    if (img)
+    BOOL isFileLoaded = [self loadGifFromFile:newGifFileName andUseManualFps:frameRateManual withFps:frameRate];
+    if (isFileLoaded)
     {
-        gifRep = (NSBitmapImageRep *)[[img representations] objectAtIndex:FIRST_FRAME];
-        maxFrameCount = [[gifRep valueForProperty: NSImageFrameCount] integerValue];
         currFrameCount = FIRST_FRAME;
-        
-        if(frameRateManual)
-        {
-            // set frame rate manual
-            [self setAnimationTimeInterval:1/frameRate];
-        }
-        else
-        {
-            // set frame duration from data from gif file
-            /* If the fps is "too fast" NSBitmapImageRep gives back a clamped value for slower fps and not the value from the file! WTF? */
-            /*
-            [gifRep setProperty:NSImageCurrentFrame withValue:@(2)];
-            float currFrameDuration = [[gifRep valueForProperty: NSImageCurrentFrameDuration] floatValue];
-            [self setAnimationTimeInterval:currFrameDuration];
-             */
-            
-            // As workaround for the problem of NSBitmapImageRep class we use CGImageSourceCopyPropertiesAtIndex that always gives back the real value
-            CGImageSourceRef source = CGImageSourceCreateWithURL ( (__bridge CFURLRef) [NSURL URLWithString:gifFileName], NULL);
-            if (source)
-            {
-                CFDictionaryRef cfdProperties = CGImageSourceCopyPropertiesAtIndex(source, 0, nil);
-                NSDictionary *properties = CFBridgingRelease(cfdProperties);
-                float duration = [[[properties objectForKey:(__bridge NSString *)kCGImagePropertyGIFDictionary]
-                               objectForKey:(__bridge NSString *) kCGImagePropertyGIFUnclampedDelayTime] doubleValue];
-                CFRelease(source);
-                [self setAnimationTimeInterval:duration];
-            }
-            else
-            {
-                [self setAnimationTimeInterval:DEFAULT_ANIME_TIME_INTER];
-            }
-        }
-        
-        // add glview to screensaver view in case of not in preview mode
-        if ([self isPreview] == FALSE)
-        {
-            [self addSubview:self.glView];
-        }
-        
-        // in case of no review mode and active config option create an array in memory with all frames of bitmap in bitmap format (can be used directly as OpenGL texture)
-        if (   ([self isPreview] == FALSE)
-            && (loadAnimationToMem == TRUE)
-           )
-        {
-            animationImages = [[NSMutableArray alloc] init];
-            for(NSUInteger frame=0;frame<maxFrameCount;frame++)
-            {
-                [gifRep setProperty:NSImageCurrentFrame withValue:@(frame)];
-                // bitmapData needs most CPU time during animation.
-                // thats why we execute bitmapData here during startAnimation and not in animateOneFrame. the start of screensaver will be than slower of cause, but during animation itself we need less CPU time
-                unsigned char *data = [gifRep bitmapData];
-                unsigned long size = [gifRep bytesPerPlane]*sizeof(unsigned char);
-                // copy the bitmap data into an NSData object, that can be save transferred to animateOneFrame
-                NSData *imgData = [[NSData alloc] initWithBytes:data length:size];
-                [animationImages addObject:imgData];
-                
-            }
-        }
-        
     }
     else
     {
         currFrameCount = FRAME_COUNT_NOT_USED;
     }
+
+    // set some values screensaver and GIF image size
+    screenRect = [self bounds];
+    targetRect = [self calcTargetRectFromOptions];
     
     // check if it is a file or a directory
-    if (isADir)
+    if ([self isDir:gifFileName])
     {
 
-        // start a one-time timer at end of startAnimation otherwise the GIF loading times are part of timer
+        // start a one-time timer at end of startAnimation otherwise the time for loading the GIF is part of the timer
         [NSTimer scheduledTimerWithTimeInterval:changeIntervalInSec
                                          target:self
                                        selector:@selector(timerMethod)
@@ -230,94 +171,13 @@
     currFrameCount = FRAME_COUNT_NOT_USED;
 }
 
-- (BOOL)isOpaque
-{
-    // this keeps Cocoa from unnecessarily redrawing our superview
-    return YES;
-}
-
 - (void)animateOneFrame
 {
-    // set some values screensaver and GIF image size
-    NSRect mainScreenRect = [[NSScreen mainScreen] frame];
-    NSRect screenRect = [self bounds];
-    NSRect target = screenRect;
-    float screenRatio = [self pictureRatioFromWidth:screenRect.size.width andHeight:screenRect.size.height];
-    float imgRatio = [self pictureRatioFromWidth:img.size.width andHeight:img.size.height];
-    CGFloat scaledHeight;
-    CGFloat scaledWidth;
-    
-    if (viewOption==VIEW_OPT_STRETCH_OPTIMAL)
-    {
-        // fit image optimal to screen
-        if (imgRatio >= screenRatio)
-        {
-            target.size.height = [self calcHeightFromRatio:imgRatio andWidth:screenRect.size.width];
-            target.origin.y = (screenRect.size.height - target.size.height)/2;
-            target.size.width = screenRect.size.width;
-            target.origin.x = screenRect.origin.x;
-        }
-        else
-        {
-            target.size.width = [self calcWidthFromRatio:imgRatio andHeight:screenRect.size.height];
-            target.origin.x = (screenRect.size.width - target.size.width)/2;
-            target.size.height = screenRect.size.height;
-            target.origin.y = screenRect.origin.y;
-        }
-    }
-    else if (viewOption==VIEW_OPT_STRETCH_MAXIMAL)
-    {
-        // stretch image maximal to screen
-        target = screenRect;
-    }
-    else if (viewOption==VIEW_OPT_KEEP_ORIG_SIZE)
-    {
-        if ([self isPreview] == FALSE)
-        {
-            // in case of NO preview mode: simply keep original size of image
-            target.size.height = img.size.height;
-            target.size.width = img.size.width;
-            target.origin.y = (screenRect.size.height - img.size.height)/2;
-            target.origin.x = (screenRect.size.width - img.size.width)/2;
-        }
-        else
-        {
-            // in case of preview mode: we also need to calculate the ratio between the size of the physical main screen and the size of the preview window to scale the image down.
-            scaledHeight = screenRect.size.height / mainScreenRect.size.height * img.size.height;
-            scaledWidth = screenRect.size.width / mainScreenRect.size.width * img.size.width;
-            target.size.height = scaledHeight;
-            target.size.width = scaledWidth;
-            target.origin.y = (screenRect.size.height - scaledHeight)/2;
-            target.origin.x = (screenRect.size.width - scaledWidth)/2;
-        }
-    }
-    else if (viewOption==VIEW_OPT_STRETCH_SMALL_SIDE)
-    {
-        // stretch image to smallest side
-        if (imgRatio >= screenRatio)
-        {
-            target.size.height = screenRect.size.height;
-            target.origin.y = screenRect.origin.y;
-            target.size.width = [self calcWidthFromRatio:imgRatio andHeight:screenRect.size.height];
-            target.origin.x = -1*(target.size.width - screenRect.size.width)/2;
-        }
-        else
-        {
-            target.size.width = screenRect.size.width;
-            target.origin.x = screenRect.origin.x;
-            target.size.height = [self calcHeightFromRatio:imgRatio andWidth:screenRect.size.width];
-            target.origin.y = -1*(target.size.height - screenRect.size.height)/2;
-        }
-    }
-    else
-    {
-        /*default is VIEW_OPT_STRETCH_MAXIMAL*/
-        // stretch image maximal to screen
-        target = screenRect;
-    }
     
     if (currFrameCount == FRAME_COUNT_NOT_USED)
     {
+        // FRAME_COUNT_NOT_USED means no image is loaded and so we clear the screen with the set background color
+        
         if ([self isPreview] == TRUE)
         {
             // only clear screen with background color (not OpenGL)
@@ -329,7 +189,7 @@
             // only clear screen with background color (OpenGL)
             [self.glView.openGLContext makeCurrentContext];
             glClearColor(backgrRed, backgrGreen, backgrBlue, GL_ALPHA_OPAQUE);
-            glClear(GL_COLOR_BUFFER_BIT);
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
             glFlush();
             [self setNeedsDisplay:YES];
         }
@@ -351,7 +211,7 @@
             [NSBezierPath fillRect: screenRect];
             
             // now draw frame
-            [img drawInRect:target];
+            [img drawInRect:targetRect];
 
         }
         else
@@ -363,7 +223,7 @@
             
             // first clear screen with background color
             glClearColor(backgrRed, backgrGreen, backgrBlue, GL_ALPHA_OPAQUE);
-            glClear(GL_COLOR_BUFFER_BIT);
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
             
             // Start phase
             glPushMatrix();
@@ -380,7 +240,6 @@
             //get one free texture name
             GLuint frameTextureName;
             glGenTextures(1, &frameTextureName);
-            
             //bind a Texture object to the name
             glBindTexture(GL_TEXTURE_2D,frameTextureName);
             
@@ -389,51 +248,53 @@
             glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
             glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
             glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+            
             if (loadAnimationToMem == TRUE)
             {
                 // we load bitmap data from memory and save CPU time (created during startAnimation)
                 NSData *pixels = [animationImages objectAtIndex:currFrameCount];
                 glTexImage2D(GL_TEXTURE_2D,
-                         0,
-                         GL_RGBA,
-                         (GLint)[gifRep pixelsWide],
-                         (GLint)[gifRep pixelsHigh],
-                         0,
-                         GL_RGBA,
-                         GL_UNSIGNED_BYTE, 
-                         [pixels bytes]
-                         );
+                     0,
+                     GL_RGBA,
+                     (GLint)[gifRep pixelsWide],
+                     (GLint)[gifRep pixelsHigh],
+                     0,
+                     GL_RGBA,
+                     GL_UNSIGNED_BYTE,
+                     [pixels bytes]
+                     );
             }
             else
             {
                 // bitmapData needs more CPU time to create bitmap data
                 [gifRep setProperty:NSImageCurrentFrame withValue:@(currFrameCount)];
                 glTexImage2D(GL_TEXTURE_2D,
-                             0,
-                             GL_RGBA,
-                             (GLint)[gifRep pixelsWide],
-                             (GLint)[gifRep pixelsHigh],
-                             0,
-                             GL_RGBA,
-                             GL_UNSIGNED_BYTE,
-                             [gifRep bitmapData]
-                             );
+                     0,
+                     GL_RGBA,
+                     (GLint)[gifRep pixelsWide],
+                     (GLint)[gifRep pixelsHigh],
+                     0,
+                     GL_RGBA,
+                     GL_UNSIGNED_BYTE,
+                     [gifRep bitmapData]
+                     );
             }
-            
+             
+            // generate Mipmap
             glGenerateMipmap(GL_TEXTURE_2D);
             
             // define the target position of texture (related to screen defined by glOrtho) witch makes the texture visible
-            float x = target.origin.x;
-            float y = target.origin.y;
-            float iheight = target.size.height;
-            float iwidth = target.size.width;
+            float x = targetRect.origin.x;
+            float y = targetRect.origin.y;
+            float iheight = targetRect.size.height;
+            float iwidth = targetRect.size.width;
             glBegin( GL_QUADS );
             glTexCoord2f( 0.f, 0.f ); glVertex2f(x, y); //Bottom left
             glTexCoord2f( 1.f, 0.f ); glVertex2f(x + iwidth, y); //Bottom right
             glTexCoord2f( 1.f, 1.f ); glVertex2f(x + iwidth, y + iheight); //Top right
             glTexCoord2f( 0.f, 1.f ); glVertex2f(x, y + iheight); //Top left
             glEnd();
-            
+
             glDisable(GL_BLEND);
             glDisable(GL_TEXTURE_2D);
             
@@ -563,7 +424,6 @@
     return self.optionsPanel;
 }
 
-
 - (IBAction)navigateSegmentButton:(id)sender
 {
     // check witch segment of segment button was pressed and than start the according method
@@ -581,7 +441,6 @@
             break;
     }
 }
-
 
 - (IBAction)closeConfigOk:(id)sender
 {
@@ -644,7 +503,6 @@
     // update label with actual selected value of slider
     [self.labelFpsManual setStringValue:[self.sliderFpsManual stringValue]];
 }
-
 
 - (IBAction)selectSliderChangeInterval:(id)sender
 {
@@ -937,6 +795,163 @@
         return fileOrDir;
     }
 
+}
+
+- (NSRect)calcTargetRectFromOptions
+{
+    // set some values screensaver and GIF image size
+    NSRect mainScreenRect = [[NSScreen mainScreen] frame];
+    NSRect screenRe = [self bounds];
+    NSRect targetRe = screenRe;
+    float screenRatio = [self pictureRatioFromWidth:screenRe.size.width andHeight:screenRe.size.height];
+    float imgRatio = [self pictureRatioFromWidth:img.size.width andHeight:img.size.height];
+    CGFloat scaledHeight;
+    CGFloat scaledWidth;
+    
+    if (viewOption==VIEW_OPT_STRETCH_OPTIMAL)
+    {
+        // fit image optimal to screen
+        if (imgRatio >= screenRatio)
+        {
+            targetRe.size.height = [self calcHeightFromRatio:imgRatio andWidth:screenRe.size.width];
+            targetRe.origin.y = (screenRe.size.height - targetRe.size.height)/2;
+            targetRe.size.width = screenRe.size.width;
+            targetRe.origin.x = screenRe.origin.x;
+        }
+        else
+        {
+            targetRe.size.width = [self calcWidthFromRatio:imgRatio andHeight:screenRe.size.height];
+            targetRe.origin.x = (screenRe.size.width - targetRe.size.width)/2;
+            targetRe.size.height = screenRe.size.height;
+            targetRe.origin.y = screenRe.origin.y;
+        }
+    }
+    else if (viewOption==VIEW_OPT_STRETCH_MAXIMAL)
+    {
+        // stretch image maximal to screen
+        targetRe = screenRe;
+    }
+    else if (viewOption==VIEW_OPT_KEEP_ORIG_SIZE)
+    {
+        if ([self isPreview] == FALSE)
+        {
+            // in case of NO preview mode: simply keep original size of image
+            targetRe.size.height = img.size.height;
+            targetRe.size.width = img.size.width;
+            targetRe.origin.y = (screenRe.size.height - img.size.height)/2;
+            targetRe.origin.x = (screenRe.size.width - img.size.width)/2;
+        }
+        else
+        {
+            // in case of preview mode: we also need to calculate the ratio between the size of the physical main screen and the size of the preview window to scale the image down.
+            scaledHeight = screenRe.size.height / mainScreenRect.size.height * img.size.height;
+            scaledWidth = screenRe.size.width / mainScreenRect.size.width * img.size.width;
+            targetRe.size.height = scaledHeight;
+            targetRe.size.width = scaledWidth;
+            targetRe.origin.y = (screenRe.size.height - scaledHeight)/2;
+            targetRe.origin.x = (screenRe.size.width - scaledWidth)/2;
+        }
+    }
+    else if (viewOption==VIEW_OPT_STRETCH_SMALL_SIDE)
+    {
+        // stretch image to smallest side
+        if (imgRatio >= screenRatio)
+        {
+            targetRe.size.height = screenRe.size.height;
+            targetRe.origin.y = screenRe.origin.y;
+            targetRe.size.width = [self calcWidthFromRatio:imgRatio andHeight:screenRe.size.height];
+            targetRe.origin.x = -1*(targetRe.size.width - screenRe.size.width)/2;
+        }
+        else
+        {
+            targetRe.size.width = screenRe.size.width;
+            targetRe.origin.x = screenRe.origin.x;
+            targetRe.size.height = [self calcHeightFromRatio:imgRatio andWidth:screenRe.size.width];
+            targetRe.origin.y = -1*(targetRe.size.height - screenRe.size.height)/2;
+        }
+    }
+    else
+    {
+        /*default is VIEW_OPT_STRETCH_MAXIMAL*/
+        // stretch image maximal to screen
+        targetRe = screenRe;
+    }
+    
+    return targetRe;
+}
+
+- (BOOL)loadGifFromFile:(NSString*)gifFileName andUseManualFps: (BOOL)manualFpsActive withFps: (float)fps;
+{
+    img = [[NSImage alloc] initWithContentsOfURL:[NSURL URLWithString:gifFileName]];
+    if (img)
+    {
+        gifRep = (NSBitmapImageRep *)[[img representations] objectAtIndex:FIRST_FRAME];
+        maxFrameCount = [[gifRep valueForProperty: NSImageFrameCount] integerValue];
+        
+        if(manualFpsActive)
+        {
+            // set frame rate manual
+            [self setAnimationTimeInterval:1/fps];
+        }
+        else
+        {
+            // set frame duration from data from gif file
+            /* If the fps is "too fast" NSBitmapImageRep gives back a clamped value for slower fps and not the value from the file! WTF? */
+            /*
+             [gifRep setProperty:NSImageCurrentFrame withValue:@(2)];
+             float currFrameDuration = [[gifRep valueForProperty: NSImageCurrentFrameDuration] floatValue];
+             [self setAnimationTimeInterval:currFrameDuration];
+             */
+            
+            // As workaround for the problem of NSBitmapImageRep class we use CGImageSourceCopyPropertiesAtIndex that always gives back the real value
+            CGImageSourceRef source = CGImageSourceCreateWithURL ( (__bridge CFURLRef) [NSURL URLWithString:gifFileName], NULL);
+            if (source)
+            {
+                CFDictionaryRef cfdProperties = CGImageSourceCopyPropertiesAtIndex(source, 0, nil);
+                NSDictionary *properties = CFBridgingRelease(cfdProperties);
+                float duration = [[[properties objectForKey:(__bridge NSString *)kCGImagePropertyGIFDictionary]
+                                   objectForKey:(__bridge NSString *) kCGImagePropertyGIFUnclampedDelayTime] doubleValue];
+                CFRelease(source);
+                [self setAnimationTimeInterval:duration];
+            }
+            else
+            {
+                [self setAnimationTimeInterval:DEFAULT_ANIME_TIME_INTER];
+            }
+        }
+        
+        // add glview to screensaver view in case of not in preview mode
+        if ([self isPreview] == FALSE)
+        {
+            [self addSubview:self.glView];
+        }
+        
+        // in case of no review mode and active config option create an array in memory with all frames of bitmap in bitmap format (can be used directly as OpenGL texture)
+        if (   ([self isPreview] == FALSE)
+            && (loadAnimationToMem == TRUE)
+            )
+        {
+            animationImages = [[NSMutableArray alloc] init];
+            for(NSUInteger frame=0;frame<maxFrameCount;frame++)
+            {
+                [gifRep setProperty:NSImageCurrentFrame withValue:@(frame)];
+                // bitmapData needs most CPU time during animation.
+                // thats why we execute bitmapData here during startAnimation and not in animateOneFrame. the start of screensaver will be than slower of cause, but during animation itself we need less CPU time
+                unsigned char *data = [gifRep bitmapData];
+                unsigned long size = [gifRep bytesPerPlane]*sizeof(unsigned char);
+                // copy the bitmap data into an NSData object, that can be save transferred to animateOneFrame
+                NSData *imgData = [[NSData alloc] initWithBytes:data length:size];
+                [animationImages addObject:imgData];
+                
+            }
+        }
+        
+        return TRUE;
+    }
+    else
+    {
+        return FALSE;
+    }
 }
 
 @end
