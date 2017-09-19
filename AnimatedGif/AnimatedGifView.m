@@ -100,6 +100,12 @@
         [[[NSWorkspace sharedWorkspace] notificationCenter] addObserver: self
                                                                selector: @selector(receiveWakeNote:)
                                                                    name: NSWorkspaceDidWakeNotification object: NULL];
+        
+        // add glview to screensaver view in case of not in preview mode
+        if ([self isPreview] == FALSE)
+        {
+            [self addSubview:self.glView];
+        }
     }
     
     // get filename from screensaver defaults
@@ -882,12 +888,18 @@
 
 - (BOOL)loadGifFromFile:(NSString*)gifFileName andUseManualFps: (BOOL)manualFpsActive withFps: (float)fps;
 {
+    // load the GIF
     img = [[NSImage alloc] initWithContentsOfURL:[NSURL URLWithString:gifFileName]];
+    
+    // check if a GIF was loaded
     if (img)
     {
+        // get an NSBitmapImageRep that we need to get to the bitmap data and properties of GIF
         gifRep = (NSBitmapImageRep *)[[img representations] objectAtIndex:FIRST_FRAME];
+        // get max numer of frames of GIF
         maxFrameCount = [[gifRep valueForProperty: NSImageFrameCount] integerValue];
         
+        // setup FPS of loaded GIF
         if(manualFpsActive)
         {
             // set frame rate manual
@@ -920,12 +932,6 @@
             }
         }
         
-        // add glview to screensaver view in case of not in preview mode
-        if ([self isPreview] == FALSE)
-        {
-            [self addSubview:self.glView];
-        }
-        
         // in case of no review mode and active config option create an array in memory with all frames of bitmap in bitmap format (can be used directly as OpenGL texture)
         if (   ([self isPreview] == FALSE)
             && (loadAnimationToMem == TRUE)
@@ -946,10 +952,12 @@
             }
         }
         
+        // GIF was loaded
         return TRUE;
     }
     else
     {
+        // there was no GIF loaded
         return FALSE;
     }
 }
