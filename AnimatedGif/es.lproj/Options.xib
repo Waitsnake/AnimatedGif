@@ -23,6 +23,7 @@
                 <outlet property="labelFpsT4" destination="IMN-oe-cqe" id="ovk-2J-9o4"/>
                 <outlet property="labelFpsT5" destination="hhA-OU-fO4" id="iz2-j6-H7i"/>
                 <outlet property="labelFpsT6" destination="yeR-Gc-HfV" id="0iN-Sz-fKp"/>
+                <outlet property="labelVersion" destination="Ahm-6e-W64" id="Jxu-SS-OU4"/>
                 <outlet property="optionsPanel" destination="QvC-M9-y7g" id="S9j-MZ-x3G"/>
                 <outlet property="popupButtonViewOptions" destination="Cmf-ro-Be5" id="PZw-j0-uup"/>
                 <outlet property="segmentButtonLaunchAgent" destination="3xC-QT-NED" id="eaY-eR-M5f"/>
@@ -288,6 +289,22 @@ Gw
                     <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="hhA-OU-fO4">
                         <rect key="frame" x="227" y="314" width="21" height="17"/>
                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="30" id="oUD-bo-3eZ">
+                            <font key="font" metaFont="system"/>
+                            <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
+                            <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                        </textFieldCell>
+                    </textField>
+                    <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Ahm-6e-W64">
+                        <rect key="frame" x="70" y="55" width="43" height="17"/>
+                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="center" placeholderString="0.0.0" id="AJ7-Ta-6Fk">
+                            <font key="font" metaFont="system"/>
+                            <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
+                            <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                        </textFieldCell>
+                    </textField>
+                    <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="SN7-FH-f8T">
+                        <rect key="frame" x="18" y="55" width="59" height="17"/>
+                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Versión:" id="B5m-As-Rk1">
                             <font key="font" metaFont="system"/>
                             <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
                             <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>

@@ -114,7 +114,7 @@
     float frameRate = [defaults floatForKey:@"GifFrameRate"];
     BOOL frameRateManual = [defaults boolForKey:@"GifFrameRateManual"];
     loadAnimationToMem = [defaults boolForKey:@"LoadAniToMem"];
-    viewOption = [defaults integerForKey:@"ViewOpt"];
+    NSInteger viewOption = [defaults integerForKey:@"ViewOpt"];
     backgrRed = [defaults floatForKey:@"BackgrRed"];
     backgrGreen = [defaults floatForKey:@"BackgrGreen"];
     backgrBlue = [defaults floatForKey:@"BackgrBlue"];
@@ -134,9 +134,9 @@
         currFrameCount = FRAME_COUNT_NOT_USED;
     }
 
-    // set some values screensaver and GIF image size
+    // calculate target and screen rectangle size
     screenRect = [self bounds];
-    targetRect = [self calcTargetRectFromOptions];
+    targetRect = [self calcTargetRectFromOption:viewOption];
     
     // check if it is a file or a directory
     if ([self isDir:gifFileName])
@@ -379,22 +379,9 @@
     else
     {
         // set file fps in GUI
-        CGImageSourceRef source = CGImageSourceCreateWithURL ( (__bridge CFURLRef) [NSURL URLWithString:gifFileName], NULL);
-        if (source)
-        {
-            CFDictionaryRef cfdProperties = CGImageSourceCopyPropertiesAtIndex(source, 0, nil);
-            NSDictionary *properties = CFBridgingRelease(cfdProperties);
-            float duration = [[[properties objectForKey:(__bridge NSString *)kCGImagePropertyGIFDictionary]
-                               objectForKey:(__bridge NSString *) kCGImagePropertyGIFUnclampedDelayTime] doubleValue];
-            CFRelease(source);
-            float fps = 1/duration;
-            
-            [self.labelFpsGif setStringValue:[NSString stringWithFormat:@"%2.1f", fps]];
-        }
-        else
-        {
-            [self.labelFpsGif setStringValue:@"0.0"];
-        }
+        NSTimeInterval duration = [self getDurationFromGifFile:gifFileName];
+        float fps = 1/duration;
+        [self.labelFpsGif setStringValue:[NSString stringWithFormat:@"%2.1f", fps]];
         [self hideFpsFromFile:NO];
         
         // disable time interval slider in case an file is selected
@@ -403,6 +390,8 @@
     
     
     // set the visible value in dialog to the last saved value
+    NSString *version = [[NSBundle bundleForClass:[self class]] objectForInfoDictionaryKey: @"CFBundleShortVersionString"];
+    [self.labelVersion setStringValue:version];
     [self.textFieldFileUrl setStringValue:gifFileName];
     [self.sliderFpsManual setDoubleValue:frameRate];
     [self.checkButtonSetFpsManual setState:frameRateManual];
@@ -473,7 +462,6 @@
     [defaults synchronize];
     
     // set new values to object attributes
-    viewOption = viewOpt;
     backgrRed = colorPicked.redComponent;
     backgrGreen = colorPicked.greenComponent;
     backgrBlue = colorPicked.blueComponent;
@@ -638,22 +626,9 @@
         else
         {
             // update file fps in GUI
-            CGImageSourceRef source = CGImageSourceCreateWithURL ( (__bridge CFURLRef) [NSURL URLWithString:newSelectedFileOrDir.absoluteString], NULL);
-            if (source)
-            {
-                CFDictionaryRef cfdProperties = CGImageSourceCopyPropertiesAtIndex(source, 0, nil);
-                NSDictionary *properties = CFBridgingRelease(cfdProperties);
-                float duration = [[[properties objectForKey:(__bridge NSString *)kCGImagePropertyGIFDictionary]
-                                   objectForKey:(__bridge NSString *) kCGImagePropertyGIFUnclampedDelayTime] doubleValue];
-                CFRelease(source);
-                float fps = 1/duration;
-                
-                [self.labelFpsGif setStringValue:[NSString stringWithFormat:@"%2.1f", fps]];
-            }
-            else
-            {
-                [self.labelFpsGif setStringValue:@"0.0"];
-            }
+            NSTimeInterval duration = [self getDurationFromGifFile:[NSURL URLWithString:newSelectedFileOrDir.absoluteString].absoluteString];
+            float fps = 1/duration;
+            [self.labelFpsGif setStringValue:[NSString stringWithFormat:@"%2.1f", fps]];
             [self hideFpsFromFile:NO];
             
             // disable time interval slider only in case that an file is selected
@@ -803,7 +778,7 @@
 
 }
 
-- (NSRect)calcTargetRectFromOptions
+- (NSRect)calcTargetRectFromOption:(NSInteger)option
 {
     // set some values screensaver and GIF image size
     NSRect mainScreenRect = [[NSScreen mainScreen] frame];
@@ -814,7 +789,7 @@
     CGFloat scaledHeight;
     CGFloat scaledWidth;
     
-    if (viewOption==VIEW_OPT_STRETCH_OPTIMAL)
+    if (option==VIEW_OPT_STRETCH_OPTIMAL)
     {
         // fit image optimal to screen
         if (imgRatio >= screenRatio)
@@ -832,12 +807,12 @@
             targetRe.origin.y = screenRe.origin.y;
         }
     }
-    else if (viewOption==VIEW_OPT_STRETCH_MAXIMAL)
+    else if (option==VIEW_OPT_STRETCH_MAXIMAL)
     {
         // stretch image maximal to screen
         targetRe = screenRe;
     }
-    else if (viewOption==VIEW_OPT_KEEP_ORIG_SIZE)
+    else if (option==VIEW_OPT_KEEP_ORIG_SIZE)
     {
         if ([self isPreview] == FALSE)
         {
@@ -858,7 +833,7 @@
             targetRe.origin.x = (screenRe.size.width - scaledWidth)/2;
         }
     }
-    else if (viewOption==VIEW_OPT_STRETCH_SMALL_SIDE)
+    else if (option==VIEW_OPT_STRETCH_SMALL_SIDE)
     {
         // stretch image to smallest side
         if (imgRatio >= screenRatio)
@@ -908,28 +883,8 @@
         else
         {
             // set frame duration from data from gif file
-            /* If the fps is "too fast" NSBitmapImageRep gives back a clamped value for slower fps and not the value from the file! WTF? */
-            /*
-             [gifRep setProperty:NSImageCurrentFrame withValue:@(2)];
-             float currFrameDuration = [[gifRep valueForProperty: NSImageCurrentFrameDuration] floatValue];
-             [self setAnimationTimeInterval:currFrameDuration];
-             */
-            
-            // As workaround for the problem of NSBitmapImageRep class we use CGImageSourceCopyPropertiesAtIndex that always gives back the real value
-            CGImageSourceRef source = CGImageSourceCreateWithURL ( (__bridge CFURLRef) [NSURL URLWithString:gifFileName], NULL);
-            if (source)
-            {
-                CFDictionaryRef cfdProperties = CGImageSourceCopyPropertiesAtIndex(source, 0, nil);
-                NSDictionary *properties = CFBridgingRelease(cfdProperties);
-                float duration = [[[properties objectForKey:(__bridge NSString *)kCGImagePropertyGIFDictionary]
-                                   objectForKey:(__bridge NSString *) kCGImagePropertyGIFUnclampedDelayTime] doubleValue];
-                CFRelease(source);
-                [self setAnimationTimeInterval:duration];
-            }
-            else
-            {
-                [self setAnimationTimeInterval:DEFAULT_ANIME_TIME_INTER];
-            }
+            NSTimeInterval duration = [self getDurationFromGifFile:gifFileName];
+            [self setAnimationTimeInterval:duration];
         }
         
         // in case of no review mode and active config option create an array in memory with all frames of bitmap in bitmap format (can be used directly as OpenGL texture)
@@ -959,6 +914,47 @@
     {
         // there was no GIF loaded
         return FALSE;
+    }
+}
+
+- (NSTimeInterval)getDurationFromGifFile:(NSString*)gifFileName
+{
+    /* If the fps is "too fast" NSBitmapImageRep gives back a clamped value for slower fps and not the value from the file! WTF? */
+    /*
+    [gifRep setProperty:NSImageCurrentFrame withValue:@(2)];
+    NSTimeInterval currFrameDuration = [[gifRep valueForProperty: NSImageCurrentFrameDuration] floatValue];
+    return currFrameDuration;
+    */
+    
+    // As workaround for the problem of NSBitmapImageRep class we use CGImageSourceCopyPropertiesAtIndex that always gives back the real value
+    CGImageSourceRef source = CGImageSourceCreateWithURL ( (__bridge CFURLRef) [NSURL URLWithString:gifFileName], NULL);
+    if (source)
+    {
+        CFDictionaryRef cfdProperties = CGImageSourceCopyPropertiesAtIndex(source, 0, nil);
+        NSDictionary *properties = CFBridgingRelease(cfdProperties);
+        NSNumber *duration = [[properties objectForKey:(__bridge NSString *)kCGImagePropertyGIFDictionary]
+                           objectForKey:(__bridge NSString *) kCGImagePropertyGIFUnclampedDelayTime];
+        
+        CFRelease(source);
+        
+        //scale duration by 1000 to get ms, becasue it is in sec and a fraction between 1 and 0
+        NSInteger durMs = [duration doubleValue] * 1000.0;
+        // We whant to catch the case that duration is 0ms (infinity fps!), because vale was not set in frame 0 frame of GIF
+        if (durMs== 0)
+        {
+            // wenn NO duration was set, we use an default duration (15 fps)
+            return DEFAULT_ANIME_TIME_INTER;
+        }
+        else
+        {
+            // if we have a valid duration than return it
+            return [duration doubleValue];
+        }
+    }
+    else
+    {
+        // if not even a GIF file could be opend, we use an default duration (15 fps)
+        return DEFAULT_ANIME_TIME_INTER;
     }
 }
 

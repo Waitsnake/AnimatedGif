@@ -33,7 +33,6 @@
 @interface AnimatedGifView : ScreenSaverView {
     // keep track of whether or not drawRect: should erase the background
     NSMutableArray *animationImages;
-    NSInteger viewOption;
     NSInteger currFrameCount;
     NSInteger maxFrameCount;
     NSImage *img;
@@ -61,7 +60,8 @@
 - (void)receiveWakeNote: (NSNotification*) note;
 - (void)hideFpsFromFile:(BOOL)hide;
 - (BOOL)loadGifFromFile:(NSString*)gifFileName andUseManualFps: (BOOL)manualFpsActive withFps: (float)fps;
-- (NSRect)calcTargetRectFromOptions;
+- (NSRect)calcTargetRectFromOption:(NSInteger)option;
+- (NSTimeInterval)getDurationFromGifFile:(NSString*)gifFileName;
 
 @property (nonatomic, retain) NSOpenGLView* glView;
 @property (assign) IBOutlet NSPanel *optionsPanel;
@@ -70,6 +70,8 @@
 @property (assign) IBOutlet NSColorWell *colorWellBackgrColor;
 @property (assign) IBOutlet NSSegmentedControl *segmentButtonLaunchAgent;
 @property (assign) IBOutlet NSPopUpButton *popupButtonViewOptions;
+
+@property (assign) IBOutlet NSTextField *labelVersion;
 
 @property (assign) IBOutlet NSSlider *sliderChangeInterval;
 @property (assign) IBOutlet NSTextField *labelChangeInterval;
