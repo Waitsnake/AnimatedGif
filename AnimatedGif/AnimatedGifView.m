@@ -92,8 +92,15 @@
         // only call super method in case startAnimation is not called by timerMethod
         [super startAnimation];
         
+        NSString *pathToScreenSaverEngine = @"/System/Library/Frameworks/ScreenSaver.framework/Resources/ScreenSaverEngine.app/Contents/MacOS/ScreenSaverEngine";
+        NSOperatingSystemVersion osVer = [[NSProcessInfo processInfo] operatingSystemVersion];
+        if (osVer.minorVersion >= 13)
+        {
+            pathToScreenSaverEngine = @"/System/Library/CoreServices/ScreenSaverEngine.app/Contents/MacOS/ScreenSaverEngine";
+        }
+        
         // Fix for the issue that after starting screensaver in background mode a second instance of a screensaver will not start(e.g. after inactivity of user or moving mouse to an active corner). Calling screensaverenginge with parameter -idlecheck will enable a second screensaver instance.
-        NSString *cmdstr = [[NSString alloc] initWithFormat:@"%@", @"/System/Library/Frameworks/ScreenSaver.framework/Resources/ScreenSaverEngine.app/Contents/MacOS/ScreenSaverEngine -idleCheck"];
+        NSString *cmdstr = [[NSString alloc] initWithFormat:@"%@ %@", pathToScreenSaverEngine, @"-idleCheck"];
         system([cmdstr cStringUsingEncoding:NSUTF8StringEncoding]);
         
         // Fix for issue that glview is not working(stay white) after return from sleep. Register for event that is fired after return from sleep.
@@ -105,6 +112,25 @@
         if ([self isPreview] == FALSE)
         {
             [self addSubview:self.glView];
+        }
+        
+        // bug of OSX: since 10.13 the background mode of screensaver is brocken (the screensaver moves allways to it own space in foreground and this space can't be accessed from the ScreenSaverView)
+        // workaround: we use the window mode of the screensaver and change the behaviour of that window
+        if ([self isPreview] == FALSE)
+        {
+            // get the program arguments of the process
+            NSArray *args = [[NSProcessInfo processInfo] arguments];
+
+            // check if process was startet with argument -window for window mode of screensaver
+            if ((args.count==2) && ([args[1] isEqualToString:@"-window"]))
+            {
+                // now we move the window to background level and maximise it as we need it
+                [self.window setFrame:[[NSScreen mainScreen] frame] display:TRUE];
+                [super setFrame:[[NSScreen mainScreen] frame]];
+                [self.window setStyleMask:NSFullSizeContentViewWindowMask];
+                [self.window setCollectionBehavior: NSWindowCollectionBehaviorStationary|NSWindowCollectionBehaviorCanJoinAllSpaces];
+                [self.window setLevel:kCGDesktopWindowLevel];
+            }
         }
     }
     
@@ -316,11 +342,6 @@
             
             [self setNeedsDisplay:YES];
             
-            // we change the window level only, if not in preview mode and if the level is already set by the ScreenSaverEngine to desktop level or lower. This allows the screensaver to be used in normal mode, when a screensaver is on the highest window level and not in background
-            if (self.window.level <= kCGDesktopWindowLevel) {
-                //  set the window level to desktop level, that fixes the problem that after an mission control switch the window is hided. because ScreenSaverEngine set the window level one step to low (kCGDesktopWindowLevel-1) to work correct with mission control that requires exactly kCGDesktopWindowLevel.
-                [self.window setLevel:kCGDesktopWindowLevel];
-            }
         }
     
         //calculate next frame of GIF to show
@@ -469,6 +490,11 @@
     // close color dialog and options dialog
     [[NSColorPanel sharedColorPanel] close];
     [[NSApplication sharedApplication] endSheet:self.optionsPanel];
+    
+    // finaly kill ScreenSaverEngine
+    // in case it was running in background it will restarted from launchd ad uses the new default vales
+    NSString *cmdstr = [[NSString alloc] initWithFormat:@"%@", @"killall ScreenSaverEngine"];
+    system([cmdstr cStringUsingEncoding:NSUTF8StringEncoding]);
 }
 
 - (IBAction)closeConfigCancel:(id)sender
@@ -654,8 +680,15 @@
     }
     
     
+    NSString *pathToScreenSaverEngine = @"/System/Library/Frameworks/ScreenSaver.framework/Resources/ScreenSaverEngine.app/Contents/MacOS/ScreenSaverEngine";
+    NSOperatingSystemVersion osVer = [[NSProcessInfo processInfo] operatingSystemVersion];
+    if (osVer.minorVersion >= 13)
+    {
+        pathToScreenSaverEngine = @"/System/Library/CoreServices/ScreenSaverEngine.app/Contents/MacOS/ScreenSaverEngine";
+    }
+    
     // set values here...
-    NSDictionary *cfg  = @{@"Label":@"com.waitsnake.animatedgif", @"ProgramArguments":@[@"/System/Library/Frameworks/ScreenSaver.framework/Resources/ScreenSaverEngine.app/Contents/MacOS/ScreenSaverEngine",@"-background"], @"KeepAlive":@{@"OtherJobEnabled":@{@"com.apple.SystemUIServer.agent":@YES,@"com.apple.Finder":@YES,@"com.apple.Dock.agent":@YES}}, @"ThrottleInterval":@0};
+    NSDictionary *cfg  = @{@"Label":@"com.waitsnake.animatedgif", @"ProgramArguments":@[pathToScreenSaverEngine,@"-window"], @"KeepAlive":@{@"OtherJobEnabled":@{@"com.apple.SystemUIServer.agent":@YES,@"com.apple.Finder":@YES,@"com.apple.Dock.agent":@YES}}, @"ThrottleInterval":@0};
     [plist addEntriesFromDictionary:cfg];
     
     // saves the agent plist file
