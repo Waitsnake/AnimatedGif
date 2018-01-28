@@ -26,6 +26,17 @@
         [self setAnimationTimeInterval:DEFAULT_ANIME_TIME_INTER];
     }
     
+    // get the program arguments of the process
+    NSArray *args = [[NSProcessInfo processInfo] arguments];
+    
+    // check if process was startet with argument -window for window mode of screensaver
+    if ((args.count==2) && ([args[1] isEqualToString:@"-window"]))
+    {
+        // Workaround: disable clock before start, since this leads to a crash with option "-window" of ScreenSaverEngine
+        NSString *cmdstr = [[NSString alloc] initWithFormat:@"%@", @"defaults -currentHost write com.apple.screensaver showClock -bool NO"];
+        system([cmdstr cStringUsingEncoding:NSUTF8StringEncoding]);
+    }
+    
     return self;
 }
 
@@ -733,6 +744,10 @@
     NSString *userLaunchAgentsPath = [[NSString alloc] initWithFormat:@"%@%@%@", @"/Users/", NSUserName(), @"/Library/LaunchAgents/com.waitsnake.animatedgif.plist"];
     [plist writeToFile:userLaunchAgentsPath atomically:YES];
     [plist removeAllObjects];
+    
+    // Workaround: disable clock before start, since this leads to a crash with option "-window" of ScreenSaverEngine
+    NSString *cmdstr2 = [[NSString alloc] initWithFormat:@"%@", @"defaults -currentHost write com.apple.screensaver showClock -bool NO"];
+    system([cmdstr2 cStringUsingEncoding:NSUTF8StringEncoding]);
     
     // start the launch agent
     NSString *cmdstr = [[NSString alloc] initWithFormat:@"launchctl load %@ &", userLaunchAgentsPath];
