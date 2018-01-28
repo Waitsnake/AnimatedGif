@@ -57,7 +57,6 @@
 - (void)timerMethod;
 - (void)enableSliderChangeInterval:(BOOL)enable;
 - (void)enableSliderFpsManual:(BOOL)enable;
-- (void)receiveWakeNote: (NSNotification*) note;
 - (void)hideFpsFromFile:(BOOL)hide;
 - (BOOL)loadGifFromFile:(NSString*)gifFileName andUseManualFps: (BOOL)manualFpsActive withFps: (float)fps;
 - (NSRect)calcTargetRectFromOption:(NSInteger)option;

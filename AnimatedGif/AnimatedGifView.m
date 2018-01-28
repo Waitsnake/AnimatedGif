@@ -75,16 +75,6 @@
     trigByTimer = FALSE;
 }
 
-- (void) receiveWakeNote: (NSNotification*) note
-{
-    // Event is fired after return from sleep.
-    
-    // Simply kill screensaverengine. If it was in background mode the launchd should restart the screensaver in background mode. It is a bit hard but works until I found a cleaner way to restore the glview that stays white.
-    NSString *cmdstr = [[NSString alloc] initWithFormat:@"%@", @"killall ScreenSaverEngine"];
-    system([cmdstr cStringUsingEncoding:NSUTF8StringEncoding]);
-    
-}
-
 - (void)startAnimation
 {
     if (trigByTimer == FALSE)
@@ -94,19 +84,10 @@
         
         NSString *pathToScreenSaverEngine = @"/System/Library/Frameworks/ScreenSaver.framework/Resources/ScreenSaverEngine.app/Contents/MacOS/ScreenSaverEngine";
         NSOperatingSystemVersion osVer = [[NSProcessInfo processInfo] operatingSystemVersion];
-        if (osVer.minorVersion >= 13)
+        if (osVer.majorVersion > 10 || osVer.minorVersion > 12)
         {
             pathToScreenSaverEngine = @"/System/Library/CoreServices/ScreenSaverEngine.app/Contents/MacOS/ScreenSaverEngine";
         }
-        
-        // Fix for the issue that after starting screensaver in background mode a second instance of a screensaver will not start(e.g. after inactivity of user or moving mouse to an active corner). Calling screensaverenginge with parameter -idlecheck will enable a second screensaver instance.
-        NSString *cmdstr = [[NSString alloc] initWithFormat:@"%@ %@", pathToScreenSaverEngine, @"-idleCheck"];
-        system([cmdstr cStringUsingEncoding:NSUTF8StringEncoding]);
-        
-        // Fix for issue that glview is not working(stay white) after return from sleep. Register for event that is fired after return from sleep.
-        [[[NSWorkspace sharedWorkspace] notificationCenter] addObserver: self
-                                                               selector: @selector(receiveWakeNote:)
-                                                                   name: NSWorkspaceDidWakeNotification object: NULL];
         
         // add glview to screensaver view in case of not in preview mode
         if ([self isPreview] == FALSE)
@@ -114,23 +95,30 @@
             [self addSubview:self.glView];
         }
         
-        // bug of OSX: since 10.13 the background mode of screensaver is brocken (the screensaver moves allways to it own space in foreground and this space can't be accessed from the ScreenSaverView)
-        // workaround: we use the window mode of the screensaver and change the behaviour of that window
+        // bug of OSX: since 10.13 the background mode of screensaver is brocken (the ScreenSaverEngine uses for background-mode its own space that is in foreground and this space can't be accessed from the ScreenSaverView)
+        // workaround: AnimatedGif use the window-mode of the ScreenSaverEngine and change the behavior of that window to an background window
         if ([self isPreview] == FALSE)
         {
             // get the program arguments of the process
             NSArray *args = [[NSProcessInfo processInfo] arguments];
-
+            
             // check if process was startet with argument -window for window mode of screensaver
             if ((args.count==2) && ([args[1] isEqualToString:@"-window"]))
             {
-                // now we move the window to background level and maximise it as we need it
+                // now we move the window to background level and maximize it as we need it
                 [self.window setFrame:[[NSScreen mainScreen] frame] display:TRUE];
                 [super setFrame:[[NSScreen mainScreen] frame]];
                 [self.window setStyleMask:NSFullSizeContentViewWindowMask];
                 [self.window setCollectionBehavior: NSWindowCollectionBehaviorStationary|NSWindowCollectionBehaviorCanJoinAllSpaces];
                 [self.window setLevel:kCGDesktopWindowLevel];
             }
+        }
+        
+        
+        if ([self isPreview] == FALSE)
+        {
+            // hide window since next steps need some time an look ugly
+            [self.window orderOut:self];
         }
     }
     
@@ -146,7 +134,7 @@
     backgrBlue = [defaults floatForKey:@"BackgrBlue"];
     NSInteger changeIntervalInSec = [defaults integerForKey:@"ChangeInterval"] * 60;
     
-    // select a random file from directory or keep the file if it was allready a file
+    // select a random file from directory or keep the file if it was already a file
     NSString *newGifFileName = [self getRandomGifFile:gifFileName];
     
     // load GIF image
@@ -174,6 +162,15 @@
                                        selector:@selector(timerMethod)
                                        userInfo:nil
                                         repeats:NO];
+    }
+    
+    if (trigByTimer == FALSE)
+    {
+        if ([self isPreview] == FALSE)
+        {
+            // unhide window
+            [self.window orderBack:self];
+        }
     }
 }
 
@@ -461,6 +458,7 @@
 - (IBAction)closeConfigOk:(id)sender
 {
     // read values from GUI elements
+    BOOL defaultsChanged = FALSE;
     float frameRate = [self.sliderFpsManual floatValue];
     NSString *gifFileName = [self.textFieldFileUrl stringValue];
     BOOL frameRateManual = self.checkButtonSetFpsManual.state;
@@ -471,6 +469,43 @@
     
     // write values back to screensaver defaults
     ScreenSaverDefaults *defaults = [ScreenSaverDefaults defaultsForModuleWithName:[[NSBundle bundleForClass: [self class]] bundleIdentifier]];
+    if ([gifFileName isEqualToString:[defaults objectForKey:@"GifFileName"]]==FALSE)
+    {
+        defaultsChanged = TRUE;
+    }
+    if (fabsf([defaults floatForKey:@"GifFrameRate"]-frameRate)>0.01)
+    {
+        defaultsChanged = TRUE;
+    }
+    if ([defaults boolForKey:@"GifFrameRateManual"] != frameRateManual)
+    {
+        defaultsChanged = TRUE;
+    }
+    if ([defaults boolForKey:@"LoadAniToMem"] != loadAniToMem)
+    {
+        defaultsChanged = TRUE;
+    }
+    if ([defaults integerForKey:@"ViewOpt"] != viewOpt)
+    {
+        defaultsChanged = TRUE;
+    }
+    if ([defaults integerForKey:@"ChangeInterval"] != changeInt)
+    {
+        defaultsChanged = TRUE;
+    }
+    if (fabs([defaults floatForKey:@"BackgrRed"]-colorPicked.redComponent)>0.01)
+    {
+        defaultsChanged = TRUE;
+    }
+    if (fabs([defaults floatForKey:@"BackgrGreen"]-colorPicked.greenComponent)>0.01)
+    {
+        defaultsChanged = TRUE;
+    }
+    if (fabs([defaults floatForKey:@"BackgrBlue"]-colorPicked.blueComponent)>0.01)
+    {
+        defaultsChanged = TRUE;
+    }
+    
     [defaults setObject:gifFileName forKey:@"GifFileName"];
     [defaults setFloat:frameRate forKey:@"GifFrameRate"];
     [defaults setBool:frameRateManual forKey:@"GifFrameRateManual"];
@@ -491,10 +526,13 @@
     [[NSColorPanel sharedColorPanel] close];
     [[NSApplication sharedApplication] endSheet:self.optionsPanel];
     
-    // finaly kill ScreenSaverEngine
-    // in case it was running in background it will restarted from launchd ad uses the new default vales
-    NSString *cmdstr = [[NSString alloc] initWithFormat:@"%@", @"killall ScreenSaverEngine"];
-    system([cmdstr cStringUsingEncoding:NSUTF8StringEncoding]);
+    if (defaultsChanged==TRUE)
+    {
+        // finally kill ScreenSaverEngine
+        // in case it was running in background it will restarted from launchd and uses the new default vales
+        NSString *cmdstr = [[NSString alloc] initWithFormat:@"%@", @"killall ScreenSaverEngine"];
+        system([cmdstr cStringUsingEncoding:NSUTF8StringEncoding]);
+    }
 }
 
 - (IBAction)closeConfigCancel:(id)sender
@@ -610,7 +648,7 @@
     // Disable the selection of more than one file
     [openDlg setAllowsMultipleSelection:NO];
 
-    // set dialog to one levele obove of last selected file/directory
+    // set dialog to one level above of last selected file/directory
     if ([self isDir:[self.textFieldFileUrl stringValue]])
     {
         // in case of an directory remove one level of path before open it
@@ -682,7 +720,7 @@
     
     NSString *pathToScreenSaverEngine = @"/System/Library/Frameworks/ScreenSaver.framework/Resources/ScreenSaverEngine.app/Contents/MacOS/ScreenSaverEngine";
     NSOperatingSystemVersion osVer = [[NSProcessInfo processInfo] operatingSystemVersion];
-    if (osVer.minorVersion >= 13)
+    if (osVer.majorVersion > 10 || osVer.minorVersion > 12)
     {
         pathToScreenSaverEngine = @"/System/Library/CoreServices/ScreenSaverEngine.app/Contents/MacOS/ScreenSaverEngine";
     }
@@ -904,7 +942,7 @@
     {
         // get an NSBitmapImageRep that we need to get to the bitmap data and properties of GIF
         gifRep = (NSBitmapImageRep *)[[img representations] objectAtIndex:FIRST_FRAME];
-        // get max numer of frames of GIF
+        // get max number of frames of GIF
         maxFrameCount = [[gifRep valueForProperty: NSImageFrameCount] integerValue];
         
         // setup FPS of loaded GIF
@@ -970,9 +1008,9 @@
         
         CFRelease(source);
         
-        //scale duration by 1000 to get ms, becasue it is in sec and a fraction between 1 and 0
+        //scale duration by 1000 to get ms, because it is in sec and a fraction between 1 and 0
         NSInteger durMs = [duration doubleValue] * 1000.0;
-        // We whant to catch the case that duration is 0ms (infinity fps!), because vale was not set in frame 0 frame of GIF
+        // We want to catch the case that duration is 0ms (infinity fps!), because vale was not set in frame 0 frame of GIF
         if (durMs== 0)
         {
             // wenn NO duration was set, we use an default duration (15 fps)
@@ -986,7 +1024,7 @@
     }
     else
     {
-        // if not even a GIF file could be opend, we use an default duration (15 fps)
+        // if not even a GIF file could be open, we use an default duration (15 fps)
         return DEFAULT_ANIME_TIME_INTER;
     }
 }
