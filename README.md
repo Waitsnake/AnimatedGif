@@ -2,15 +2,14 @@
 
 AnimatedGif is an screensaver for Mac OSX / macOS that plays animated gif's.
 
-It also has a background mode to let you run the gif as a desktop background (or wallpaper).
-This option can be enabled under "Screen Saver Options" in macOS.
+It also has a background mode to let you run the gif as a desktop background (or wallpaper). Unfortunly the screensaver clock is not working together with background mode and will be disabeld. But the clock works fine in normal screensaver mode. The background mode can be enabled under "Screen Saver Options" in macOS.
 
 You can neither open only one single GIF file file or you can choose a directory that contains more than one GIF file. In case of an selected directory the option panel of screensaver let you choose a time between 1 and 30 minutes when the GIF file is randomly changed.
 <br>
 
 ## Compatibility
 
-This project was originally written with Xcode 6.2 and SDK for OSX 10.9 Mavericks and tested under OSX 10.9 Mavericks and OSX 10.11 El Capitan. It should also run under macOS 10.12 Sierra, but this is not officially supported since I still develop the screensaver under 10.11.
+This project was originally written with Xcode 6.2 and SDK for OSX 10.9 Mavericks and tested under OSX 10.9 Mavericks and OSX 10.11 El Capitan. It should also run under macOS 10.12 Sierra and macOS 10.13 High Sierra, but this is not officially supported since I still develop the screensaver under 10.11.
 
 The latest release was compiled with Xcode 7.3.1 with SDK for OSX 10.11 El Capitan.
 <br>
