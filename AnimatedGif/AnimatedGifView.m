@@ -93,13 +93,6 @@
         // only call super method in case startAnimation is not called by timerMethod
         [super startAnimation];
         
-        NSString *pathToScreenSaverEngine = @"/System/Library/Frameworks/ScreenSaver.framework/Resources/ScreenSaverEngine.app/Contents/MacOS/ScreenSaverEngine";
-        NSOperatingSystemVersion osVer = [[NSProcessInfo processInfo] operatingSystemVersion];
-        if (osVer.majorVersion > 10 || osVer.minorVersion > 12)
-        {
-            pathToScreenSaverEngine = @"/System/Library/CoreServices/ScreenSaverEngine.app/Contents/MacOS/ScreenSaverEngine";
-        }
-        
         // add glview to screensaver view in case of not in preview mode
         if ([self isPreview] == FALSE)
         {
@@ -478,8 +471,9 @@
     NSColor *colorPicked = self.colorWellBackgrColor.color;
     NSInteger changeInt = [self.sliderChangeInterval integerValue];
     
-    // write values back to screensaver defaults
+    // init access to screensaver defaults
     ScreenSaverDefaults *defaults = [ScreenSaverDefaults defaultsForModuleWithName:[[NSBundle bundleForClass: [self class]] bundleIdentifier]];
+    // check for changes in default values first
     if ([gifFileName isEqualToString:[defaults objectForKey:@"GifFileName"]]==FALSE)
     {
         defaultsChanged = TRUE;
@@ -516,7 +510,7 @@
     {
         defaultsChanged = TRUE;
     }
-    
+    // write new default values
     [defaults setObject:gifFileName forKey:@"GifFileName"];
     [defaults setFloat:frameRate forKey:@"GifFrameRate"];
     [defaults setBool:frameRateManual forKey:@"GifFrameRateManual"];
@@ -537,12 +531,12 @@
     [[NSColorPanel sharedColorPanel] close];
     [[NSApplication sharedApplication] endSheet:self.optionsPanel];
     
-    if (defaultsChanged==TRUE)
+    // check if any default value has changed and background mode is active
+    if ((defaultsChanged==TRUE) && (self.segmentButtonLaunchAgent.selectedSegment == LOAD_BTN))
     {
-        // finally kill ScreenSaverEngine
-        // in case it was running in background it will restarted from launchd and uses the new default vales
-        NSString *cmdstr = [[NSString alloc] initWithFormat:@"%@", @"killall ScreenSaverEngine"];
-        system([cmdstr cStringUsingEncoding:NSUTF8StringEncoding]);
+        // in this case stop and restart ScreenSaverEngine
+        [self unloadAgent];
+        [self loadAgent];
     }
 }
 
