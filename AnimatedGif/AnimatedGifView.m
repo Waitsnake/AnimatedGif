@@ -115,6 +115,8 @@
                 [self.window setStyleMask:NSFullSizeContentViewWindowMask];
                 [self.window setCollectionBehavior: NSWindowCollectionBehaviorStationary|NSWindowCollectionBehaviorCanJoinAllSpaces];
                 [self.window setLevel:kCGDesktopWindowLevel];
+                NSPoint windPos = {0.0,0.0};
+                [self.window setFrameOrigin:windPos];
             }
         }
         
@@ -937,7 +939,7 @@
         // stretch image maximal to screen
         targetRe = screenRe;
     }
-    
+
     return targetRe;
 }
 
