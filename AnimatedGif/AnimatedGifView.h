@@ -19,6 +19,10 @@
 #define VIEW_OPT_STRETCH_SMALL_SIDE 3
 #define MAX_VIEW_OPT                3
 
+#define FILTER_OPT_BLUR             0
+#define FILTER_OPT_SHARP            1
+#define MAX_FILTER_OPT              1
+
 #define SYNC_TO_VERTICAL            1
 #define DONT_SYNC                   0
 
@@ -44,6 +48,7 @@
     BOOL trigByTimer;
     NSRect screenRect;
     NSRect targetRect;
+    NSInteger filter;
 }
 
 - (NSOpenGLView *)createGLView;
@@ -69,6 +74,7 @@
 @property (assign) IBOutlet NSColorWell *colorWellBackgrColor;
 @property (assign) IBOutlet NSSegmentedControl *segmentButtonLaunchAgent;
 @property (assign) IBOutlet NSPopUpButton *popupButtonViewOptions;
+@property (assign) IBOutlet NSPopUpButton *popupButtonFilterOptions;
 
 @property (assign) IBOutlet NSTextField *labelVersion;
 

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="10117" systemVersion="15G1611" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" customObjectInstantitationMethod="direct">
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="10117" systemVersion="15G19009" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" customObjectInstantitationMethod="direct">
     <dependencies>
         <deployment identifier="macosx"/>
         <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="10117"/>
@@ -25,6 +25,7 @@
                 <outlet property="labelFpsT6" destination="yeR-Gc-HfV" id="0iN-Sz-fKp"/>
                 <outlet property="labelVersion" destination="Ahm-6e-W64" id="Jxu-SS-OU4"/>
                 <outlet property="optionsPanel" destination="QvC-M9-y7g" id="S9j-MZ-x3G"/>
+                <outlet property="popupButtonFilterOptions" destination="7K8-fD-lfZ" id="Fqb-Vc-VFe"/>
                 <outlet property="popupButtonViewOptions" destination="Cmf-ro-Be5" id="PZw-j0-uup"/>
                 <outlet property="segmentButtonLaunchAgent" destination="3xC-QT-NED" id="eaY-eR-M5f"/>
                 <outlet property="sliderChangeInterval" destination="GRR-eI-eeq" id="KtV-yU-5zi"/>
@@ -118,8 +119,16 @@ Gw
                             <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                         </textFieldCell>
                     </textField>
+                    <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="gph-K4-MPk">
+                        <rect key="frame" x="221" y="184" width="111" height="17"/>
+                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Filtro de imagen:" id="xSO-v2-HkM">
+                            <font key="font" metaFont="system"/>
+                            <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
+                            <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                        </textFieldCell>
+                    </textField>
                     <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Kd9-dR-ges">
-                        <rect key="frame" x="18" y="159" width="324" height="17"/>
+                        <rect key="frame" x="18" y="156" width="324" height="17"/>
                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Arranca el salvapantallas en el fondo(launch agent):" id="dxI-if-SV8">
                             <font key="font" metaFont="system"/>
                             <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
@@ -149,19 +158,6 @@ Gw
                             </menu>
                         </popUpButtonCell>
                     </popUpButton>
-                    <segmentedControl verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="3xC-QT-NED">
-                        <rect key="frame" x="335" y="157" width="132" height="24"/>
-                        <segmentedCell key="cell" borderStyle="border" alignment="left" style="rounded" trackingMode="selectOne" id="5DN-LS-Kqw">
-                            <font key="font" metaFont="system"/>
-                            <segments>
-                                <segment label="Arrancar"/>
-                                <segment label="Parar" selected="YES" tag="1"/>
-                            </segments>
-                        </segmentedCell>
-                        <connections>
-                            <action selector="navigateSegmentButton:" target="-2" id="bCA-Fa-VYE"/>
-                        </connections>
-                    </segmentedControl>
                     <slider verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="GRR-eI-eeq">
                         <rect key="frame" x="21" y="237" width="445" height="27"/>
                         <sliderCell key="cell" enabled="NO" alignment="left" minValue="1" maxValue="30" doubleValue="5" tickMarkPosition="below" numberOfTickMarks="30" allowsTickMarkValuesOnly="YES" sliderType="linear" id="bWK-Ux-D9a"/>
@@ -310,6 +306,32 @@ Gw
                             <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                         </textFieldCell>
                     </textField>
+                    <popUpButton verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="7K8-fD-lfZ">
+                        <rect key="frame" x="335" y="179" width="132" height="26"/>
+                        <popUpButtonCell key="cell" type="push" title="difuso" bezelStyle="rounded" alignment="left" lineBreakMode="truncatingTail" state="on" borderStyle="borderAndBezel" imageScaling="proportionallyDown" inset="2" selectedItem="d4Z-ku-O8E" id="RJp-hO-YGx">
+                            <behavior key="behavior" lightByBackground="YES" lightByGray="YES"/>
+                            <font key="font" metaFont="menu"/>
+                            <menu key="menu" id="7So-Lh-jBs">
+                                <items>
+                                    <menuItem title="difuso" state="on" id="d4Z-ku-O8E"/>
+                                    <menuItem title="nítido" tag="1" id="ifo-2d-GlS"/>
+                                </items>
+                            </menu>
+                        </popUpButtonCell>
+                    </popUpButton>
+                    <segmentedControl verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="3xC-QT-NED">
+                        <rect key="frame" x="335" y="152" width="132" height="24"/>
+                        <segmentedCell key="cell" borderStyle="border" alignment="left" style="rounded" trackingMode="selectOne" id="5DN-LS-Kqw">
+                            <font key="font" metaFont="system"/>
+                            <segments>
+                                <segment label="Arrancar"/>
+                                <segment label="Parar" selected="YES" tag="1"/>
+                            </segments>
+                        </segmentedCell>
+                        <connections>
+                            <action selector="navigateSegmentButton:" target="-2" id="bCA-Fa-VYE"/>
+                        </connections>
+                    </segmentedControl>
                 </subviews>
             </view>
             <connections>

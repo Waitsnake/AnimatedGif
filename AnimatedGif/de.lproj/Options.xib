@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="10117" systemVersion="15G1611" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" customObjectInstantitationMethod="direct">
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="10117" systemVersion="15G19009" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" customObjectInstantitationMethod="direct">
     <dependencies>
         <deployment identifier="macosx"/>
         <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="10117"/>
@@ -25,6 +25,7 @@
                 <outlet property="labelFpsT6" destination="yeR-Gc-HfV" id="hRi-aT-BGg"/>
                 <outlet property="labelVersion" destination="cQS-xU-E2n" id="P9x-lr-Xbs"/>
                 <outlet property="optionsPanel" destination="QvC-M9-y7g" id="S9j-MZ-x3G"/>
+                <outlet property="popupButtonFilterOptions" destination="Z6L-PC-trD" id="6zJ-6k-udi"/>
                 <outlet property="popupButtonViewOptions" destination="Cmf-ro-Be5" id="ivH-C7-la8"/>
                 <outlet property="segmentButtonLaunchAgent" destination="3xC-QT-NED" id="o8N-nQ-m5L"/>
                 <outlet property="sliderChangeInterval" destination="aUW-ml-tfi" id="Azw-7y-zU2"/>
@@ -92,6 +93,14 @@
                             <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                         </textFieldCell>
                     </textField>
+                    <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="06j-lc-cNx">
+                        <rect key="frame" x="233" y="186" width="67" height="17"/>
+                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Bildfilter:" id="bTG-jZ-Ndd">
+                            <font key="font" metaFont="system"/>
+                            <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
+                            <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                        </textFieldCell>
+                    </textField>
                     <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="wPm-LD-3ir">
                         <rect key="frame" x="283" y="46" width="188" height="32"/>
                         <buttonCell key="cell" type="push" title="Datei oder Ordner wählen" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="5Ro-dF-RHD">
@@ -103,7 +112,7 @@
                         </connections>
                     </button>
                     <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Kd9-dR-ges">
-                        <rect key="frame" x="18" y="161" width="311" height="17"/>
+                        <rect key="frame" x="18" y="156" width="311" height="17"/>
                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Bildschirmschoner als Hintergrund(launch agent):" id="dxI-if-SV8">
                             <font key="font" metaFont="system"/>
                             <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
@@ -111,7 +120,7 @@
                         </textFieldCell>
                     </textField>
                     <segmentedControl verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="3xC-QT-NED">
-                        <rect key="frame" x="326" y="155" width="141" height="24"/>
+                        <rect key="frame" x="326" y="150" width="141" height="24"/>
                         <segmentedCell key="cell" borderStyle="border" alignment="left" style="rounded" trackingMode="selectOne" id="5DN-LS-Kqw">
                             <font key="font" metaFont="system"/>
                             <segments>
@@ -310,6 +319,19 @@ DQ
                             <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                         </textFieldCell>
                     </textField>
+                    <popUpButton verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Z6L-PC-trD">
+                        <rect key="frame" x="326" y="179" width="142" height="26"/>
+                        <popUpButtonCell key="cell" type="push" title="verschwommen" bezelStyle="rounded" alignment="left" lineBreakMode="truncatingTail" state="on" borderStyle="borderAndBezel" imageScaling="proportionallyDown" inset="2" selectedItem="fKj-iP-3nm" id="kKK-Cr-cNR">
+                            <behavior key="behavior" lightByBackground="YES" lightByGray="YES"/>
+                            <font key="font" metaFont="menu"/>
+                            <menu key="menu" id="xPM-1s-oBj">
+                                <items>
+                                    <menuItem title="verschwommen" state="on" id="fKj-iP-3nm"/>
+                                    <menuItem title="scharf" tag="1" id="b5N-QC-ZhA"/>
+                                </items>
+                            </menu>
+                        </popUpButtonCell>
+                    </popUpButton>
                 </subviews>
             </view>
             <connections>

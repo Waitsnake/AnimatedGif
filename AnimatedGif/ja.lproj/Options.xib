@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="10117" systemVersion="15G1611" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" customObjectInstantitationMethod="direct">
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="10117" systemVersion="15G19009" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" customObjectInstantitationMethod="direct">
     <dependencies>
         <deployment identifier="macosx"/>
         <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="10117"/>
@@ -25,6 +25,7 @@
                 <outlet property="labelFpsT6" destination="yeR-Gc-HfV" id="L4K-yn-Mcy"/>
                 <outlet property="labelVersion" destination="izU-Ez-Hbn" id="rdi-lc-Y7B"/>
                 <outlet property="optionsPanel" destination="QvC-M9-y7g" id="S9j-MZ-x3G"/>
+                <outlet property="popupButtonFilterOptions" destination="11w-dK-eKg" id="No8-eb-OKX"/>
                 <outlet property="popupButtonViewOptions" destination="Cmf-ro-Be5" id="6oo-Av-SiB"/>
                 <outlet property="segmentButtonLaunchAgent" destination="3xC-QT-NED" id="ahL-Y3-Tra"/>
                 <outlet property="sliderChangeInterval" destination="13u-av-974" id="0Aw-UH-NsY"/>
@@ -113,6 +114,14 @@ Gw
                     <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="yfb-kL-Hbi">
                         <rect key="frame" x="18" y="188" width="49" height="17"/>
                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="背景色" id="rci-LG-s3A">
+                            <font key="font" size="13" name=".HiraKakuInterface-W3"/>
+                            <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
+                            <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                        </textFieldCell>
+                    </textField>
+                    <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Jjg-GQ-x8I">
+                        <rect key="frame" x="235" y="187" width="81" height="17"/>
+                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="画像フィルタ :" id="zJ6-yC-VQ0">
                             <font key="font" size="13" name=".HiraKakuInterface-W3"/>
                             <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
                             <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
@@ -274,10 +283,6 @@ Gw
                             <action selector="sendFileButtonAction:" target="-2" id="7M8-iE-WnT"/>
                         </connections>
                     </button>
-                    <colorWell fixedFrame="YES" continuous="NO" translatesAutoresizingMaskIntoConstraints="NO" id="bxi-1B-SU5">
-                        <rect key="frame" x="99" y="185" width="44" height="23"/>
-                        <color key="color" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
-                    </colorWell>
                     <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="hhA-OU-fO4">
                         <rect key="frame" x="244" y="316" width="21" height="17"/>
                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="30" id="oUD-bo-3eZ">
@@ -310,6 +315,23 @@ Gw
                             <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                         </textFieldCell>
                     </textField>
+                    <popUpButton verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="11w-dK-eKg">
+                        <rect key="frame" x="394" y="184" width="98" height="26"/>
+                        <popUpButtonCell key="cell" type="push" title="ぼかし" bezelStyle="rounded" alignment="left" lineBreakMode="truncatingTail" state="on" borderStyle="borderAndBezel" imageScaling="proportionallyDown" inset="2" selectedItem="Uza-oF-Qdv" id="4OB-lB-TTu">
+                            <behavior key="behavior" lightByBackground="YES" lightByGray="YES"/>
+                            <font key="font" metaFont="menu"/>
+                            <menu key="menu" id="eEV-pT-D0m">
+                                <items>
+                                    <menuItem title="ぼかし" state="on" id="Uza-oF-Qdv"/>
+                                    <menuItem title="シャープ" tag="1" id="XrQ-ue-xIe"/>
+                                </items>
+                            </menu>
+                        </popUpButtonCell>
+                    </popUpButton>
+                    <colorWell fixedFrame="YES" continuous="NO" translatesAutoresizingMaskIntoConstraints="NO" id="bxi-1B-SU5">
+                        <rect key="frame" x="127" y="185" width="44" height="23"/>
+                        <color key="color" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
+                    </colorWell>
                 </subviews>
             </view>
             <connections>

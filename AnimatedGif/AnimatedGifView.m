@@ -19,7 +19,7 @@
     // initialize screensaver defaults with an default value
     ScreenSaverDefaults *defaults = [ScreenSaverDefaults defaultsForModuleWithName:[[NSBundle bundleForClass: [self class]] bundleIdentifier]];
     [defaults registerDefaults:[NSDictionary dictionaryWithObjectsAndKeys:
-                                 @"file:///please/select/an/gif/animation.gif", @"GifFileName", @"30.0", @"GifFrameRate", @"NO", @"GifFrameRateManual", @"0", @"ViewOpt", @"0.0", @"BackgrRed", @"0.0", @"BackgrGreen", @"0.0", @"BackgrBlue", @"NO", @"LoadAniToMem", @"5", @"ChangeInterval",nil]];
+                                 @"file:///please/select/an/gif/animation.gif", @"GifFileName", @"30.0", @"GifFrameRate", @"NO", @"GifFrameRateManual", @"0", @"ViewOpt", @"0", @"FilterOpt", @"0.0", @"BackgrRed", @"0.0", @"BackgrGreen", @"0.0", @"BackgrBlue", @"NO", @"LoadAniToMem", @"5", @"ChangeInterval",nil]];
     
     if (self) {
         self.glView = [self createGLView];
@@ -135,6 +135,7 @@
     BOOL frameRateManual = [defaults boolForKey:@"GifFrameRateManual"];
     loadAnimationToMem = [defaults boolForKey:@"LoadAniToMem"];
     NSInteger viewOption = [defaults integerForKey:@"ViewOpt"];
+    NSInteger filterOption = [defaults integerForKey:@"FilterOpt"];
     backgrRed = [defaults floatForKey:@"BackgrRed"];
     backgrGreen = [defaults floatForKey:@"BackgrGreen"];
     backgrBlue = [defaults floatForKey:@"BackgrBlue"];
@@ -157,6 +158,7 @@
     // calculate target and screen rectangle size
     screenRect = [self bounds];
     targetRect = [self calcTargetRectFromOption:viewOption];
+    filter = filterOption;
     
     // check if it is a file or a directory
     if ([self isDir:gifFileName])
@@ -278,12 +280,28 @@
             //bind a Texture object to the name
             glBindTexture(GL_TEXTURE_2D,frameTextureName);
             
-            // load current bitmap as texture into the GPU
-            glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-            glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+            // set paramter for texture
+            if (filter == FILTER_OPT_BLUR)
+            {
+                glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+                glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+            }
+            else if (filter == FILTER_OPT_SHARP)
+            {
+                glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_NEAREST);
+                glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+            }
+            else
+            {
+                // use blur filter as default
+                glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+                glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+            }
+
             glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
             glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
             
+            // load current bitmap as texture into the GPU
             if (loadAnimationToMem == TRUE)
             {
                 // we load bitmap data from memory and save CPU time (created during startAnimation)
@@ -382,12 +400,19 @@
     float bgrGreen = [defaults floatForKey:@"BackgrGreen"];
     float bgrBlue = [defaults floatForKey:@"BackgrBlue"];
     NSInteger viewOpt = [defaults integerForKey:@"ViewOpt"];
+    NSInteger filterOpt = [defaults integerForKey:@"FilterOpt"];
     NSInteger changeInter = [defaults integerForKey:@"ChangeInterval"];
     
     // in the rarely case of an invalid value from default file we set an valid option
     if (viewOpt > MAX_VIEW_OPT)
     {
         viewOpt = VIEW_OPT_STRETCH_OPTIMAL;
+    }
+    
+    // in the rarely case of an invalid value from default file we set an valid option
+    if (filterOpt > MAX_FILTER_OPT)
+    {
+        filterOpt = FILTER_OPT_BLUR;
     }
     
     if ([self isDir:gifFileName])
@@ -421,6 +446,7 @@
     [self.checkButtonSetFpsManual setState:frameRateManual];
     [self.checkButtonLoadIntoMem setState:loadAniToMem];
     [self.popupButtonViewOptions selectItemWithTag:viewOpt];
+    [self.popupButtonFilterOptions selectItemWithTag:filterOpt];
     [self.sliderChangeInterval setIntegerValue:changeInter];
     [self.labelChangeInterval setStringValue:[self.sliderChangeInterval stringValue]];
     [self enableSliderFpsManual:frameRateManual];
@@ -470,6 +496,7 @@
     BOOL frameRateManual = self.checkButtonSetFpsManual.state;
     BOOL loadAniToMem = self.checkButtonLoadIntoMem.state;
     NSInteger viewOpt = self.popupButtonViewOptions.selectedTag;
+    NSInteger filterOpt = self.popupButtonFilterOptions.selectedTag;
     NSColor *colorPicked = self.colorWellBackgrColor.color;
     NSInteger changeInt = [self.sliderChangeInterval integerValue];
     
@@ -496,6 +523,10 @@
     {
         defaultsChanged = TRUE;
     }
+    if ([defaults integerForKey:@"FilterOpt"] != filterOpt)
+    {
+        defaultsChanged = TRUE;
+    }
     if ([defaults integerForKey:@"ChangeInterval"] != changeInt)
     {
         defaultsChanged = TRUE;
@@ -518,6 +549,7 @@
     [defaults setBool:frameRateManual forKey:@"GifFrameRateManual"];
     [defaults setBool:loadAniToMem forKey:@"LoadAniToMem"];
     [defaults setInteger:viewOpt forKey:@"ViewOpt"];
+    [defaults setInteger:filterOpt forKey:@"FilterOpt"];
     [defaults setFloat:colorPicked.redComponent forKey:@"BackgrRed"];
     [defaults setFloat:colorPicked.greenComponent forKey:@"BackgrGreen"];
     [defaults setFloat:colorPicked.blueComponent forKey:@"BackgrBlue"];
