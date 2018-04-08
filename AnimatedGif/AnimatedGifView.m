@@ -11,7 +11,7 @@
 @implementation AnimatedGifView
 
 - (instancetype)initWithFrame:(NSRect)frame isPreview:(BOOL)isPreview
-{
+{    
     trigByTimer = FALSE;
     currFrameCount = FRAME_COUNT_NOT_USED;
     self = [super initWithFrame:frame isPreview:isPreview];
@@ -29,12 +29,33 @@
     // get the program arguments of the process
     NSArray *args = [[NSProcessInfo processInfo] arguments];
     
-    // check if process was startet with argument -window for window mode of screensaver
+    // check if process was startet with argument -window for window mode of screensaver and is the first instance (has only two arguments, program name and the -"window")
     if ((args.count==2) && ([args[1] isEqualToString:@"-window"]))
     {
         // Workaround: disable clock before start, since this leads to a crash with option "-window" of ScreenSaverEngine
         NSString *cmdstr = [[NSString alloc] initWithFormat:@"%@", @"defaults -currentHost write com.apple.screensaver showClock -bool NO"];
         system([cmdstr cStringUsingEncoding:NSUTF8StringEncoding]);
+        
+        NSString *pathToScreenSaverEngine = @"/System/Library/Frameworks/ScreenSaver.framework/Resources/ScreenSaverEngine.app/Contents/MacOS/ScreenSaverEngine";
+        NSOperatingSystemVersion osVer = [[NSProcessInfo processInfo] operatingSystemVersion];
+        if (osVer.majorVersion > 10 || osVer.minorVersion > 12)
+        {
+            pathToScreenSaverEngine = @"/System/Library/CoreServices/ScreenSaverEngine.app/Contents/MacOS/ScreenSaverEngine";
+        }
+        
+        // This is a hell of a heck for a workaround. Since "-window" only starts one instance of ScreenSaverView, we start here additional instances of the ScreenSaverEngine itself by system call.
+        NSUInteger countScreens = [NSScreen screens].count;
+        if (countScreens > 1)
+        {
+            // additional instances needs start counting with "1" here(!) otherwise other part of code will be broken
+            for(NSUInteger scr=1;scr<countScreens;scr++)
+            {
+                // we start additional instances of ScreenSaverEngine, but with an extra number as argument that is invalid for the parser of the ScreenSaverEngine(see Log) but that wee use to differenceate beween the instances afterwards.
+                NSString *cmdstr2 = [[NSString alloc] initWithFormat:@"%@ %@ %ld &", pathToScreenSaverEngine, @"-window", scr];
+                system([cmdstr2 cStringUsingEncoding:NSUTF8StringEncoding]);
+            }
+        }
+        
     }
     
     return self;
@@ -107,16 +128,26 @@
             NSArray *args = [[NSProcessInfo processInfo] arguments];
             
             // check if process was startet with argument -window for window mode of screensaver
-            if ((args.count==2) && ([args[1] isEqualToString:@"-window"]))
+            if ((args.count>=2) && ([args[1] isEqualToString:@"-window"]))
             {
+                int scrNum = 0; // this "0" is for the first instance, that hast no number in "args[2]"
+                // only the additional instances have 3 arguments and a number in "args[2]" that starts with "1".
+                // unfortunly we can not start the main instance with an 3 agrument of "0" since this breaks the start with launchd, because for ScreenSaverEngine this argument is invalid.
+                if (args.count>2)
+                {
+                    scrNum = [args[2] intValue];
+                }
+                // get the one the multiple screens
+                NSScreen *theScreen = [NSScreen screens][scrNum];
+
                 // now we move the window to background level and maximize it as we need it
-                [self.window setFrame:[[NSScreen mainScreen] frame] display:TRUE];
-                [super setFrame:[[NSScreen mainScreen] frame]];
+                [self.window setFrame:[theScreen frame] display:TRUE];
+                [super setFrame:[theScreen frame]];
+                [super setFrameOrigin:NSZeroPoint];
                 [self.window setStyleMask:NSFullSizeContentViewWindowMask];
                 [self.window setCollectionBehavior: NSWindowCollectionBehaviorStationary|NSWindowCollectionBehaviorCanJoinAllSpaces];
                 [self.window setLevel:kCGDesktopWindowLevel];
-                NSPoint windPos = {0.0,0.0};
-                [self.window setFrameOrigin:windPos];
+                [self.window setFrame:[theScreen frame] display:TRUE];
             }
         }
         
@@ -180,6 +211,26 @@
             [self.window orderBack:self];
         }
     }
+    
+    // Register for notification something with the display has changed
+    [[NSNotificationCenter defaultCenter] addObserver: self
+                                                           selector: @selector(receiveDisplaysChangeNote:)
+                                                               name: NSApplicationDidChangeScreenParametersNotification
+                                                             object: NULL];
+}
+
+- (void) receiveDisplaysChangeNote: (NSNotification*) note
+{
+    // Event is fired after a change of displays
+    
+    // get the program arguments of the process
+    NSArray *args = [[NSProcessInfo processInfo] arguments];
+    // only terminate instances startet with "-window"
+    if ((args.count>=2) && ([args[1] isEqualToString:@"-window"]))
+    {
+        // this ScreenSaverEngine instance terminates itself
+        [NSApp terminate:self];
+    }
 }
 
 - (void)stopAnimation
@@ -210,7 +261,7 @@
 
 - (void)animateOneFrame
 {
-    
+
     if (currFrameCount == FRAME_COUNT_NOT_USED)
     {
         // FRAME_COUNT_NOT_USED means no image is loaded and so we clear the screen with the set background color

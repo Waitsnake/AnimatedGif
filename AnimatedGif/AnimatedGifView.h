@@ -66,6 +66,7 @@
 - (BOOL)loadGifFromFile:(NSString*)gifFileName andUseManualFps: (BOOL)manualFpsActive withFps: (float)fps;
 - (NSRect)calcTargetRectFromOption:(NSInteger)option;
 - (NSTimeInterval)getDurationFromGifFile:(NSString*)gifFileName;
+- (void) receiveDisplaysChangeNote: (NSNotification*) note;
 
 @property (nonatomic, retain) NSOpenGLView* glView;
 @property (assign) IBOutlet NSPanel *optionsPanel;
