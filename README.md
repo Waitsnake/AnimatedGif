@@ -9,7 +9,7 @@ You can neither open only one single GIF file file or you can choose a directory
 
 ## Compatibility
 
-This project was originally written with Xcode 6.2 and SDK for OSX 10.9 Mavericks and tested under OSX 10.9 Mavericks and OSX 10.11 El Capitan. It should also run under macOS 10.12 Sierra and macOS 10.13 High Sierra, but this is not officially supported since I still develop the screensaver under 10.11.
+This project was originally written with Xcode 6.2 and SDK for OSX 10.9 Mavericks and tested under OSX 10.9 Mavericks and OSX 10.11 El Capitan. It runs under OSX 10.11 El Capitan and macOS 10.12 Sierra. I heard from users that it no longer runs with macOS 10.13 High Sierra(only preview works but screensaver stays black) since last update 10.13.4.
 
 The latest release was compiled with Xcode 7.3.1 with SDK for OSX 10.11 El Capitan.
 <br>
