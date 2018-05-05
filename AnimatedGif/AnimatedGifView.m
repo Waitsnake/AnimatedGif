@@ -109,6 +109,9 @@
 
 - (void)startAnimation
 {
+    // get the program arguments of the process
+    NSArray *args = [[NSProcessInfo processInfo] arguments];
+    
     if (trigByTimer == FALSE)
     {
         // only call super method in case startAnimation is not called by timerMethod
@@ -124,9 +127,6 @@
         // workaround: AnimatedGif use the window-mode of the ScreenSaverEngine and change the behavior of that window to an background window
         if ([self isPreview] == FALSE)
         {
-            // get the program arguments of the process
-            NSArray *args = [[NSProcessInfo processInfo] arguments];
-            
             // check if process was startet with argument -window for window mode of screensaver
             if ((args.count>=2) && ([args[1] isEqualToString:@"-window"]))
             {
@@ -154,8 +154,12 @@
         
         if ([self isPreview] == FALSE)
         {
-            // hide window since next steps need some time an look ugly
-            [self.window orderOut:self];
+            // check if process was startet with argument -window for window mode of screensaver
+            if ((args.count>=2) && ([args[1] isEqualToString:@"-window"]))
+            {
+                // hide window since next steps need some time and look ugly
+                [self.window orderOut:self];
+            }
         }
     }
     
@@ -207,8 +211,12 @@
     {
         if ([self isPreview] == FALSE)
         {
-            // unhide window
-            [self.window orderBack:self];
+            // check if process was startet with argument -window for window mode of screensaver
+            if ((args.count>=2) && ([args[1] isEqualToString:@"-window"]))
+            {
+                // unhide window
+                [self.window orderBack:self];
+            }
         }
     }
     
