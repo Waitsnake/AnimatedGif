@@ -32,6 +32,7 @@
 #define DEFAULT_ANIME_TIME_INTER    1/15.0
 #define GL_ALPHA_OPAQUE             1.0f
 #define NS_ALPHA_OPAQUE             1.0
+#define NEVER_CHANGE_GIF            30
 
 
 @interface AnimatedGifView : ScreenSaverView {

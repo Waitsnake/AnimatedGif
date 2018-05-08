@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		CC1777EB20A1E8C40043C210 /* LICENSE.md in Sources */ = {isa = PBXBuildFile; fileRef = CC1777E920A1E7DF0043C210 /* LICENSE.md */; };
+		CC1777EC20A1E95D0043C210 /* LICENSE.md in Resources */ = {isa = PBXBuildFile; fileRef = CC1777E920A1E7DF0043C210 /* LICENSE.md */; };
 		CC24BA9B1BF124350045BDC7 /* AnimatedGifView.h in Headers */ = {isa = PBXBuildFile; fileRef = CC24BA9A1BF124350045BDC7 /* AnimatedGifView.h */; };
 		CC24BA9D1BF124350045BDC7 /* AnimatedGifView.m in Sources */ = {isa = PBXBuildFile; fileRef = CC24BA9C1BF124350045BDC7 /* AnimatedGifView.m */; };
 		CC4486F21C8A3A50008520D2 /* thumbnail.png in Resources */ = {isa = PBXBuildFile; fileRef = CC4486F01C8A3A50008520D2 /* thumbnail.png */; };
@@ -16,6 +18,7 @@
 
 /* Begin PBXFileReference section */
 		CC1073C41C78947900AC5F63 /* es */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = es; path = es.lproj/Options.xib; sourceTree = "<group>"; };
+		CC1777E920A1E7DF0043C210 /* LICENSE.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = LICENSE.md; sourceTree = SOURCE_ROOT; };
 		CC24BA951BF124350045BDC7 /* AnimatedGif.saver */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = AnimatedGif.saver; sourceTree = BUILT_PRODUCTS_DIR; };
 		CC24BA991BF124350045BDC7 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		CC24BA9A1BF124350045BDC7 /* AnimatedGifView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AnimatedGifView.h; sourceTree = "<group>"; };
@@ -68,6 +71,7 @@
 		CC24BA981BF124350045BDC7 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
+				CC1777E920A1E7DF0043C210 /* LICENSE.md */,
 				CC4486F01C8A3A50008520D2 /* thumbnail.png */,
 				CC4486F11C8A3A50008520D2 /* thumbnail@2x.png */,
 				CC24BA991BF124350045BDC7 /* Info.plist */,
@@ -146,6 +150,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				CC1777EC20A1E95D0043C210 /* LICENSE.md in Resources */,
 				CC4486F21C8A3A50008520D2 /* thumbnail.png in Resources */,
 				CCC3B9991C788F8E00FBE423 /* Options.xib in Resources */,
 				CC4486F31C8A3A50008520D2 /* thumbnail@2x.png in Resources */,
@@ -159,6 +164,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				CC1777EB20A1E8C40043C210 /* LICENSE.md in Sources */,
 				CC24BA9D1BF124350045BDC7 /* AnimatedGifView.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

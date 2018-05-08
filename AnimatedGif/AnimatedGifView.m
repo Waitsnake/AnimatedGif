@@ -174,7 +174,7 @@
     backgrRed = [defaults floatForKey:@"BackgrRed"];
     backgrGreen = [defaults floatForKey:@"BackgrGreen"];
     backgrBlue = [defaults floatForKey:@"BackgrBlue"];
-    NSInteger changeIntervalInSec = [defaults integerForKey:@"ChangeInterval"] * 60;
+    NSInteger changeIntervalInMin = [defaults integerForKey:@"ChangeInterval"];
     
     // select a random file from directory or keep the file if it was already a file
     NSString *newGifFileName = [self getRandomGifFile:gifFileName];
@@ -196,11 +196,11 @@
     filter = filterOption;
     
     // check if it is a file or a directory
-    if ([self isDir:gifFileName])
+    if ([self isDir:gifFileName] && ((changeIntervalInMin) != NEVER_CHANGE_GIF))
     {
 
         // start a one-time timer at end of startAnimation otherwise the time for loading the GIF is part of the timer
-        [NSTimer scheduledTimerWithTimeInterval:changeIntervalInSec
+        [NSTimer scheduledTimerWithTimeInterval:(changeIntervalInMin * 60)
                                          target:self
                                        selector:@selector(timerMethod)
                                        userInfo:nil
@@ -507,7 +507,14 @@
     [self.popupButtonViewOptions selectItemWithTag:viewOpt];
     [self.popupButtonFilterOptions selectItemWithTag:filterOpt];
     [self.sliderChangeInterval setIntegerValue:changeInter];
-    [self.labelChangeInterval setStringValue:[self.sliderChangeInterval stringValue]];
+    if ([self.sliderChangeInterval intValue] == NEVER_CHANGE_GIF)
+    {
+        [self.labelChangeInterval setStringValue:[self.labelChIntT4 stringValue]];
+    }
+    else
+    {
+        [self.labelChangeInterval setStringValue:[self.sliderChangeInterval stringValue]];
+    }
     [self enableSliderFpsManual:frameRateManual];
     [self.labelFpsManual setStringValue:[self.sliderFpsManual stringValue]];
     [self.colorWellBackgrColor setColor:[NSColor colorWithRed:bgrRed green:bgrGreen blue:bgrBlue alpha:NS_ALPHA_OPAQUE]];
@@ -663,7 +670,14 @@
 - (IBAction)selectSliderChangeInterval:(id)sender
 {
     // update label with actual selected value of slider
-    [self.labelChangeInterval setStringValue:[self.sliderChangeInterval stringValue]];
+    if ([self.sliderChangeInterval intValue] == NEVER_CHANGE_GIF)
+    {
+        [self.labelChangeInterval setStringValue:[self.labelChIntT4 stringValue]];
+    }
+    else
+    {
+        [self.labelChangeInterval setStringValue:[self.sliderChangeInterval stringValue]];
+    }
 }
 
 - (void)enableSliderChangeInterval:(BOOL)enable
