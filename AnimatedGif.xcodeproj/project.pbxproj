@@ -7,12 +7,12 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		CC1777EB20A1E8C40043C210 /* LICENSE.md in Sources */ = {isa = PBXBuildFile; fileRef = CC1777E920A1E7DF0043C210 /* LICENSE.md */; };
 		CC1777EC20A1E95D0043C210 /* LICENSE.md in Resources */ = {isa = PBXBuildFile; fileRef = CC1777E920A1E7DF0043C210 /* LICENSE.md */; };
 		CC24BA9B1BF124350045BDC7 /* AnimatedGifView.h in Headers */ = {isa = PBXBuildFile; fileRef = CC24BA9A1BF124350045BDC7 /* AnimatedGifView.h */; };
 		CC24BA9D1BF124350045BDC7 /* AnimatedGifView.m in Sources */ = {isa = PBXBuildFile; fileRef = CC24BA9C1BF124350045BDC7 /* AnimatedGifView.m */; };
 		CC4486F21C8A3A50008520D2 /* thumbnail.png in Resources */ = {isa = PBXBuildFile; fileRef = CC4486F01C8A3A50008520D2 /* thumbnail.png */; };
 		CC4486F31C8A3A50008520D2 /* thumbnail@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = CC4486F11C8A3A50008520D2 /* thumbnail@2x.png */; };
+		CC5E750C20FBCCBF0010ACDE /* About.xib in Resources */ = {isa = PBXBuildFile; fileRef = CC5E750E20FBCCBF0010ACDE /* About.xib */; };
 		CCC3B9991C788F8E00FBE423 /* Options.xib in Resources */ = {isa = PBXBuildFile; fileRef = CCC3B99B1C788F8E00FBE423 /* Options.xib */; };
 /* End PBXBuildFile section */
 
@@ -26,8 +26,12 @@
 		CC39BE001EDAD834008FCA5C /* ja */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = ja; path = ja.lproj/Options.xib; sourceTree = "<group>"; };
 		CC4486F01C8A3A50008520D2 /* thumbnail.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = thumbnail.png; path = extra/thumbnail.png; sourceTree = SOURCE_ROOT; };
 		CC4486F11C8A3A50008520D2 /* thumbnail@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "thumbnail@2x.png"; path = "extra/thumbnail@2x.png"; sourceTree = SOURCE_ROOT; };
+		CC5E750D20FBCCBF0010ACDE /* en */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = en; path = en.lproj/About.xib; sourceTree = "<group>"; };
 		CCC3B99A1C788F8E00FBE423 /* en */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = en; path = en.lproj/Options.xib; sourceTree = "<group>"; };
 		CCC3B99C1C788F9800FBE423 /* de */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = de; path = de.lproj/Options.xib; sourceTree = "<group>"; };
+		CCC8F19B20FBD471007C9FAE /* de */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = de; path = de.lproj/About.xib; sourceTree = "<group>"; };
+		CCC8F19C20FBD474007C9FAE /* es */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = es; path = es.lproj/About.xib; sourceTree = "<group>"; };
+		CCC8F19D20FBD476007C9FAE /* ja */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = ja; path = ja.lproj/About.xib; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -64,6 +68,7 @@
 				CC24BA9C1BF124350045BDC7 /* AnimatedGifView.m */,
 				CC24BA981BF124350045BDC7 /* Supporting Files */,
 				CCC3B99B1C788F8E00FBE423 /* Options.xib */,
+				CC5E750E20FBCCBF0010ACDE /* About.xib */,
 			);
 			path = AnimatedGif;
 			sourceTree = "<group>";
@@ -153,6 +158,7 @@
 				CC1777EC20A1E95D0043C210 /* LICENSE.md in Resources */,
 				CC4486F21C8A3A50008520D2 /* thumbnail.png in Resources */,
 				CCC3B9991C788F8E00FBE423 /* Options.xib in Resources */,
+				CC5E750C20FBCCBF0010ACDE /* About.xib in Resources */,
 				CC4486F31C8A3A50008520D2 /* thumbnail@2x.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -164,7 +170,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				CC1777EB20A1E8C40043C210 /* LICENSE.md in Sources */,
 				CC24BA9D1BF124350045BDC7 /* AnimatedGifView.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -172,6 +177,17 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXVariantGroup section */
+		CC5E750E20FBCCBF0010ACDE /* About.xib */ = {
+			isa = PBXVariantGroup;
+			children = (
+				CC5E750D20FBCCBF0010ACDE /* en */,
+				CCC8F19B20FBD471007C9FAE /* de */,
+				CCC8F19C20FBD474007C9FAE /* es */,
+				CCC8F19D20FBD476007C9FAE /* ja */,
+			);
+			name = About.xib;
+			sourceTree = "<group>";
+		};
 		CCC3B99B1C788F8E00FBE423 /* Options.xib */ = {
 			isa = PBXVariantGroup;
 			children = (

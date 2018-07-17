@@ -438,6 +438,39 @@
     return;
 }
 
+-(IBAction)aboutClick:(id)sender {
+    // load about window from nib
+    [[NSBundle bundleForClass:[self class]] loadNibNamed:@"About" owner:self topLevelObjects:nil];
+    
+    // prepare about window with content
+    NSString *version = [[NSBundle bundleForClass:[self class]] objectForInfoDictionaryKey: @"CFBundleShortVersionString"];
+    [self.labelVersion2 setStringValue:version];
+    [self.textLicence setEditable:NO];
+    NSError *err = nil;
+    NSString *path =[[NSBundle bundleForClass:[self class]] pathForResource:@"LICENSE" ofType:@"md"];
+    NSString *contents = [NSString stringWithContentsOfFile:path encoding:NSUTF8StringEncoding error:&err];
+    if (contents)
+    {
+        NSMutableAttributedString *attrString = [[NSMutableAttributedString alloc] initWithString:contents];
+        [[self.textLicence textStorage] appendAttributedString:attrString];
+    }
+    
+    // Create the modal controller for about window
+    if (!_aboutWindowController)
+        _aboutWindowController = [[NSWindowController alloc] initWithWindow:self.aboutWindow];
+    
+    // add notification of close event from about window
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(windowWillCloseNotification:) name:NSWindowWillCloseNotification object:self.aboutWindow];
+    
+    // Show window modal
+    [_aboutWindowController showWindow:self];
+    [NSApp runModalForWindow:[_aboutWindowController window]];
+}
+
+- (void)windowWillCloseNotification:(NSNotification*)notification {
+    [NSApp stopModal];
+}
+
 - (BOOL)hasConfigureSheet
 {
     // tell ScreenSaverEngine that screensaver has an Options dialog

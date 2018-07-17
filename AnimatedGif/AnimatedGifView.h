@@ -98,4 +98,9 @@
 @property (assign) IBOutlet NSTextField *labelFpsT5;
 @property (assign) IBOutlet NSTextField *labelFpsT6;
 
+@property (assign) IBOutlet NSWindow *aboutWindow;
+@property (nonatomic, strong) NSWindowController *aboutWindowController;
+@property (assign) IBOutlet NSTextField *labelVersion2;
+@property (assign) IBOutlet NSTextView *textLicence;
+
 @end
