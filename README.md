@@ -14,6 +14,9 @@ This project was originally written with Xcode 6.2 and SDK for OSX 10.9 Maverick
 The latest release was compiled with Xcode 7.3.1 with SDK for OSX 10.11 El Capitan.
 <br>
 
+## Note!
+There are reports that AnimatedGif is not working correct with version 10.13.6 of High Sierra (issue #38) and 10.14 Mojave (issue #37).
+
 ## Setup - Mac
 
 1. Download and unzip the compiled release file from the releases tab: https://github.com/Waitsnake/AnimatedGif/releases/latest/
