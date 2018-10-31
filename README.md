@@ -15,7 +15,7 @@ The latest release was compiled with Xcode 7.3.1 with SDK for OSX 10.11 El Capit
 <br>
 
 ## Note!
-There are reports that AnimatedGif is not working correct with version 10.13.6 of High Sierra (issue #38) and 10.14 Mojave (issue #37).
+There are reports that AnimatedGif is not working fully correct with version 10.13.6 of High Sierra (issue #38) and 10.14 Mojave (issue #37 and issue #39).
 
 ## Setup - Mac
 
