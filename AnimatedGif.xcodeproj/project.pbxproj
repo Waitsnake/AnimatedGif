@@ -26,8 +26,8 @@
 		CC39BE001EDAD834008FCA5C /* ja */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = ja; path = ja.lproj/Options.xib; sourceTree = "<group>"; };
 		CC4486F01C8A3A50008520D2 /* thumbnail.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = thumbnail.png; path = extra/thumbnail.png; sourceTree = SOURCE_ROOT; };
 		CC4486F11C8A3A50008520D2 /* thumbnail@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "thumbnail@2x.png"; path = "extra/thumbnail@2x.png"; sourceTree = SOURCE_ROOT; };
-		CC5E750D20FBCCBF0010ACDE /* en */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = en; path = en.lproj/About.xib; sourceTree = "<group>"; };
-		CCC3B99A1C788F8E00FBE423 /* en */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = en; path = en.lproj/Options.xib; sourceTree = "<group>"; };
+		CCABA29F218921D300E30E6C /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/Options.xib; sourceTree = "<group>"; };
+		CCABA2A0218921D400E30E6C /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/About.xib; sourceTree = "<group>"; };
 		CCC3B99C1C788F9800FBE423 /* de */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = de; path = de.lproj/Options.xib; sourceTree = "<group>"; };
 		CCC8F19B20FBD471007C9FAE /* de */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = de; path = de.lproj/About.xib; sourceTree = "<group>"; };
 		CCC8F19C20FBD474007C9FAE /* es */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = es; path = es.lproj/About.xib; sourceTree = "<group>"; };
@@ -122,7 +122,7 @@
 		CC24BA8C1BF124350045BDC7 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0730;
+				LastUpgradeCheck = 1000;
 				ORGANIZATIONNAME = "Marco Köhler";
 				TargetAttributes = {
 					CC24BA941BF124350045BDC7 = {
@@ -139,6 +139,7 @@
 				de,
 				es,
 				ja,
+				Base,
 			);
 			mainGroup = CC24BA8B1BF124350045BDC7;
 			productRefGroup = CC24BA961BF124350045BDC7 /* Products */;
@@ -180,10 +181,10 @@
 		CC5E750E20FBCCBF0010ACDE /* About.xib */ = {
 			isa = PBXVariantGroup;
 			children = (
-				CC5E750D20FBCCBF0010ACDE /* en */,
 				CCC8F19B20FBD471007C9FAE /* de */,
 				CCC8F19C20FBD474007C9FAE /* es */,
 				CCC8F19D20FBD476007C9FAE /* ja */,
+				CCABA2A0218921D400E30E6C /* Base */,
 			);
 			name = About.xib;
 			sourceTree = "<group>";
@@ -191,10 +192,10 @@
 		CCC3B99B1C788F8E00FBE423 /* Options.xib */ = {
 			isa = PBXVariantGroup;
 			children = (
-				CCC3B99A1C788F8E00FBE423 /* en */,
 				CCC3B99C1C788F9800FBE423 /* de */,
 				CC1073C41C78947900AC5F63 /* es */,
 				CC39BE001EDAD834008FCA5C /* ja */,
+				CCABA29F218921D300E30E6C /* Base */,
 			);
 			name = Options.xib;
 			sourceTree = "<group>";
@@ -206,17 +207,28 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
 				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_EMPTY_BODY = YES;
 				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
@@ -224,6 +236,7 @@
 				ENABLE_TESTABILITY = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"DEBUG=1",
@@ -247,17 +260,28 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
 				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_EMPTY_BODY = YES;
 				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
@@ -265,6 +289,7 @@
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
 				GCC_WARN_UNDECLARED_SELECTOR = YES;

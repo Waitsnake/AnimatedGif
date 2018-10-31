@@ -117,11 +117,7 @@
         // only call super method in case startAnimation is not called by timerMethod
         [super startAnimation];
         
-        // add glview to screensaver view in case of not in preview mode
-        if ([self isPreview] == FALSE)
-        {
-            [self addSubview:self.glView];
-        }
+        [self addSubview:self.glView];
         
         // bug of OSX: since 10.13 the background mode of screensaver is brocken (the ScreenSaverEngine uses for background-mode its own space that is in foreground and this space can't be accessed from the ScreenSaverView)
         // workaround: AnimatedGif use the window-mode of the ScreenSaverEngine and change the behavior of that window to an background window
@@ -247,17 +243,9 @@
     {
         // only call super method in case stopAnimation is not called by timerMethod
         [super stopAnimation];
-
-        // only remove GL view in case stopAnimation is not called by timerMethod
-        if ([self isPreview] == FALSE)
-        {
-            // remove glview from screensaver view
-            [self removeFromSuperview];
-        }
     }
     
-    if (   ([self isPreview] == FALSE)
-        && (loadAnimationToMem == TRUE))
+    if (loadAnimationToMem == TRUE)
     {
         /*clean all pre-calculated bitmap images*/
         [animationImages removeAllObjects];
@@ -274,98 +262,71 @@
     {
         // FRAME_COUNT_NOT_USED means no image is loaded and so we clear the screen with the set background color
         
-        if ([self isPreview] == TRUE)
-        {
-            // only clear screen with background color (not OpenGL)
-            [[NSColor colorWithDeviceRed: backgrRed green: backgrGreen blue: backgrBlue alpha: NS_ALPHA_OPAQUE] set];
-            [NSBezierPath fillRect: screenRect];
-        }
-        else
-        {
-            // only clear screen with background color (OpenGL)
-            [self.glView.openGLContext makeCurrentContext];
-            glClearColor(backgrRed, backgrGreen, backgrBlue, GL_ALPHA_OPAQUE);
-            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-            glFlush();
-            [self setNeedsDisplay:YES];
-        }
+        // only clear screen with background color (OpenGL)
+        [self.glView.openGLContext makeCurrentContext];
+        glClearColor(backgrRed, backgrGreen, backgrBlue, GL_ALPHA_OPAQUE);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+        glFlush();
+        [self setNeedsDisplay:YES];
+        
     }
     else
     {
-            
         // draw the selected frame
-        if ([self isPreview] == TRUE)
-        {
-            
-            // In Preview Mode OpenGL leads to crashes (?) so we make a classical image draw
-            
-            //select current frame from GIF (Hint: gifRep is a sub-object from img)
-            [gifRep setProperty:NSImageCurrentFrame withValue:@(currFrameCount)];
-            
-            // than clear screen with background color
-            [[NSColor colorWithDeviceRed: backgrRed green: backgrGreen blue: backgrBlue alpha: NS_ALPHA_OPAQUE] set];
-            [NSBezierPath fillRect: screenRect];
-            
-            // now draw frame
-            [img drawInRect:targetRect];
 
+
+        // change context to glview
+        [self.glView.openGLContext makeCurrentContext];
+            
+        // first clear screen with background color
+        glClearColor(backgrRed, backgrGreen, backgrBlue, GL_ALPHA_OPAQUE);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+            
+        // Start phase
+        glPushMatrix();
+            
+        // defines the pixel resolution of the screen (can be smaller than real screen, but than you will see pixels)
+        glOrtho(0,screenRect.size.width,screenRect.size.height,0,-1,1);
+            
+        glEnable(GL_TEXTURE_2D);
+        if ([gifRep hasAlpha] == TRUE) {
+            glEnable(GL_BLEND);
+            glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+        }
+            
+        //get one free texture name
+        GLuint frameTextureName;
+        glGenTextures(1, &frameTextureName);
+        //bind a Texture object to the name
+        glBindTexture(GL_TEXTURE_2D,frameTextureName);
+            
+        // set paramter for texture
+        if (filter == FILTER_OPT_BLUR)
+        {
+            glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+            glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        }
+        else if (filter == FILTER_OPT_SHARP)
+        {
+            glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_NEAREST);
+            glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
         }
         else
         {
-            // if we have no Preview Mode we use OpenGL to draw
+            // use blur filter as default
+            glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+            glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        }
 
-            // change context to glview
-            [self.glView.openGLContext makeCurrentContext];
+        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
             
-            // first clear screen with background color
-            glClearColor(backgrRed, backgrGreen, backgrBlue, GL_ALPHA_OPAQUE);
-            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-            
-            // Start phase
-            glPushMatrix();
-            
-            // defines the pixel resolution of the screen (can be smaller than real screen, but than you will see pixels)
-            glOrtho(0,screenRect.size.width,screenRect.size.height,0,-1,1);
-            
-            glEnable(GL_TEXTURE_2D);
-            if ([gifRep hasAlpha] == TRUE) {
-                glEnable(GL_BLEND);
-                glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
-            }
-            
-            //get one free texture name
-            GLuint frameTextureName;
-            glGenTextures(1, &frameTextureName);
-            //bind a Texture object to the name
-            glBindTexture(GL_TEXTURE_2D,frameTextureName);
-            
-            // set paramter for texture
-            if (filter == FILTER_OPT_BLUR)
-            {
-                glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-                glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-            }
-            else if (filter == FILTER_OPT_SHARP)
-            {
-                glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_NEAREST);
-                glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-            }
-            else
-            {
-                // use blur filter as default
-                glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-                glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-            }
-
-            glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-            glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-            
-            // load current bitmap as texture into the GPU
-            if (loadAnimationToMem == TRUE)
-            {
-                // we load bitmap data from memory and save CPU time (created during startAnimation)
-                NSData *pixels = [animationImages objectAtIndex:currFrameCount];
-                glTexImage2D(GL_TEXTURE_2D,
+        // load current bitmap as texture into the GPU
+        if (loadAnimationToMem == TRUE)
+        {
+            // we load bitmap data from memory and save CPU time (created during startAnimation)
+            NSData *pixels = [animationImages objectAtIndex:currFrameCount];
+            glTexImage2D(GL_TEXTURE_2D,
                      0,
                      GL_RGBA,
                      (GLint)[gifRep pixelsWide],
@@ -375,12 +336,12 @@
                      GL_UNSIGNED_BYTE,
                      [pixels bytes]
                      );
-            }
-            else
-            {
-                // bitmapData needs more CPU time to create bitmap data
-                [gifRep setProperty:NSImageCurrentFrame withValue:@(currFrameCount)];
-                glTexImage2D(GL_TEXTURE_2D,
+        }
+        else
+        {
+            // bitmapData needs more CPU time to create bitmap data
+            [gifRep setProperty:NSImageCurrentFrame withValue:@(currFrameCount)];
+            glTexImage2D(GL_TEXTURE_2D,
                      0,
                      GL_RGBA,
                      (GLint)[gifRep pixelsWide],
@@ -390,39 +351,38 @@
                      GL_UNSIGNED_BYTE,
                      [gifRep bitmapData]
                      );
-            }
-             
-            // generate Mipmap
-            glGenerateMipmap(GL_TEXTURE_2D);
-            
-            // define the target position of texture (related to screen defined by glOrtho) witch makes the texture visible
-            float x = targetRect.origin.x;
-            float y = targetRect.origin.y;
-            float iheight = targetRect.size.height;
-            float iwidth = targetRect.size.width;
-            glBegin( GL_QUADS );
-            glTexCoord2f( 0.f, 0.f ); glVertex2f(x, y); //Bottom left
-            glTexCoord2f( 1.f, 0.f ); glVertex2f(x + iwidth, y); //Bottom right
-            glTexCoord2f( 1.f, 1.f ); glVertex2f(x + iwidth, y + iheight); //Top right
-            glTexCoord2f( 0.f, 1.f ); glVertex2f(x, y + iheight); //Top left
-            glEnd();
-
-            glDisable(GL_BLEND);
-            glDisable(GL_TEXTURE_2D);
-            
-            //End phase
-            glPopMatrix();
-            
-            //free texture object by name
-            glDeleteTextures(1,&frameTextureName);
-            
-            glFlush();
-            
-            [self.glView.openGLContext flushBuffer];
-            
-            [self setNeedsDisplay:YES];
-            
         }
+             
+        // generate Mipmap
+        glGenerateMipmap(GL_TEXTURE_2D);
+            
+        // define the target position of texture (related to screen defined by glOrtho) witch makes the texture visible
+        float x = targetRect.origin.x;
+        float y = targetRect.origin.y;
+        float iheight = targetRect.size.height;
+        float iwidth = targetRect.size.width;
+        glBegin( GL_QUADS );
+        glTexCoord2f( 0.f, 0.f ); glVertex2f(x, y); //Bottom left
+        glTexCoord2f( 1.f, 0.f ); glVertex2f(x + iwidth, y); //Bottom right
+        glTexCoord2f( 1.f, 1.f ); glVertex2f(x + iwidth, y + iheight); //Top right
+        glTexCoord2f( 0.f, 1.f ); glVertex2f(x, y + iheight); //Top left
+        glEnd();
+
+        glDisable(GL_BLEND);
+        glDisable(GL_TEXTURE_2D);
+            
+        //End phase
+        glPopMatrix();
+            
+        //free texture object by name
+        glDeleteTextures(1,&frameTextureName);
+            
+        glFlush();
+            
+        [self.glView.openGLContext flushBuffer];
+            
+        [self setNeedsDisplay:YES];
+        
     
         //calculate next frame of GIF to show
         if (currFrameCount < maxFrameCount-1)
@@ -460,15 +420,17 @@
         _aboutWindowController = [[NSWindowController alloc] initWithWindow:self.aboutWindow];
     
     // add notification of close event from about window
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(windowWillCloseNotification:) name:NSWindowWillCloseNotification object:self.aboutWindow];
+    if (_aboutWindowController) [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(windowWillCloseNotification:) name:NSWindowWillCloseNotification object:self.aboutWindow];
     
-    // Show window modal
-    [_aboutWindowController showWindow:self];
-    [NSApp runModalForWindow:[_aboutWindowController window]];
+    // Show window
+    if (_aboutWindowController) [_aboutWindowController showWindow:self];
 }
 
 - (void)windowWillCloseNotification:(NSNotification*)notification {
-    [NSApp stopModal];
+    if (_aboutWindowController)
+    {
+         _aboutWindowController = nil;
+    }
 }
 
 - (BOOL)hasConfigureSheet
@@ -671,6 +633,12 @@
         [self unloadAgent];
         [self loadAgent];
     }
+    
+    if (_aboutWindowController)
+    {
+        [_aboutWindowController close];
+        _aboutWindowController = nil;
+    }
 }
 
 - (IBAction)closeConfigCancel:(id)sender
@@ -678,6 +646,12 @@
     // close color dialog and options dialog
     [[NSColorPanel sharedColorPanel] close];
     [[NSApplication sharedApplication] endSheet:self.optionsPanel];
+    
+    if (_aboutWindowController)
+    {
+        [_aboutWindowController close];
+        _aboutWindowController = nil;
+    }
 }
 
 - (IBAction)pressCheckboxSetFpsManual:(id)sender
@@ -1108,9 +1082,7 @@
         }
         
         // in case of no review mode and active config option create an array in memory with all frames of bitmap in bitmap format (can be used directly as OpenGL texture)
-        if (   ([self isPreview] == FALSE)
-            && (loadAnimationToMem == TRUE)
-            )
+        if (loadAnimationToMem == TRUE)
         {
             animationImages = [[NSMutableArray alloc] init];
             for(NSUInteger frame=0;frame<maxFrameCount;frame++)
