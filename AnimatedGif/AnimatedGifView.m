@@ -419,18 +419,10 @@
     if (!_aboutWindowController)
         _aboutWindowController = [[NSWindowController alloc] initWithWindow:self.aboutWindow];
     
-    // add notification of close event from about window
-    if (_aboutWindowController) [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(windowWillCloseNotification:) name:NSWindowWillCloseNotification object:self.aboutWindow];
-    
     // Show window
     if (_aboutWindowController) [_aboutWindowController showWindow:self];
-}
-
-- (void)windowWillCloseNotification:(NSNotification*)notification {
-    if (_aboutWindowController)
-    {
-         _aboutWindowController = nil;
-    }
+    // unfortunately the modal not longer works since 10.14 and crashes the whole app
+    //[NSApp runModalForWindow:self.aboutWindow];
 }
 
 - (BOOL)hasConfigureSheet
@@ -639,6 +631,8 @@
         [_aboutWindowController close];
         _aboutWindowController = nil;
     }
+    
+    [openDlg close];
 }
 
 - (IBAction)closeConfigCancel:(id)sender
@@ -652,6 +646,8 @@
         [_aboutWindowController close];
         _aboutWindowController = nil;
     }
+    
+    [openDlg close];
 }
 
 - (IBAction)pressCheckboxSetFpsManual:(id)sender
@@ -756,7 +752,10 @@
 - (IBAction)sendFileButtonAction:(id)sender
 {
     
-    NSOpenPanel* openDlg = [NSOpenPanel openPanel];
+    if (!openDlg) openDlg = [NSOpenPanel openPanel];
+    
+    // Since the open dialog can no longer opend modal since 10.14 at least we give it a title
+    [openDlg setMessage:@"Select file or directory"];
     
     // Enable the selection of files in the dialog.
     [openDlg setCanChooseFiles:YES];
@@ -784,41 +783,56 @@
     
     // Display the dialog.  If the OK button was pressed,
     // process the files.
-    if ( [openDlg runModal] == NSOKButton )
+
+    // unfortunately [openDlg runModal] crashes when selecting a single file
+    // as workaround [openDlg runModal] is replaced by [openDlg beginWithCompletionHandler:]
+    [openDlg beginWithCompletionHandler:^(NSInteger result)
     {
-        // Get an array containing the full filenames of all
-        // files and directories selected.
-        NSArray* files = [openDlg URLs];
         
-        NSURL *newSelectedFileOrDir = [files objectAtIndex:0];
+        //if the result is NSOKButton
+        //the user selected a file
         
-        // set GUI element with selected URL
-        [self.textFieldFileUrl setStringValue:newSelectedFileOrDir.absoluteString];
-        
-        
-        if ([self isDir:newSelectedFileOrDir.absoluteString])
+        if (result==NSModalResponseOK)
         {
-            // if we have an directory an fps value for a file makes not much sense
-            // we could calculate it for an randomly selected file but this would make thinks to complex
-            [self.labelFpsGif setStringValue:@"(dir)"];
-            [self hideFpsFromFile:YES];
             
-            // enable time interval slider only in case that an directory is selected
-            [self enableSliderChangeInterval:YES];
+            // Get an array containing the full filenames of all
+            // files and directories selected.
+            NSArray* files = [self->openDlg URLs];
+            
+            NSURL *newSelectedFileOrDir = [files objectAtIndex:0];
+            
+            // set GUI element with selected URL
+            [self.textFieldFileUrl setStringValue:newSelectedFileOrDir.absoluteString];
+            
+            
+            if ([self isDir:newSelectedFileOrDir.absoluteString])
+            {
+                // if we have an directory an fps value for a file makes not much sense
+                // we could calculate it for an randomly selected file but this would make thinks to complex
+                [self.labelFpsGif setStringValue:@"(dir)"];
+                [self hideFpsFromFile:YES];
+                
+                // enable time interval slider only in case that an directory is selected
+                [self enableSliderChangeInterval:YES];
+            }
+            else
+            {
+                // update file fps in GUI
+                NSTimeInterval duration = [self getDurationFromGifFile:[NSURL URLWithString:newSelectedFileOrDir.absoluteString].absoluteString];
+                float fps = 1/duration;
+                [self.labelFpsGif setStringValue:[NSString stringWithFormat:@"%2.1f", fps]];
+                [self hideFpsFromFile:NO];
+                
+                // disable time interval slider only in case that an file is selected
+                [self enableSliderChangeInterval:NO];
+            }
+            
         }
-        else
+        else if (result== NSModalResponseCancel)
         {
-            // update file fps in GUI
-            NSTimeInterval duration = [self getDurationFromGifFile:[NSURL URLWithString:newSelectedFileOrDir.absoluteString].absoluteString];
-            float fps = 1/duration;
-            [self.labelFpsGif setStringValue:[NSString stringWithFormat:@"%2.1f", fps]];
-            [self hideFpsFromFile:NO];
-            
-            // disable time interval slider only in case that an file is selected
-            [self enableSliderChangeInterval:NO];
+            //do nothing
         }
-        
-    }
+    }];
     
 }
 

@@ -50,6 +50,7 @@
     NSRect screenRect;
     NSRect targetRect;
     NSInteger filter;
+    NSOpenPanel* openDlg;
 }
 
 - (NSOpenGLView *)createGLView;
