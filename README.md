@@ -35,6 +35,7 @@ The latest release was tested successfully under Mavericks(10.9.5), El Capitan(1
 ## Uninstall AnimatedGif
 
 ***Automatic Uninstall***
+<br>
 In the linked tools folder here are 3 different tools to uninstall AnimatedGif. Each tool do the same and what way you choose depending only on your personal preferences.
 https://github.com/Waitsnake/AnimatedGif/tree/master/tools
 
@@ -44,6 +45,7 @@ https://github.com/Waitsnake/AnimatedGif/tree/master/tools
 <br>
 
 ***Manually Uninstall***
+<br>
 1. Open ***System Preferences -> Desktop and Screensaver***
 2. Click "Screen Saver Options" and stop the background mode if it was enabled and close options.
 3. Right click the AnimatedGif Screensaver and select "Delete AnimatedGif"
