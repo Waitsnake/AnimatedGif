@@ -36,12 +36,11 @@ The latest release was tested successfully under Mavericks(10.9.5), El Capitan(1
 
 ***Automatic Uninstall***
 <br>
-In the linked tools folder here are 3 different tools to uninstall AnimatedGif. Each tool do the same and what way you choose depending only on your personal preferences.
-https://github.com/Waitsnake/AnimatedGif/tree/master/tools
+In the linked tools here are 3 different ways to uninstall AnimatedGif. Each tool do the same and what way you choose depending only on your personal preferences.
 
-1. Uninstall_AnimatedGif.app.zip is an ZIP file containing an macOS application that uninstalls AnimatedGif
-2. Uninstall_AnimatedGif.scpt is an AppleScript that uninstalls AnimatedGif
-3. Uninstall_AnimatedGif.sh is an shell script that uninstalls AnimatedGif
+- <a href="https://github.com/Waitsnake/AnimatedGif/raw/master/tools/Uninstall_AnimatedGif.app.zip">Uninstall_AnimatedGif.app.zip</a> is an ZIP file containing an macOS application that uninstalls AnimatedGif (recommended way for unexperienced users)
+- <a href="https://github.com/Waitsnake/AnimatedGif/raw/master/tools/Uninstall_AnimatedGif.scpt">Uninstall_AnimatedGif.scpt</a> is an AppleScript that uninstalls AnimatedGif
+- <a href="https://github.com/Waitsnake/AnimatedGif/raw/master/tools/Uninstall_AnimatedGif.sh">Uninstall_AnimatedGif.sh</a> is an shell script that uninstalls AnimatedGif
 <br>
 
 ***Manually Uninstall***
