@@ -9,13 +9,10 @@ You can neither open only one single GIF file file or you can choose a directory
 
 ## Compatibility
 
-This project was originally written with Xcode 6.2 and SDK for OSX 10.9 Mavericks and tested under OSX 10.9 Mavericks and OSX 10.11 El Capitan. It runs under OSX 10.11 El Capitan, macOS 10.12 Sierra and macOS 10.13 High Sierra.
+This project was originally written with Xcode 6.2 and SDK for OSX 10.9 Mavericks and latest build was tested under Mavericks(10.9.5), El Capitan(10.11.6) and Mojave(10.14.1).
 
-The latest release was compiled with Xcode 7.3.1 with SDK for OSX 10.11 El Capitan.
+The latest release was compiled with Xcode 10.1 with SDK for OSX 10.14 Mojave.
 <br>
-
-## Note!
-There are reports that AnimatedGif is not working fully correct with version 10.13.6 of High Sierra (issue #38) and 10.14 Mojave (issue #37 and issue #39).
 
 ## Setup - Mac
 
