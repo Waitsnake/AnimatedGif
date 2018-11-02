@@ -69,12 +69,12 @@
 		CC24BA971BF124350045BDC7 /* AnimatedGif */ = {
 			isa = PBXGroup;
 			children = (
-				CCEF76C6218C83DB0050F7C9 /* Localizable.strings */,
 				CC24BA9A1BF124350045BDC7 /* AnimatedGifView.h */,
 				CC24BA9C1BF124350045BDC7 /* AnimatedGifView.m */,
 				CC24BA981BF124350045BDC7 /* Supporting Files */,
 				CCC3B99B1C788F8E00FBE423 /* Options.xib */,
 				CC5E750E20FBCCBF0010ACDE /* About.xib */,
+				CCEF76C6218C83DB0050F7C9 /* Localizable.strings */,
 			);
 			path = AnimatedGif;
 			sourceTree = "<group>";
