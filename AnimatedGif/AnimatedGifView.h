@@ -15,9 +15,25 @@
 
 #define VIEW_OPT_STRETCH_OPTIMAL    0
 #define VIEW_OPT_STRETCH_MAXIMAL    1
-#define VIEW_OPT_KEEP_ORIG_SIZE     2
+#define VIEW_OPT_SCALE_SIZE         2
 #define VIEW_OPT_STRETCH_SMALL_SIDE 3
 #define MAX_VIEW_OPT                3
+
+#define SCALE_OPT_0_10              0
+#define SCALE_OPT_0_25              1
+#define SCALE_OPT_0_50              2
+#define SCALE_OPT_0_75              3
+#define SCALE_OPT_1                 4
+#define SCALE_OPT_2                 5
+#define SCALE_OPT_3                 6
+#define SCALE_OPT_4                 7
+#define SCALE_OPT_5                 8
+#define SCALE_OPT_6                 9
+#define SCALE_OPT_7                 10
+#define SCALE_OPT_8                 11
+#define SCALE_OPT_9                 12
+#define SCALE_OPT_10                13
+#define MAX_SCALE_OPT               13
 
 #define FILTER_OPT_BLUR             0
 #define FILTER_OPT_SHARP            1
@@ -50,6 +66,7 @@
     NSRect screenRect;
     NSRect targetRect;
     NSInteger filter;
+    float scale;
     NSOpenPanel* openDlg;
 }
 
@@ -66,6 +83,7 @@
 - (void)enableSliderFpsManual:(BOOL)enable;
 - (void)hideFpsFromFile:(BOOL)hide;
 - (BOOL)loadGifFromFile:(NSString*)gifFileName andUseManualFps: (BOOL)manualFpsActive withFps: (float)fps;
+- (float)calcScaleFromScaleOption:(NSInteger)option;
 - (NSRect)calcTargetRectFromOption:(NSInteger)option;
 - (NSTimeInterval)getDurationFromGifFile:(NSString*)gifFileName;
 - (void) receiveDisplaysChangeNote: (NSNotification*) note;
@@ -78,6 +96,7 @@
 @property (assign) IBOutlet NSSegmentedControl *segmentButtonLaunchAgent;
 @property (assign) IBOutlet NSPopUpButton *popupButtonViewOptions;
 @property (assign) IBOutlet NSPopUpButton *popupButtonFilterOptions;
+@property (assign) IBOutlet NSPopUpButton *popupButtonScaleOptions;
 
 @property (assign) IBOutlet NSTextField *labelVersion;
 

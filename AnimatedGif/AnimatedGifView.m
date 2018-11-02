@@ -19,7 +19,7 @@
     // initialize screensaver defaults with an default value
     ScreenSaverDefaults *defaults = [ScreenSaverDefaults defaultsForModuleWithName:[[NSBundle bundleForClass: [self class]] bundleIdentifier]];
     [defaults registerDefaults:[NSDictionary dictionaryWithObjectsAndKeys:
-                                 @"file:///please/select/an/gif/animation.gif", @"GifFileName", @"30.0", @"GifFrameRate", @"NO", @"GifFrameRateManual", @"0", @"ViewOpt", @"0", @"FilterOpt", @"0.0", @"BackgrRed", @"0.0", @"BackgrGreen", @"0.0", @"BackgrBlue", @"NO", @"LoadAniToMem", @"5", @"ChangeInterval",nil]];
+                                 @"file:///please/select/an/gif/animation.gif", @"GifFileName", @"30.0", @"GifFrameRate", @"NO", @"GifFrameRateManual", @"0", @"ViewOpt", @"4", @"ScaleOpt", @"0", @"FilterOpt", @"0.0", @"BackgrRed", @"0.0", @"BackgrGreen", @"0.0", @"BackgrBlue", @"NO", @"LoadAniToMem", @"5", @"ChangeInterval",nil]];
     
     if (self) {
         self.glView = [self createGLView];
@@ -166,6 +166,7 @@
     BOOL frameRateManual = [defaults boolForKey:@"GifFrameRateManual"];
     loadAnimationToMem = [defaults boolForKey:@"LoadAniToMem"];
     NSInteger viewOption = [defaults integerForKey:@"ViewOpt"];
+    NSInteger scaleOption = [defaults integerForKey:@"ScaleOpt"];
     NSInteger filterOption = [defaults integerForKey:@"FilterOpt"];
     backgrRed = [defaults floatForKey:@"BackgrRed"];
     backgrGreen = [defaults floatForKey:@"BackgrGreen"];
@@ -190,6 +191,14 @@
     screenRect = [self bounds];
     targetRect = [self calcTargetRectFromOption:viewOption];
     filter = filterOption;
+    if (viewOption==VIEW_OPT_SCALE_SIZE)
+    {
+        scale = [self calcScaleFromScaleOption:scaleOption];
+    }
+    else
+    {
+        scale = 1.0;
+    }
     
     // check if it is a file or a directory
     if ([self isDir:gifFileName] && ((changeIntervalInMin) != NEVER_CHANGE_GIF))
@@ -284,7 +293,10 @@
             
         // Start phase
         glPushMatrix();
-            
+        
+        // scale the image by a given factor
+        glScalef(scale, scale, 1.0);
+        
         // defines the pixel resolution of the screen (can be smaller than real screen, but than you will see pixels)
         glOrtho(0,screenRect.size.width,screenRect.size.height,0,-1,1);
             
@@ -457,6 +469,7 @@
     float bgrGreen = [defaults floatForKey:@"BackgrGreen"];
     float bgrBlue = [defaults floatForKey:@"BackgrBlue"];
     NSInteger viewOpt = [defaults integerForKey:@"ViewOpt"];
+    NSInteger scaleOpt = [defaults integerForKey:@"ScaleOpt"];
     NSInteger filterOpt = [defaults integerForKey:@"FilterOpt"];
     NSInteger changeInter = [defaults integerForKey:@"ChangeInterval"];
     
@@ -467,9 +480,24 @@
     }
     
     // in the rarely case of an invalid value from default file we set an valid option
+    if (scaleOpt > MAX_SCALE_OPT)
+    {
+        scaleOpt = SCALE_OPT_1;
+    }
+    
+    // in the rarely case of an invalid value from default file we set an valid option
     if (filterOpt > MAX_FILTER_OPT)
     {
         filterOpt = FILTER_OPT_BLUR;
+    }
+    
+    if (viewOpt == VIEW_OPT_SCALE_SIZE)
+    {
+        [self.popupButtonScaleOptions setEnabled:YES];
+    }
+    else
+    {
+        [self.popupButtonScaleOptions setEnabled:NO];
     }
     
     if ([self isDir:gifFileName])
@@ -503,6 +531,7 @@
     [self.checkButtonSetFpsManual setState:frameRateManual];
     [self.checkButtonLoadIntoMem setState:loadAniToMem];
     [self.popupButtonViewOptions selectItemWithTag:viewOpt];
+    [self.popupButtonScaleOptions selectItemWithTag:scaleOpt];
     [self.popupButtonFilterOptions selectItemWithTag:filterOpt];
     [self.sliderChangeInterval setIntegerValue:changeInter];
     if ([self.sliderChangeInterval intValue] == NEVER_CHANGE_GIF)
@@ -533,6 +562,20 @@
     return self.optionsPanel;
 }
 
+- (IBAction)changeViewOption:(id)sender {
+    NSPopUpButton *control = (NSPopUpButton *)sender;
+    NSInteger viewOption = [control selectedTag];
+    
+    if (viewOption == VIEW_OPT_SCALE_SIZE)
+    {
+        [self.popupButtonScaleOptions setEnabled:YES];
+    }
+    else
+    {
+        [self.popupButtonScaleOptions setEnabled:NO];
+    }
+}
+
 - (IBAction)navigateSegmentButton:(id)sender
 {
     // check witch segment of segment button was pressed and than start the according method
@@ -560,6 +603,7 @@
     BOOL frameRateManual = self.checkButtonSetFpsManual.state;
     BOOL loadAniToMem = self.checkButtonLoadIntoMem.state;
     NSInteger viewOpt = self.popupButtonViewOptions.selectedTag;
+    NSInteger scaleOpt = self.popupButtonScaleOptions.selectedTag;
     NSInteger filterOpt = self.popupButtonFilterOptions.selectedTag;
     NSColor *colorPicked = self.colorWellBackgrColor.color;
     NSInteger changeInt = [self.sliderChangeInterval integerValue];
@@ -584,6 +628,10 @@
         defaultsChanged = TRUE;
     }
     if ([defaults integerForKey:@"ViewOpt"] != viewOpt)
+    {
+        defaultsChanged = TRUE;
+    }
+    if ([defaults integerForKey:@"ScaleOpt"] != scaleOpt)
     {
         defaultsChanged = TRUE;
     }
@@ -613,6 +661,7 @@
     [defaults setBool:frameRateManual forKey:@"GifFrameRateManual"];
     [defaults setBool:loadAniToMem forKey:@"LoadAniToMem"];
     [defaults setInteger:viewOpt forKey:@"ViewOpt"];
+    [defaults setInteger:scaleOpt forKey:@"ScaleOpt"];
     [defaults setInteger:filterOpt forKey:@"FilterOpt"];
     [defaults setFloat:colorPicked.redComponent forKey:@"BackgrRed"];
     [defaults setFloat:colorPicked.greenComponent forKey:@"BackgrGreen"];
@@ -997,6 +1046,59 @@
 
 }
 
+- (float)calcScaleFromScaleOption:(NSInteger)option
+{
+    float scale = 1.0;
+    switch (option) {
+        case SCALE_OPT_0_10:
+            scale = 0.1;
+            break;
+        case SCALE_OPT_0_25:
+            scale = 0.25;
+            break;
+        case SCALE_OPT_0_50:
+            scale = 0.5;
+            break;
+        case SCALE_OPT_0_75:
+            scale = 0.75;
+            break;
+        case SCALE_OPT_1:
+            scale = 1.0;
+            break;
+        case SCALE_OPT_2:
+            scale = 2.0;
+            break;
+        case SCALE_OPT_3:
+            scale = 3.0;
+            break;
+        case SCALE_OPT_4:
+            scale = 4.0;
+            break;
+        case SCALE_OPT_5:
+            scale = 5.0;
+            break;
+        case SCALE_OPT_6:
+            scale = 6.0;
+            break;
+        case SCALE_OPT_7:
+            scale = 7.0;
+            break;
+        case SCALE_OPT_8:
+            scale = 8.0;
+            break;
+        case SCALE_OPT_9:
+            scale = 9.0;
+            break;
+        case SCALE_OPT_10:
+            scale = 10.0;
+            break;
+        default:
+            scale = 1.0;
+            break;
+    }
+    return scale;
+}
+
 - (NSRect)calcTargetRectFromOption:(NSInteger)option
 {
     // set some values screensaver and GIF image size
@@ -1031,7 +1133,7 @@
         // stretch image maximal to screen
         targetRe = screenRe;
     }
-    else if (option==VIEW_OPT_KEEP_ORIG_SIZE)
+    else if (option==VIEW_OPT_SCALE_SIZE)
     {
         if ([self isPreview] == FALSE)
         {

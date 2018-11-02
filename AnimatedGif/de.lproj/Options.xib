@@ -27,6 +27,7 @@
                 <outlet property="labelVersion" destination="cQS-xU-E2n" id="P9x-lr-Xbs"/>
                 <outlet property="optionsPanel" destination="QvC-M9-y7g" id="S9j-MZ-x3G"/>
                 <outlet property="popupButtonFilterOptions" destination="Z6L-PC-trD" id="6zJ-6k-udi"/>
+                <outlet property="popupButtonScaleOptions" destination="arB-4u-2VX" id="pqW-ID-cCa"/>
                 <outlet property="popupButtonViewOptions" destination="Cmf-ro-Be5" id="ivH-C7-la8"/>
                 <outlet property="segmentButtonLaunchAgent" destination="3xC-QT-NED" id="o8N-nQ-m5L"/>
                 <outlet property="sliderChangeInterval" destination="aUW-ml-tfi" id="Azw-7y-zU2"/>
@@ -39,10 +40,10 @@
         <window allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" releasedWhenClosed="NO" visibleAtLaunch="NO" animationBehavior="default" id="QvC-M9-y7g" customClass="NSPanel">
             <windowStyleMask key="styleMask" titled="YES" closable="YES"/>
             <windowPositionMask key="initialPositionMask" leftStrut="YES" rightStrut="YES" topStrut="YES" bottomStrut="YES"/>
-            <rect key="contentRect" x="196" y="240" width="485" height="501"/>
+            <rect key="contentRect" x="196" y="240" width="565" height="501"/>
             <rect key="screenRect" x="0.0" y="0.0" width="1366" height="745"/>
             <view key="contentView" id="EiT-Mj-1SZ">
-                <rect key="frame" x="0.0" y="0.0" width="485" height="501"/>
+                <rect key="frame" x="0.0" y="0.0" width="565" height="501"/>
                 <autoresizingMask key="autoresizingMask"/>
                 <subviews>
                     <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="fXD-SA-3et">
@@ -72,7 +73,7 @@
                         </textFieldCell>
                     </textField>
                     <textField verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="n2R-8Q-rKI">
-                        <rect key="frame" x="20" y="82" width="445" height="42"/>
+                        <rect key="frame" x="20" y="82" width="525" height="42"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <textFieldCell key="cell" selectable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" alignment="left" title="file:///bitte/wähle/eine/gif/animation.gif" drawsBackground="YES" id="Pkm-gg-pTx">
                             <font key="font" metaFont="system"/>
@@ -110,7 +111,7 @@
                         </textFieldCell>
                     </textField>
                     <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="wPm-LD-3ir">
-                        <rect key="frame" x="283" y="46" width="188" height="32"/>
+                        <rect key="frame" x="363" y="46" width="188" height="32"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <buttonCell key="cell" type="push" title="Datei oder Ordner wählen" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="5Ro-dF-RHD">
                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
@@ -130,7 +131,7 @@
                         </textFieldCell>
                     </textField>
                     <segmentedControl verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="3xC-QT-NED">
-                        <rect key="frame" x="326" y="150" width="141" height="24"/>
+                        <rect key="frame" x="406" y="150" width="141" height="24"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <segmentedCell key="cell" borderStyle="border" alignment="left" style="rounded" trackingMode="selectOne" id="5DN-LS-Kqw">
                             <font key="font" metaFont="system"/>
@@ -144,7 +145,7 @@
                         </connections>
                     </segmentedControl>
                     <popUpButton verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Cmf-ro-Be5">
-                        <rect key="frame" x="163" y="457" width="305" height="26"/>
+                        <rect key="frame" x="158" y="456" width="305" height="26"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <popUpButtonCell key="cell" type="push" title="strecke und erhalte Bildproportionen" bezelStyle="rounded" alignment="left" lineBreakMode="truncatingTail" state="on" borderStyle="borderAndBezel" imageScaling="proportionallyDown" inset="2" selectedItem="5ie-tK-3yY" id="lpg-CF-VQ3">
                             <behavior key="behavior" lightByBackground="YES" lightByGray="YES"/>
@@ -157,7 +158,7 @@
                                     <menuItem title="maximal an Bildschirm anpassen" tag="1" id="iVp-Ep-OYA">
                                         <modifierMask key="keyEquivalentModifierMask"/>
                                     </menuItem>
-                                    <menuItem title="originale Bildgröße erhalten" tag="2" id="nXD-VJ-W6I">
+                                    <menuItem title="originale Bildgröße skalieren um -&gt;" tag="2" id="nXD-VJ-W6I">
                                         <modifierMask key="keyEquivalentModifierMask"/>
                                     </menuItem>
                                     <menuItem title="strecke auf schmalste Seite" tag="3" id="nXD-VJ-W7I">
@@ -166,9 +167,12 @@
                                 </items>
                             </menu>
                         </popUpButtonCell>
+                        <connections>
+                            <action selector="changeViewOption:" target="-2" id="96c-yu-l2R"/>
+                        </connections>
                     </popUpButton>
                     <slider verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="aUW-ml-tfi">
-                        <rect key="frame" x="20" y="243" width="445" height="27"/>
+                        <rect key="frame" x="20" y="243" width="527" height="27"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <sliderCell key="cell" enabled="NO" alignment="left" minValue="1" maxValue="30" doubleValue="5" tickMarkPosition="below" numberOfTickMarks="30" allowsTickMarkValuesOnly="YES" sliderType="linear" id="v2b-0P-b7z"/>
                         <connections>
@@ -194,7 +198,7 @@
                         </textFieldCell>
                     </textField>
                     <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="2o2-QA-ksb">
-                        <rect key="frame" x="226" y="225" width="18" height="17"/>
+                        <rect key="frame" x="267" y="225" width="18" height="17"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="15" id="qfB-p4-WmL">
                             <font key="font" metaFont="system"/>
@@ -203,7 +207,7 @@
                         </textFieldCell>
                     </textField>
                     <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="z6q-HR-xMt">
-                        <rect key="frame" x="424" y="279" width="43" height="17"/>
+                        <rect key="frame" x="504" y="279" width="43" height="17"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="center" title="5" id="lJ1-KY-AED">
                             <font key="font" metaFont="system"/>
@@ -212,7 +216,7 @@
                         </textFieldCell>
                     </textField>
                     <slider verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="GKf-lt-8W8">
-                        <rect key="frame" x="18" y="330" width="446" height="27"/>
+                        <rect key="frame" x="18" y="330" width="529" height="27"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <sliderCell key="cell" enabled="NO" alignment="left" minValue="1" maxValue="60" doubleValue="30" tickMarkPosition="below" numberOfTickMarks="60" allowsTickMarkValuesOnly="YES" sliderType="linear" id="ATX-YZ-Fff"/>
                         <connections>
@@ -238,7 +242,7 @@
                         </textFieldCell>
                     </textField>
                     <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="yeR-Gc-HfV">
-                        <rect key="frame" x="443" y="315" width="21" height="17"/>
+                        <rect key="frame" x="526" y="315" width="21" height="17"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="60" id="Zxp-6N-m2s">
                             <font key="font" metaFont="system"/>
@@ -256,7 +260,7 @@
                         </textFieldCell>
                     </textField>
                     <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="UbO-qp-Qhb">
-                        <rect key="frame" x="429" y="363" width="38" height="17"/>
+                        <rect key="frame" x="509" y="363" width="38" height="17"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="fps)" id="tfI-aA-ko5">
                             <font key="font" metaFont="system"/>
@@ -265,7 +269,7 @@
                         </textFieldCell>
                     </textField>
                     <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Km0-9r-6Xa">
-                        <rect key="frame" x="385" y="363" width="40" height="17"/>
+                        <rect key="frame" x="465" y="363" width="40" height="17"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="center" title="0.0" id="e85-wx-v2k">
                             <font key="font" metaFont="system"/>
@@ -274,7 +278,7 @@
                         </textFieldCell>
                     </textField>
                     <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Y5d-M1-wNB">
-                        <rect key="frame" x="282" y="363" width="99" height="17"/>
+                        <rect key="frame" x="368" y="363" width="99" height="17"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="(Wert aus GIF =" id="P5J-Vj-eXg">
                             <font key="font" metaFont="system"/>
@@ -296,27 +300,13 @@ Gw
                             <action selector="closeConfigCancel:" target="-2" id="8Qo-20-Yw5"/>
                         </connections>
                     </button>
-                    <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="oV9-Yk-r4r">
-                        <rect key="frame" x="352" y="13" width="119" height="32"/>
-                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                        <buttonCell key="cell" type="push" title="Übernehmen" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="cbc-xy-mRP">
-                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
-                            <font key="font" metaFont="system"/>
-                            <string key="keyEquivalent" base64-UTF8="YES">
-DQ
-</string>
-                        </buttonCell>
-                        <connections>
-                            <action selector="closeConfigOk:" target="-2" id="AKp-yw-amO"/>
-                        </connections>
-                    </button>
                     <colorWell fixedFrame="YES" continuous="NO" translatesAutoresizingMaskIntoConstraints="NO" id="bxi-1B-SU5">
                         <rect key="frame" x="160" y="183" width="44" height="23"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <color key="color" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                     </colorWell>
                     <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="hhA-OU-fO4">
-                        <rect key="frame" x="226" y="315" width="21" height="17"/>
+                        <rect key="frame" x="267" y="315" width="21" height="17"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="30" id="oUD-bo-3eZ">
                             <font key="font" metaFont="system"/>
@@ -334,7 +324,7 @@ DQ
                         </textFieldCell>
                     </textField>
                     <popUpButton verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Z6L-PC-trD">
-                        <rect key="frame" x="326" y="179" width="142" height="26"/>
+                        <rect key="frame" x="406" y="181" width="142" height="26"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <popUpButtonCell key="cell" type="push" title="verschwommen" bezelStyle="rounded" alignment="left" lineBreakMode="truncatingTail" state="on" borderStyle="borderAndBezel" imageScaling="proportionallyDown" inset="2" selectedItem="fKj-iP-3nm" id="kKK-Cr-cNR">
                             <behavior key="behavior" lightByBackground="YES" lightByGray="YES"/>
@@ -348,7 +338,7 @@ DQ
                         </popUpButtonCell>
                     </popUpButton>
                     <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="sTK-sE-oMf">
-                        <rect key="frame" x="442" y="225" width="25" height="17"/>
+                        <rect key="frame" x="522" y="225" width="25" height="17"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Nie" id="hzM-Wj-pPC">
                             <font key="font" metaFont="system"/>
@@ -367,12 +357,74 @@ DQ
                             <action selector="aboutClick:" target="-2" id="dkF-Z2-3Lk"/>
                         </connections>
                     </button>
+                    <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="oV9-Yk-r4r">
+                        <rect key="frame" x="432" y="13" width="119" height="32"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                        <buttonCell key="cell" type="push" title="Übernehmen" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="cbc-xy-mRP">
+                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                            <font key="font" metaFont="system"/>
+                            <string key="keyEquivalent" base64-UTF8="YES">
+DQ
+</string>
+                        </buttonCell>
+                        <connections>
+                            <action selector="closeConfigOk:" target="-2" id="AKp-yw-amO"/>
+                        </connections>
+                    </button>
+                    <popUpButton verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="arB-4u-2VX">
+                        <rect key="frame" x="471" y="457" width="77" height="25"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                        <popUpButtonCell key="cell" type="push" title="1x" bezelStyle="rounded" alignment="left" lineBreakMode="truncatingTail" enabled="NO" state="on" borderStyle="borderAndBezel" tag="4" imageScaling="proportionallyDown" inset="2" selectedItem="450-Ql-wI1" id="rzD-C4-Xie">
+                            <behavior key="behavior" lightByBackground="YES" lightByGray="YES"/>
+                            <font key="font" metaFont="menu"/>
+                            <menu key="menu" id="Un6-39-upU">
+                                <items>
+                                    <menuItem title="10x" tag="13" id="WCL-3c-KGH">
+                                        <modifierMask key="keyEquivalentModifierMask"/>
+                                    </menuItem>
+                                    <menuItem title="9x" tag="12" id="6py-0a-pek">
+                                        <modifierMask key="keyEquivalentModifierMask"/>
+                                    </menuItem>
+                                    <menuItem title="8x" tag="11" id="Tak-BX-dtv">
+                                        <modifierMask key="keyEquivalentModifierMask"/>
+                                    </menuItem>
+                                    <menuItem title="7x" tag="10" id="Xs8-Ri-3GH">
+                                        <modifierMask key="keyEquivalentModifierMask"/>
+                                    </menuItem>
+                                    <menuItem title="6x" tag="9" id="oiR-S6-N7b">
+                                        <modifierMask key="keyEquivalentModifierMask"/>
+                                    </menuItem>
+                                    <menuItem title="5x" tag="8" id="N7a-qi-3P2">
+                                        <modifierMask key="keyEquivalentModifierMask"/>
+                                    </menuItem>
+                                    <menuItem title="4x" tag="7" id="Km8-Fq-iWO">
+                                        <modifierMask key="keyEquivalentModifierMask"/>
+                                    </menuItem>
+                                    <menuItem title="3x" tag="6" id="pXi-OU-wZb">
+                                        <modifierMask key="keyEquivalentModifierMask"/>
+                                    </menuItem>
+                                    <menuItem title="2x" tag="5" id="fTW-jF-lTX"/>
+                                    <menuItem title="1x" state="on" tag="4" id="450-Ql-wI1"/>
+                                    <menuItem title="0,75x" tag="3" id="4sl-bJ-JcD">
+                                        <modifierMask key="keyEquivalentModifierMask"/>
+                                    </menuItem>
+                                    <menuItem title="0,5x" tag="2" id="Bdc-Ni-1ag"/>
+                                    <menuItem title="0,25x" tag="1" id="fKq-ge-N5C">
+                                        <modifierMask key="keyEquivalentModifierMask"/>
+                                    </menuItem>
+                                    <menuItem title="0,1x" id="crM-MB-3hc">
+                                        <modifierMask key="keyEquivalentModifierMask"/>
+                                    </menuItem>
+                                </items>
+                            </menu>
+                        </popUpButtonCell>
+                    </popUpButton>
                 </subviews>
             </view>
             <connections>
                 <outlet property="initialFirstResponder" destination="oV9-Yk-r4r" id="I8h-Th-Wmt"/>
             </connections>
-            <point key="canvasLocation" x="137.5" y="269.5"/>
+            <point key="canvasLocation" x="177.5" y="269.5"/>
         </window>
     </objects>
 </document>
