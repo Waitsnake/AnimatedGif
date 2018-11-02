@@ -1,0 +1,10 @@
+/* 
+  Localizable.strings
+  AnimatedGif
+
+  Created by Marco Köhler on 02.11.18.
+  Copyright © 2018 Marco Köhler. All rights reserved.
+*/
+
+"dir" = "(carpeta)";
+"titleopendlg" = "AnimatedGif: Elige archivo o carpeta";

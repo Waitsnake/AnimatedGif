@@ -14,6 +14,7 @@
 		CC4486F31C8A3A50008520D2 /* thumbnail@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = CC4486F11C8A3A50008520D2 /* thumbnail@2x.png */; };
 		CC5E750C20FBCCBF0010ACDE /* About.xib in Resources */ = {isa = PBXBuildFile; fileRef = CC5E750E20FBCCBF0010ACDE /* About.xib */; };
 		CCC3B9991C788F8E00FBE423 /* Options.xib in Resources */ = {isa = PBXBuildFile; fileRef = CCC3B99B1C788F8E00FBE423 /* Options.xib */; };
+		CCEF76C8218C83DB0050F7C9 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = CCEF76C6218C83DB0050F7C9 /* Localizable.strings */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -32,6 +33,10 @@
 		CCC8F19B20FBD471007C9FAE /* de */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = de; path = de.lproj/About.xib; sourceTree = "<group>"; };
 		CCC8F19C20FBD474007C9FAE /* es */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = es; path = es.lproj/About.xib; sourceTree = "<group>"; };
 		CCC8F19D20FBD476007C9FAE /* ja */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = ja; path = ja.lproj/About.xib; sourceTree = "<group>"; };
+		CCEF76C7218C83DB0050F7C9 /* de */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.strings; name = de; path = de.lproj/Localizable.strings; sourceTree = "<group>"; };
+		CCEF76C9218C83ED0050F7C9 /* es */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.strings; name = es; path = es.lproj/Localizable.strings; sourceTree = "<group>"; };
+		CCEF76CA218C83F80050F7C9 /* ja */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.strings; name = ja; path = ja.lproj/Localizable.strings; sourceTree = "<group>"; usesTabs = 0; };
+		CCEF76CC218C8AFA0050F7C9 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -64,6 +69,7 @@
 		CC24BA971BF124350045BDC7 /* AnimatedGif */ = {
 			isa = PBXGroup;
 			children = (
+				CCEF76C6218C83DB0050F7C9 /* Localizable.strings */,
 				CC24BA9A1BF124350045BDC7 /* AnimatedGifView.h */,
 				CC24BA9C1BF124350045BDC7 /* AnimatedGifView.m */,
 				CC24BA981BF124350045BDC7 /* Supporting Files */,
@@ -157,6 +163,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				CC1777EC20A1E95D0043C210 /* LICENSE.md in Resources */,
+				CCEF76C8218C83DB0050F7C9 /* Localizable.strings in Resources */,
 				CC4486F21C8A3A50008520D2 /* thumbnail.png in Resources */,
 				CCC3B9991C788F8E00FBE423 /* Options.xib in Resources */,
 				CC5E750C20FBCCBF0010ACDE /* About.xib in Resources */,
@@ -198,6 +205,17 @@
 				CCABA29F218921D300E30E6C /* Base */,
 			);
 			name = Options.xib;
+			sourceTree = "<group>";
+		};
+		CCEF76C6218C83DB0050F7C9 /* Localizable.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				CCEF76C7218C83DB0050F7C9 /* de */,
+				CCEF76C9218C83ED0050F7C9 /* es */,
+				CCEF76CA218C83F80050F7C9 /* ja */,
+				CCEF76CC218C8AFA0050F7C9 /* en */,
+			);
+			name = Localizable.strings;
 			sourceTree = "<group>";
 		};
 /* End PBXVariantGroup section */

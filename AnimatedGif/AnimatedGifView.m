@@ -465,7 +465,7 @@
     {
         // if we have an directory an fps value for a file makes not much sense
         // we could calculate it for an randomly selected file but this would make thinks to complex
-        [self.labelFpsGif setStringValue:@"(dir)"];
+        [self.labelFpsGif setStringValue:NSLocalizedStringFromTableInBundle(@"dir",@"Localizable",[NSBundle bundleForClass:[self class]],nil)];
         [self hideFpsFromFile:YES];
         
         // enable time interval slider only in case that an directory is selected
@@ -755,7 +755,7 @@
     if (!openDlg) openDlg = [NSOpenPanel openPanel];
     
     // Since the open dialog can no longer opend modal since 10.14 at least we give it a title
-    [openDlg setMessage:@"Select file or directory"];
+    [openDlg setMessage:NSLocalizedStringFromTableInBundle(@"titleopendlg", @"Localizable",[NSBundle bundleForClass:[self class]], nil)];
     
     // Enable the selection of files in the dialog.
     [openDlg setCanChooseFiles:YES];
@@ -809,7 +809,7 @@
             {
                 // if we have an directory an fps value for a file makes not much sense
                 // we could calculate it for an randomly selected file but this would make thinks to complex
-                [self.labelFpsGif setStringValue:@"(dir)"];
+                [self.labelFpsGif setStringValue:NSLocalizedStringFromTableInBundle(@"dir",@"Localizable",[NSBundle bundleForClass:[self class]],nil)];
                 [self hideFpsFromFile:YES];
                 
                 // enable time interval slider only in case that an directory is selected
