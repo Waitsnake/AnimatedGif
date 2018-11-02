@@ -411,7 +411,18 @@
     NSString *contents = [NSString stringWithContentsOfFile:path encoding:NSUTF8StringEncoding error:&err];
     if (contents)
     {
-        NSMutableAttributedString *attrString = [[NSMutableAttributedString alloc] initWithString:contents];
+        NSString *osxMode = [[NSUserDefaults standardUserDefaults] stringForKey:@"AppleInterfaceStyle"];
+        NSMutableAttributedString *attrString;
+        if ([osxMode isEqualToString:@"Dark"])
+        {
+            NSDictionary *attributes = @{ NSForegroundColorAttributeName : [NSColor lightGrayColor]};
+            attrString = [[NSMutableAttributedString alloc] initWithString:contents attributes:attributes];
+        }
+        else
+        {
+            attrString = [[NSMutableAttributedString alloc] initWithString:contents];
+        }
+
         [[self.textLicence textStorage] appendAttributedString:attrString];
     }
     
