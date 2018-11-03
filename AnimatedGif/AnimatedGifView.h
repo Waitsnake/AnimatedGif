@@ -66,6 +66,7 @@
     NSRect screenRect;
     NSRect targetRect;
     NSInteger filter;
+    NSInteger viewOption;
     float scale;
     NSOpenPanel* openDlg;
 }
@@ -87,7 +88,7 @@
 - (NSRect)calcTargetRectFromOption:(NSInteger)option;
 - (NSTimeInterval)getDurationFromGifFile:(NSString*)gifFileName;
 - (void) receiveDisplaysChangeNote: (NSNotification*) note;
-- (void)glWriteText: (NSString*)text atX: (GLfloat)x andY: (GLfloat)y withFont: (void *)font;
+- (void) drawAttributedString:(NSAttributedString *)attributedString atPoint:(NSPoint)point;
 
 @property (nonatomic, retain) NSOpenGLView* glView;
 @property (assign) IBOutlet NSPanel *optionsPanel;

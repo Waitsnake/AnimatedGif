@@ -6,15 +6,7 @@
   Copyright © 2018 Marco Köhler. All rights reserved.
 */
 
-// OSX GUI supports Japanese Characters
 "dir" = "(ディレクトリ)";
 "titleopendlg" = "AnimatedGif: ファイルまたはディレクトリを選択";
-
-// GLut for OpenGL not supports Japanese Characters
-/*
 "nogif" = "GIFファイルが見つかりませんでした。";
 "select" = "ファイルまたはフォルダを選択してください。";
-*/
-// so we need to use english here
-"nogif" = "No GIF file found.";
-"select" = "Please select a file or folder.";

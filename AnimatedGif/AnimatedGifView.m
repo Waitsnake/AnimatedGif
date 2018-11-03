@@ -165,7 +165,7 @@
     float frameRate = [defaults floatForKey:@"GifFrameRate"];
     BOOL frameRateManual = [defaults boolForKey:@"GifFrameRateManual"];
     loadAnimationToMem = [defaults boolForKey:@"LoadAniToMem"];
-    NSInteger viewOption = [defaults integerForKey:@"ViewOpt"];
+    viewOption = [defaults integerForKey:@"ViewOpt"];
     NSInteger scaleOption = [defaults integerForKey:@"ScaleOpt"];
     NSInteger filterOption = [defaults integerForKey:@"FilterOpt"];
     backgrRed = [defaults floatForKey:@"BackgrRed"];
@@ -201,7 +201,7 @@
     }
     
     // check if it is a file or a directory
-    if ([self isDir:gifFileName] && ((changeIntervalInMin) != NEVER_CHANGE_GIF))
+    if (isFileLoaded && [self isDir:gifFileName] && ((changeIntervalInMin) != NEVER_CHANGE_GIF))
     {
 
         // start a one-time timer at end of startAnimation otherwise the time for loading the GIF is part of the timer
@@ -275,15 +275,23 @@
         [self.glView.openGLContext makeCurrentContext];
         glClearColor(backgrRed, backgrGreen, backgrBlue, GL_ALPHA_OPAQUE);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-        
-        glPushMatrix();
 
-        glColor3f(0.7f, 0.7f, 0.7f);
-        if ([self isPreview] == TRUE)
+        glPushMatrix();
+        glOrtho(0,screenRect.size.width,screenRect.size.height,0,-1,1);
+        NSMutableDictionary *attribs = [NSMutableDictionary dictionary];
+        if ([self isPreview])
         {
-            [self glWriteText:NSLocalizedStringFromTableInBundle(@"nogif",@"Localizable",[NSBundle bundleForClass:[self class]],nil) atX:-0.8 andY:0.2 withFont:GLUT_BITMAP_HELVETICA_12];
-            [self glWriteText:NSLocalizedStringFromTableInBundle(@"select",@"Localizable",[NSBundle bundleForClass:[self class]],nil) atX:-0.8 andY:-0.2 withFont:GLUT_BITMAP_HELVETICA_12];
+            [attribs setObject: [NSFont fontWithName: @"Helvetica" size: 14.0f] forKey: NSFontAttributeName];
         }
+        else
+        {
+            [attribs setObject: [NSFont fontWithName: @"Helvetica" size: 34.0f] forKey: NSFontAttributeName];
+        }
+        [attribs setObject: [NSColor redColor] forKey: NSForegroundColorAttributeName];
+        NSAttributedString *nogifAtStr = [[NSAttributedString alloc] initWithString:NSLocalizedStringFromTableInBundle(@"nogif",@"Localizable",[NSBundle bundleForClass:[self class]],nil) attributes:attribs];
+        NSAttributedString *selectAtStr = [[NSAttributedString alloc] initWithString:NSLocalizedStringFromTableInBundle(@"select",@"Localizable",[NSBundle bundleForClass:[self class]],nil) attributes:attribs];
+        [self drawAttributedString:nogifAtStr atPoint:NSMakePoint (screenRect.size.width/2 - [nogifAtStr size].width/2, screenRect.size.height/2 - screenRect.size.height/4)];
+        [self drawAttributedString:selectAtStr atPoint:NSMakePoint (screenRect.size.width/2 - [selectAtStr size].width/2, screenRect.size.height/2)];
         glPopMatrix();
 
         glFlush();
@@ -307,7 +315,11 @@
         glPushMatrix();
         
         // scale the image by a given factor
-        glScalef(scale, scale, 1.0);
+        // scale only if needed
+        if (viewOption==VIEW_OPT_SCALE_SIZE && (scale>1.1 || scale<0.9))
+        {
+            glScalef(scale, scale, 1.0);
+        }
         
         // defines the pixel resolution of the screen (can be smaller than real screen, but than you will see pixels)
         glOrtho(0,screenRect.size.width,screenRect.size.height,0,-1,1);
@@ -1028,20 +1040,30 @@
 
         if (filesFilter)
         {
-            // directory includes one or more GIF files
+            // directory includes one or more files
                 
             // how many GIF files we have found
             NSInteger numberOfFiles = [filesFilter count];
                 
             // generate an random number with upper boundary of the number of found GIF files
             NSInteger randFile = (NSInteger)arc4random_uniform((u_int32_t)numberOfFiles);
+            
+            if (numberOfFiles>0)
+            {
+                // return a NSString of with an URL of the randomly selected GIF in the list
+                return [[filesFilter objectAtIndex:randFile] absoluteString];
+            }
+            else
+            {
+                // directory includes files, but not a single GIF file
                 
-            // return a NSString of with an URL of the randomly selected GIF in the list
-            return [[filesFilter objectAtIndex:randFile] absoluteString];
+                // return an empty NSString
+                return @"";
+            }
         }
         else
         {
-            // directory includes not a single GIF
+            // directory includes not a single file
                 
             // return an empty NSString
             return @"";
@@ -1289,16 +1311,44 @@
     }
 }
 
-- (void)glWriteText: (NSString*)text atX: (GLfloat)x andY: (GLfloat)y withFont: (void *)font
+- (void) drawAttributedString:(NSAttributedString *)attributedString atPoint:(NSPoint)point
 {
-    int i;
-    glRasterPos2f(x, y);
-    for(i=0;i<text.length;i++)
-    {
-        // this function is deprecated and I changed built target to 10.8 to supress the warning
-        // anyway I need to replace this or remove the feature of display an info text in the preview window with OpenGl
-        glutBitmapCharacter(font, (int)[text characterAtIndex:i]);
-    }
+    GLuint texturName = 0;
+    NSSize texturSize = NSMakeSize(0.0f, 0.0f);
+    NSSize frameSize = NSMakeSize(0.0f, 0.0f);
+    
+    frameSize = [attributedString size];
+    NSImage * image = [[NSImage alloc] initWithSize:frameSize];
+    [image lockFocus];
+    [[NSGraphicsContext currentContext] setShouldAntialias:YES];
+    [attributedString drawAtPoint:NSMakePoint (0.0f, 0.0f)];
+    NSBitmapImageRep *bitmap = [[NSBitmapImageRep alloc] initWithFocusedViewRect:NSMakeRect(0.0f, 0.0f, frameSize.width, frameSize.height)];
+    [image unlockFocus];
+    texturSize.width = [bitmap pixelsWide];
+    texturSize.height = [bitmap pixelsHigh];
+    NSRect bounds = NSMakeRect (point.x, point.y, texturSize.width, texturSize.height);
+    
+    glPushAttrib(GL_TEXTURE_BIT);
+    glGenTextures (1, &texturName);
+    glBindTexture (GL_TEXTURE_RECTANGLE_EXT, texturName);
+    glTexParameteri(GL_TEXTURE_RECTANGLE_EXT, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_RECTANGLE_EXT, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexImage2D(GL_TEXTURE_RECTANGLE_EXT, 0, GL_RGBA, texturSize.width, texturSize.height, 0, [bitmap hasAlpha] ? GL_RGBA : GL_RGB, GL_UNSIGNED_BYTE, [bitmap bitmapData]);
+    glPopAttrib();
+    
+    glPushAttrib(GL_ENABLE_BIT | GL_TEXTURE_BIT | GL_COLOR_BUFFER_BIT);
+    glDisable (GL_DEPTH_TEST);
+    glEnable (GL_BLEND);
+    glBlendFunc (GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+    glEnable (GL_TEXTURE_RECTANGLE_EXT);
+    glBindTexture (GL_TEXTURE_RECTANGLE_EXT, texturName);
+    glBegin (GL_QUADS);
+    glTexCoord2f (0.0f, 0.0f); glVertex2f (bounds.origin.x, bounds.origin.y);
+    glTexCoord2f (0.0f, texturSize.height); glVertex2f (bounds.origin.x, bounds.origin.y + bounds.size.height);
+    glTexCoord2f (texturSize.width, texturSize.height); glVertex2f (bounds.origin.x + bounds.size.width, bounds.origin.y + bounds.size.height);
+    glTexCoord2f (texturSize.width, 0.0f); glVertex2f (bounds.origin.x + bounds.size.width, bounds.origin.y);
+    glEnd ();
+    glPopAttrib();
 }
 
 @end
