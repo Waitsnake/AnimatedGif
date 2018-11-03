@@ -269,13 +269,14 @@
 
     if (currFrameCount == FRAME_COUNT_NOT_USED)
     {
-        // FRAME_COUNT_NOT_USED means no image is loaded and so we clear the screen with the set background color
+        // FRAME_COUNT_NOT_USED means no image is loaded and so we clear the screen with the set background color and print an indication message
         
         // only clear screen with background color (OpenGL)
         [self.glView.openGLContext makeCurrentContext];
         glClearColor(backgrRed, backgrGreen, backgrBlue, GL_ALPHA_OPAQUE);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
+        // print an indication message
         glPushMatrix();
         glOrtho(0,screenRect.size.width,screenRect.size.height,0,-1,1);
         NSMutableDictionary *attribs = [NSMutableDictionary dictionary];
@@ -323,96 +324,23 @@
         
         // defines the pixel resolution of the screen (can be smaller than real screen, but than you will see pixels)
         glOrtho(0,screenRect.size.width,screenRect.size.height,0,-1,1);
-            
-        glEnable(GL_TEXTURE_2D);
-        if ([gifRep hasAlpha] == TRUE) {
-            glEnable(GL_BLEND);
-            glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
-        }
-            
-        //get one free texture name
-        GLuint frameTextureName;
-        glGenTextures(1, &frameTextureName);
-        //bind a Texture object to the name
-        glBindTexture(GL_TEXTURE_2D,frameTextureName);
-            
-        // set paramter for texture
-        if (filter == FILTER_OPT_BLUR)
-        {
-            glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-            glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        }
-        else if (filter == FILTER_OPT_SHARP)
-        {
-            glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_NEAREST);
-            glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-        }
-        else
-        {
-            // use blur filter as default
-            glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-            glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        }
-
-        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-            
-        // load current bitmap as texture into the GPU
+        
         if (loadAnimationToMem == TRUE)
         {
             // we load bitmap data from memory and save CPU time (created during startAnimation)
             NSData *pixels = [animationImages objectAtIndex:currFrameCount];
-            glTexImage2D(GL_TEXTURE_2D,
-                     0,
-                     GL_RGBA,
-                     (GLint)[gifRep pixelsWide],
-                     (GLint)[gifRep pixelsHigh],
-                     0,
-                     GL_RGBA,
-                     GL_UNSIGNED_BYTE,
-                     [pixels bytes]
-                     );
+            [self drawImage:(void*)[pixels bytes] atRect:targetRect];
         }
         else
         {
             // bitmapData needs more CPU time to create bitmap data
             [gifRep setProperty:NSImageCurrentFrame withValue:@(currFrameCount)];
-            glTexImage2D(GL_TEXTURE_2D,
-                     0,
-                     GL_RGBA,
-                     (GLint)[gifRep pixelsWide],
-                     (GLint)[gifRep pixelsHigh],
-                     0,
-                     GL_RGBA,
-                     GL_UNSIGNED_BYTE,
-                     [gifRep bitmapData]
-                     );
+            [self drawImage:[gifRep bitmapData] atRect:targetRect];
         }
-             
-        // generate Mipmap
-        glGenerateMipmap(GL_TEXTURE_2D);
-            
-        // define the target position of texture (related to screen defined by glOrtho) witch makes the texture visible
-        float x = targetRect.origin.x;
-        float y = targetRect.origin.y;
-        float iheight = targetRect.size.height;
-        float iwidth = targetRect.size.width;
-        glBegin( GL_QUADS );
-        glTexCoord2f( 0.f, 0.f ); glVertex2f(x, y); //Bottom left
-        glTexCoord2f( 1.f, 0.f ); glVertex2f(x + iwidth, y); //Bottom right
-        glTexCoord2f( 1.f, 1.f ); glVertex2f(x + iwidth, y + iheight); //Top right
-        glTexCoord2f( 0.f, 1.f ); glVertex2f(x, y + iheight); //Top left
-        glEnd();
-
-        glDisable(GL_BLEND);
-        glDisable(GL_TEXTURE_2D);
             
         //End phase
         glPopMatrix();
-            
-        //free texture object by name
-        glDeleteTextures(1,&frameTextureName);
-            
+        
         glFlush();
             
         [self.glView.openGLContext flushBuffer];
@@ -1349,6 +1277,73 @@
     glTexCoord2f (texturSize.width, 0.0f); glVertex2f (bounds.origin.x + bounds.size.width, bounds.origin.y);
     glEnd ();
     glPopAttrib();
+}
+
+- (void) drawImage:(void *)pixelsBytes atRect:(NSRect) rect
+{
+    glEnable(GL_TEXTURE_2D);
+    if ([gifRep hasAlpha] == TRUE) {
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+    }
+    
+    //get one free texture name
+    GLuint frameTextureName;
+    glGenTextures(1, &frameTextureName);
+    //bind a Texture object to the name
+    glBindTexture(GL_TEXTURE_2D,frameTextureName);
+    
+    // set paramter for texture
+    if (filter == FILTER_OPT_BLUR)
+    {
+        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    }
+    else if (filter == FILTER_OPT_SHARP)
+    {
+        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_NEAREST);
+        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    }
+    else
+    {
+        // use blur filter as default
+        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    }
+    
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    
+    glTexImage2D(GL_TEXTURE_2D,
+                     0,
+                     GL_RGBA,
+                     (GLint)[gifRep pixelsWide],
+                     (GLint)[gifRep pixelsHigh],
+                     0,
+                     GL_RGBA,
+                     GL_UNSIGNED_BYTE,
+                     pixelsBytes
+                     );
+    
+    // generate Mipmap
+    glGenerateMipmap(GL_TEXTURE_2D);
+    
+    // define the target position of texture (related to screen defined by glOrtho) witch makes the texture visible
+    float x = rect.origin.x;
+    float y = rect.origin.y;
+    float iheight = rect.size.height;
+    float iwidth = rect.size.width;
+    glBegin( GL_QUADS );
+    glTexCoord2f( 0.f, 0.f ); glVertex2f(x, y); //Bottom left
+    glTexCoord2f( 1.f, 0.f ); glVertex2f(x + iwidth, y); //Bottom right
+    glTexCoord2f( 1.f, 1.f ); glVertex2f(x + iwidth, y + iheight); //Top right
+    glTexCoord2f( 0.f, 1.f ); glVertex2f(x, y + iheight); //Top left
+    glEnd();
+    
+    glDisable(GL_BLEND);
+    glDisable(GL_TEXTURE_2D);
+    
+    glDeleteTextures(1,&frameTextureName);
 }
 
 @end

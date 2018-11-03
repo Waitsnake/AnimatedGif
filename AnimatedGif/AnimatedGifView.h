@@ -89,6 +89,7 @@
 - (NSTimeInterval)getDurationFromGifFile:(NSString*)gifFileName;
 - (void) receiveDisplaysChangeNote: (NSNotification*) note;
 - (void) drawAttributedString:(NSAttributedString *)attributedString atPoint:(NSPoint)point;
+- (void) drawImage:(void *)pixelsBytes atRect:(NSRect) rect;
 
 @property (nonatomic, retain) NSOpenGLView* glView;
 @property (assign) IBOutlet NSPanel *optionsPanel;
