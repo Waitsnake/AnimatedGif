@@ -174,6 +174,12 @@
     backgrBlue = [defaults floatForKey:@"BackgrBlue"];
     NSInteger changeIntervalInMin = [defaults integerForKey:@"ChangeInterval"];
     
+    // In case if preview window never use the 'load into memory' feature since it initially needs much CPU time witch is bad inside the system preferences app
+    if ([self isPreview])
+    {
+        loadAnimationToMem = FALSE;
+    }
+    
     // select a random file from directory or keep the file if it was already a file
     NSString *newGifFileName = [self getRandomGifFile:gifFileName];
     
@@ -1351,6 +1357,7 @@
     glTexCoord2f (texturSize.width, 0.0f); glVertex2f (bounds.origin.x + bounds.size.width, bounds.origin.y);
     glEnd ();
     glPopAttrib();
+    glDeleteTextures(1,&texturName);
 }
 
 - (void) drawImage:(void *)pixelsBytes atRect:(NSRect) rect
