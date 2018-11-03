@@ -19,7 +19,7 @@
     // initialize screensaver defaults with an default value
     ScreenSaverDefaults *defaults = [ScreenSaverDefaults defaultsForModuleWithName:[[NSBundle bundleForClass: [self class]] bundleIdentifier]];
     [defaults registerDefaults:[NSDictionary dictionaryWithObjectsAndKeys:
-                                 @"file:///please/select/an/gif/animation.gif", @"GifFileName", @"30.0", @"GifFrameRate", @"NO", @"GifFrameRateManual", @"0", @"ViewOpt", @"4", @"ScaleOpt", @"0", @"FilterOpt", @"0.0", @"BackgrRed", @"0.0", @"BackgrGreen", @"0.0", @"BackgrBlue", @"NO", @"LoadAniToMem", @"5", @"ChangeInterval",nil]];
+                                 @"file:///please/select/an/gif/animation.gif", @"GifFileName", @"30.0", @"GifFrameRate", @"NO", @"GifFrameRateManual", @"0", @"ViewOpt", @"4", @"ScaleOpt", @"0", @"FilterOpt", @"0", @"TileOpt", @"0.0", @"BackgrRed", @"0.0", @"BackgrGreen", @"0.0", @"BackgrBlue", @"NO", @"LoadAniToMem", @"5", @"ChangeInterval",nil]];
     
     if (self) {
         self.glView = [self createGLView];
@@ -168,6 +168,7 @@
     viewOption = [defaults integerForKey:@"ViewOpt"];
     NSInteger scaleOption = [defaults integerForKey:@"ScaleOpt"];
     NSInteger filterOption = [defaults integerForKey:@"FilterOpt"];
+    NSInteger tileOption = [defaults integerForKey:@"TileOpt"];
     backgrRed = [defaults floatForKey:@"BackgrRed"];
     backgrGreen = [defaults floatForKey:@"BackgrGreen"];
     backgrBlue = [defaults floatForKey:@"BackgrBlue"];
@@ -191,6 +192,7 @@
     screenRect = [self bounds];
     targetRect = [self calcTargetRectFromOption:viewOption];
     filter = filterOption;
+    tiles = tileOption;
     if (viewOption==VIEW_OPT_SCALE_SIZE)
     {
         scale = [self calcScaleFromScaleOption:scaleOption];
@@ -325,17 +327,46 @@
         // defines the pixel resolution of the screen (can be smaller than real screen, but than you will see pixels)
         glOrtho(0,screenRect.size.width,screenRect.size.height,0,-1,1);
         
+        void *pixelData=NULL;
         if (loadAnimationToMem == TRUE)
         {
             // we load bitmap data from memory and save CPU time (created during startAnimation)
             NSData *pixels = [animationImages objectAtIndex:currFrameCount];
-            [self drawImage:(void*)[pixels bytes] atRect:targetRect];
+            pixelData = (void*)[pixels bytes];
         }
         else
         {
             // bitmapData needs more CPU time to create bitmap data
             [gifRep setProperty:NSImageCurrentFrame withValue:@(currFrameCount)];
-            [self drawImage:[gifRep bitmapData] atRect:targetRect];
+            pixelData = [gifRep bitmapData];
+        }
+            
+        if (tiles == TILE_OPT_1)
+        {
+            // only draw one tile
+            [self drawImage:pixelData atRect:targetRect];
+        }
+        else
+        {
+            // draw 9 tiles (3 by 3)
+            NSRect r11 = NSMakeRect(targetRect.origin.x, targetRect.origin.y, targetRect.size.width/3, targetRect.size.height/3);
+            NSRect r21 = NSMakeRect(targetRect.origin.x+targetRect.size.width/3, targetRect.origin.y, targetRect.size.width/3, targetRect.size.height/3);
+            NSRect r31 = NSMakeRect(targetRect.origin.x+targetRect.size.width/3*2, targetRect.origin.y, targetRect.size.width/3, targetRect.size.height/3);
+            NSRect r12 = NSMakeRect(targetRect.origin.x, targetRect.origin.y+targetRect.size.height/3, targetRect.size.width/3, targetRect.size.height/3);
+            NSRect r22 = NSMakeRect(targetRect.origin.x+targetRect.size.width/3, targetRect.origin.y+targetRect.size.height/3, targetRect.size.width/3, targetRect.size.height/3);
+            NSRect r32 = NSMakeRect(targetRect.origin.x+targetRect.size.width/3*2, targetRect.origin.y+targetRect.size.height/3, targetRect.size.width/3, targetRect.size.height/3);
+            NSRect r13 = NSMakeRect(targetRect.origin.x, targetRect.origin.y+targetRect.size.height/3*2, targetRect.size.width/3, targetRect.size.height/3);
+            NSRect r23 = NSMakeRect(targetRect.origin.x+targetRect.size.width/3, targetRect.origin.y+targetRect.size.height/3*2, targetRect.size.width/3, targetRect.size.height/3);
+            NSRect r33 = NSMakeRect(targetRect.origin.x+targetRect.size.width/3*2, targetRect.origin.y+targetRect.size.height/3*2, targetRect.size.width/3, targetRect.size.height/3);
+            [self drawImage:pixelData atRect:r11];
+            [self drawImage:pixelData atRect:r21];
+            [self drawImage:pixelData atRect:r31];
+            [self drawImage:pixelData atRect:r12];
+            [self drawImage:pixelData atRect:r22];
+            [self drawImage:pixelData atRect:r32];
+            [self drawImage:pixelData atRect:r13];
+            [self drawImage:pixelData atRect:r23];
+            [self drawImage:pixelData atRect:r33];
         }
             
         //End phase
@@ -423,6 +454,7 @@
     NSInteger viewOpt = [defaults integerForKey:@"ViewOpt"];
     NSInteger scaleOpt = [defaults integerForKey:@"ScaleOpt"];
     NSInteger filterOpt = [defaults integerForKey:@"FilterOpt"];
+    NSInteger tileOpt = [defaults integerForKey:@"TileOpt"];
     NSInteger changeInter = [defaults integerForKey:@"ChangeInterval"];
     
     // in the rarely case of an invalid value from default file we set an valid option
@@ -441,6 +473,12 @@
     if (filterOpt > MAX_FILTER_OPT)
     {
         filterOpt = FILTER_OPT_BLUR;
+    }
+    
+    // in the rarely case of an invalid value from default file we set an valid option
+    if (tileOpt > MAX_TILE_OPT)
+    {
+        tileOpt = TILE_OPT_1;
     }
     
     if (viewOpt == VIEW_OPT_SCALE_SIZE)
@@ -480,6 +518,14 @@
     [self.labelVersion setStringValue:version];
     [self.textFieldFileUrl setStringValue:gifFileName];
     [self.sliderFpsManual setDoubleValue:frameRate];
+    if (tileOpt == TILE_OPT_1)
+    {
+        [self.checkButtonTileOptions setState:NO];
+    }
+    else
+    {
+        [self.checkButtonTileOptions setState:YES];
+    }
     [self.checkButtonSetFpsManual setState:frameRateManual];
     [self.checkButtonLoadIntoMem setState:loadAniToMem];
     [self.popupButtonViewOptions selectItemWithTag:viewOpt];
@@ -559,6 +605,15 @@
     NSInteger filterOpt = self.popupButtonFilterOptions.selectedTag;
     NSColor *colorPicked = self.colorWellBackgrColor.color;
     NSInteger changeInt = [self.sliderChangeInterval integerValue];
+    NSInteger tileOpt = 0;
+    if (self.checkButtonTileOptions.state == NO)
+    {
+        tileOpt = TILE_OPT_1;
+    }
+    else
+    {
+        tileOpt = TILE_OPT_3_BY_3;
+    }
     
     // init access to screensaver defaults
     ScreenSaverDefaults *defaults = [ScreenSaverDefaults defaultsForModuleWithName:[[NSBundle bundleForClass: [self class]] bundleIdentifier]];
@@ -591,6 +646,10 @@
     {
         defaultsChanged = TRUE;
     }
+    if ([defaults integerForKey:@"TileOpt"] != tileOpt)
+    {
+        defaultsChanged = TRUE;
+    }
     if ([defaults integerForKey:@"ChangeInterval"] != changeInt)
     {
         defaultsChanged = TRUE;
@@ -615,16 +674,31 @@
     [defaults setInteger:viewOpt forKey:@"ViewOpt"];
     [defaults setInteger:scaleOpt forKey:@"ScaleOpt"];
     [defaults setInteger:filterOpt forKey:@"FilterOpt"];
+    [defaults setInteger:tileOpt forKey:@"TileOpt"];
     [defaults setFloat:colorPicked.redComponent forKey:@"BackgrRed"];
     [defaults setFloat:colorPicked.greenComponent forKey:@"BackgrGreen"];
     [defaults setFloat:colorPicked.blueComponent forKey:@"BackgrBlue"];
     [defaults setInteger:changeInt forKey:@"ChangeInterval"];
     [defaults synchronize];
     
+    // calculate target and screen rectangle size
+    screenRect = [self bounds];
+    targetRect = [self calcTargetRectFromOption:viewOpt];
     // set new values to object attributes
     backgrRed = colorPicked.redComponent;
     backgrGreen = colorPicked.greenComponent;
     backgrBlue = colorPicked.blueComponent;
+    viewOption = viewOpt;
+    filter = filterOpt;
+    tiles = tileOpt;
+    if (viewOption==VIEW_OPT_SCALE_SIZE)
+    {
+        scale = [self calcScaleFromScaleOption:scaleOpt];
+    }
+    else
+    {
+        scale = 1.0;
+    }
     
     // close color dialog and options dialog
     [[NSColorPanel sharedColorPanel] close];

@@ -39,6 +39,10 @@
 #define FILTER_OPT_SHARP            1
 #define MAX_FILTER_OPT              1
 
+#define TILE_OPT_1                  0
+#define TILE_OPT_3_BY_3             1
+#define MAX_TILE_OPT                1
+
 #define SYNC_TO_VERTICAL            1
 #define DONT_SYNC                   0
 
@@ -67,6 +71,7 @@
     NSRect targetRect;
     NSInteger filter;
     NSInteger viewOption;
+    NSInteger tiles;
     float scale;
     NSOpenPanel* openDlg;
 }
@@ -99,6 +104,7 @@
 @property (assign) IBOutlet NSSegmentedControl *segmentButtonLaunchAgent;
 @property (assign) IBOutlet NSPopUpButton *popupButtonViewOptions;
 @property (assign) IBOutlet NSPopUpButton *popupButtonFilterOptions;
+@property (assign) IBOutlet NSButton *checkButtonTileOptions;
 @property (assign) IBOutlet NSPopUpButton *popupButtonScaleOptions;
 
 @property (assign) IBOutlet NSTextField *labelVersion;

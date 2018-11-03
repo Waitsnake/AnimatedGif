@@ -10,6 +10,7 @@
             <connections>
                 <outlet property="checkButtonLoadIntoMem" destination="kHm-iW-jBX" id="1PD-q6-RWL"/>
                 <outlet property="checkButtonSetFpsManual" destination="2Vl-6h-B2h" id="gRb-ac-gPq"/>
+                <outlet property="checkButtonTileOptions" destination="dOQ-KY-zry" id="F6G-jp-AOA"/>
                 <outlet property="colorWellBackgrColor" destination="bxi-1B-SU5" id="usi-GV-sXp"/>
                 <outlet property="labelChIntT1" destination="6rf-VP-aCY" id="PNd-9x-z2T"/>
                 <outlet property="labelChIntT2" destination="Ars-lX-BSq" id="5QL-Vd-NEG"/>
@@ -40,14 +41,14 @@
         <window allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" releasedWhenClosed="NO" visibleAtLaunch="NO" animationBehavior="default" id="QvC-M9-y7g" customClass="NSPanel">
             <windowStyleMask key="styleMask" titled="YES" closable="YES"/>
             <windowPositionMask key="initialPositionMask" leftStrut="YES" rightStrut="YES" topStrut="YES" bottomStrut="YES"/>
-            <rect key="contentRect" x="196" y="240" width="565" height="501"/>
+            <rect key="contentRect" x="196" y="240" width="565" height="520"/>
             <rect key="screenRect" x="0.0" y="0.0" width="1366" height="745"/>
             <view key="contentView" id="EiT-Mj-1SZ">
-                <rect key="frame" x="0.0" y="0.0" width="565" height="501"/>
+                <rect key="frame" x="0.0" y="0.0" width="565" height="520"/>
                 <autoresizingMask key="autoresizingMask"/>
                 <subviews>
                     <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="fXD-SA-3et">
-                        <rect key="frame" x="20" y="462" width="110" height="17"/>
+                        <rect key="frame" x="20" y="481" width="110" height="17"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Anzeigeoptionen:" id="vEo-Jt-50P">
                             <font key="font" metaFont="system"/>
@@ -55,14 +56,6 @@
                             <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                         </textFieldCell>
                     </textField>
-                    <button fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="kHm-iW-jBX">
-                        <rect key="frame" x="18" y="430" width="449" height="18"/>
-                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                        <buttonCell key="cell" type="check" title="Lade Animation beim Start in den Speicher (spart CPU Zeit)" bezelStyle="regularSquare" imagePosition="left" inset="2" id="F13-fV-gKv">
-                            <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
-                            <font key="font" metaFont="system"/>
-                        </buttonCell>
-                    </button>
                     <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="RVF-wA-M8z">
                         <rect key="frame" x="18" y="132" width="449" height="17"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
@@ -82,7 +75,7 @@
                         </textFieldCell>
                     </textField>
                     <button fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="2Vl-6h-B2h">
-                        <rect key="frame" x="18" y="400" width="449" height="18"/>
+                        <rect key="frame" x="18" y="386" width="449" height="18"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <buttonCell key="cell" type="check" title="Setze Framerate manuell (ansonsten wird die aus dem GIF verwendet)" bezelStyle="regularSquare" imagePosition="left" alignment="left" inset="2" id="7lC-sW-T7r">
                             <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
@@ -145,7 +138,7 @@
                         </connections>
                     </segmentedControl>
                     <popUpButton verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Cmf-ro-Be5">
-                        <rect key="frame" x="158" y="456" width="305" height="26"/>
+                        <rect key="frame" x="158" y="475" width="305" height="26"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <popUpButtonCell key="cell" type="push" title="strecke und erhalte Bildproportionen" bezelStyle="rounded" alignment="left" lineBreakMode="truncatingTail" state="on" borderStyle="borderAndBezel" imageScaling="proportionallyDown" inset="2" selectedItem="5ie-tK-3yY" id="lpg-CF-VQ3">
                             <behavior key="behavior" lightByBackground="YES" lightByGray="YES"/>
@@ -372,7 +365,7 @@ DQ
                         </connections>
                     </button>
                     <popUpButton verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="arB-4u-2VX">
-                        <rect key="frame" x="471" y="457" width="77" height="25"/>
+                        <rect key="frame" x="471" y="476" width="77" height="25"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <popUpButtonCell key="cell" type="push" title="1x" bezelStyle="rounded" alignment="left" lineBreakMode="truncatingTail" enabled="NO" state="on" borderStyle="borderAndBezel" tag="4" imageScaling="proportionallyDown" inset="2" selectedItem="450-Ql-wI1" id="rzD-C4-Xie">
                             <behavior key="behavior" lightByBackground="YES" lightByGray="YES"/>
@@ -419,12 +412,28 @@ DQ
                             </menu>
                         </popUpButtonCell>
                     </popUpButton>
+                    <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="dOQ-KY-zry">
+                        <rect key="frame" x="18" y="454" width="446" height="18"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                        <buttonCell key="cell" type="check" title="Anzeigeoptionen in 3x3 Kacheln aufteilen" bezelStyle="regularSquare" imagePosition="left" inset="2" id="rFT-fC-whw">
+                            <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
+                            <font key="font" metaFont="system"/>
+                        </buttonCell>
+                    </button>
+                    <button fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="kHm-iW-jBX">
+                        <rect key="frame" x="18" y="421" width="449" height="18"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                        <buttonCell key="cell" type="check" title="Lade Animation beim Start in den Speicher (spart CPU Zeit)" bezelStyle="regularSquare" imagePosition="left" inset="2" id="F13-fV-gKv">
+                            <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
+                            <font key="font" metaFont="system"/>
+                        </buttonCell>
+                    </button>
                 </subviews>
             </view>
             <connections>
                 <outlet property="initialFirstResponder" destination="oV9-Yk-r4r" id="I8h-Th-Wmt"/>
             </connections>
-            <point key="canvasLocation" x="177.5" y="269.5"/>
+            <point key="canvasLocation" x="177.5" y="279"/>
         </window>
     </objects>
 </document>
