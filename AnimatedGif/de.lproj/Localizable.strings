@@ -8,3 +8,5 @@
 
 "dir" = "(Ordner)";
 "titleopendlg" = "AnimatedGif: Datei oder Ordner wählen";
+"nogif" = "Keine GIF-Datei gefunden.";
+"select" = "Bitte eine Datei oder ein Ordner wählen.";

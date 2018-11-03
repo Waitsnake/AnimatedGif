@@ -275,7 +275,19 @@
         [self.glView.openGLContext makeCurrentContext];
         glClearColor(backgrRed, backgrGreen, backgrBlue, GL_ALPHA_OPAQUE);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+        
+        glPushMatrix();
+
+        glColor3f(0.7f, 0.7f, 0.7f);
+        if ([self isPreview] == TRUE)
+        {
+            [self glWriteText:NSLocalizedStringFromTableInBundle(@"nogif",@"Localizable",[NSBundle bundleForClass:[self class]],nil) atX:-0.8 andY:0.2 withFont:GLUT_BITMAP_HELVETICA_12];
+            [self glWriteText:NSLocalizedStringFromTableInBundle(@"select",@"Localizable",[NSBundle bundleForClass:[self class]],nil) atX:-0.8 andY:-0.2 withFont:GLUT_BITMAP_HELVETICA_12];
+        }
+        glPopMatrix();
+
         glFlush();
+        [self.glView.openGLContext flushBuffer];
         [self setNeedsDisplay:YES];
         
     }
@@ -1274,6 +1286,18 @@
     {
         // if not even a GIF file could be open, we use an default duration (15 fps)
         return DEFAULT_ANIME_TIME_INTER;
+    }
+}
+
+- (void)glWriteText: (NSString*)text atX: (GLfloat)x andY: (GLfloat)y withFont: (void *)font
+{
+    int i;
+    glRasterPos2f(x, y);
+    for(i=0;i<text.length;i++)
+    {
+        // this function is deprecated and I changed built target to 10.8 to supress the warning
+        // anyway I need to replace this or remove the feature of display an info text in the preview window with OpenGl
+        glutBitmapCharacter(font, (int)[text characterAtIndex:i]);
     }
 }
 

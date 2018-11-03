@@ -87,6 +87,7 @@
 - (NSRect)calcTargetRectFromOption:(NSInteger)option;
 - (NSTimeInterval)getDurationFromGifFile:(NSString*)gifFileName;
 - (void) receiveDisplaysChangeNote: (NSNotification*) note;
+- (void)glWriteText: (NSString*)text atX: (GLfloat)x andY: (GLfloat)y withFont: (void *)font;
 
 @property (nonatomic, retain) NSOpenGLView* glView;
 @property (assign) IBOutlet NSPanel *optionsPanel;

@@ -8,3 +8,5 @@
 
 "dir" = "(carpeta)";
 "titleopendlg" = "AnimatedGif: Elige archivo o carpeta";
+"nogif" = "No se encontró ningún archivo GIF.";
+"select" = "Por favor elige un archivo o carpeta.";
