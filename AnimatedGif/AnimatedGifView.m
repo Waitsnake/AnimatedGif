@@ -76,6 +76,11 @@
     return glview;
 }
 
+- (void) drawRect:(NSRect)rect
+{
+    // not needed since we use animateOneFrame() and left empty so that super method of NSView is not called to save same CPU time
+}
+
 - (void)setFrameSize:(NSSize)newSize
 {
     [super setFrameSize:newSize];
@@ -299,13 +304,35 @@
         [attribs setObject: [NSColor redColor] forKey: NSForegroundColorAttributeName];
         NSAttributedString *nogifAtStr = [[NSAttributedString alloc] initWithString:NSLocalizedStringFromTableInBundle(@"nogif",@"Localizable",[NSBundle bundleForClass:[self class]],nil) attributes:attribs];
         NSAttributedString *selectAtStr = [[NSAttributedString alloc] initWithString:NSLocalizedStringFromTableInBundle(@"select",@"Localizable",[NSBundle bundleForClass:[self class]],nil) attributes:attribs];
-        [self drawAttributedString:nogifAtStr atPoint:NSMakePoint (screenRect.size.width/2 - [nogifAtStr size].width/2, screenRect.size.height/2 - screenRect.size.height/4)];
-        [self drawAttributedString:selectAtStr atPoint:NSMakePoint (screenRect.size.width/2 - [selectAtStr size].width/2, screenRect.size.height/2)];
+        [self drawAttributedString:nogifAtStr atPoint:NSMakePoint (screenRect.size.width/2 - [nogifAtStr size].width/2, screenRect.size.height/4-[nogifAtStr size].height/2)];
+        [self drawAttributedString:selectAtStr atPoint:NSMakePoint (screenRect.size.width/2 - [selectAtStr size].width/2, screenRect.size.height/2-[selectAtStr size].height/2)];
+        
+        NSImage *iconImg = [[NSBundle bundleForClass:[self class]] imageForResource:@"thumbnail.tiff"];
+        if (iconImg)
+        {
+            NSBitmapImageRep *iconRep = [NSBitmapImageRep imageRepWithData:[iconImg TIFFRepresentation]];
+            if (iconRep)
+            {
+                NSSize iconSize;
+                if ([self isPreview])
+                {
+                    iconSize = NSMakeSize([iconRep size].width/2, [iconRep size].height/2);
+                }
+                else
+                {
+                    iconSize = NSMakeSize([iconRep size].width*2, [iconRep size].height*2);
+                }
+                void *pixelDataIcon= [iconRep bitmapData];;
+                if (pixelDataIcon != NULL)
+                {
+                    [self drawImage:pixelDataIcon pixelWidth: [iconRep pixelsWide] pixelHeight:[iconRep pixelsHigh] hasAlpha:[iconRep hasAlpha] atRect:NSMakeRect(screenRect.size.width/2 - iconSize.width/2, screenRect.size.height/4*3 - iconSize.height/2, iconSize.width, iconSize.height)];
+                }
+            }
+        }
+        
         glPopMatrix();
-
-        glFlush();
-        [self.glView.openGLContext flushBuffer];
-        [self setNeedsDisplay:YES];
+        
+        [self.glView.openGLContext flushBuffer]; // Swap Buffers and can only used after setting up OpenGL view with option NSOpenGLPFADoubleBuffer otherwise use glFlush()
         
     }
     else
@@ -350,7 +377,7 @@
         if (tiles == TILE_OPT_1)
         {
             // only draw one tile
-            [self drawImage:pixelData atRect:targetRect];
+            [self drawImage:pixelData pixelWidth: [gifRep pixelsWide] pixelHeight:[gifRep pixelsHigh] hasAlpha:[gifRep hasAlpha] atRect:targetRect];
         }
         else
         {
@@ -364,26 +391,21 @@
             NSRect r13 = NSMakeRect(targetRect.origin.x, targetRect.origin.y+targetRect.size.height/3*2, targetRect.size.width/3, targetRect.size.height/3);
             NSRect r23 = NSMakeRect(targetRect.origin.x+targetRect.size.width/3, targetRect.origin.y+targetRect.size.height/3*2, targetRect.size.width/3, targetRect.size.height/3);
             NSRect r33 = NSMakeRect(targetRect.origin.x+targetRect.size.width/3*2, targetRect.origin.y+targetRect.size.height/3*2, targetRect.size.width/3, targetRect.size.height/3);
-            [self drawImage:pixelData atRect:r11];
-            [self drawImage:pixelData atRect:r21];
-            [self drawImage:pixelData atRect:r31];
-            [self drawImage:pixelData atRect:r12];
-            [self drawImage:pixelData atRect:r22];
-            [self drawImage:pixelData atRect:r32];
-            [self drawImage:pixelData atRect:r13];
-            [self drawImage:pixelData atRect:r23];
-            [self drawImage:pixelData atRect:r33];
+            [self drawImage:pixelData pixelWidth: [gifRep pixelsWide] pixelHeight:[gifRep pixelsHigh] hasAlpha:[gifRep hasAlpha] atRect:r11];
+            [self drawImage:pixelData pixelWidth: [gifRep pixelsWide] pixelHeight:[gifRep pixelsHigh] hasAlpha:[gifRep hasAlpha] atRect:r21];
+            [self drawImage:pixelData pixelWidth: [gifRep pixelsWide] pixelHeight:[gifRep pixelsHigh] hasAlpha:[gifRep hasAlpha] atRect:r31];
+            [self drawImage:pixelData pixelWidth: [gifRep pixelsWide] pixelHeight:[gifRep pixelsHigh] hasAlpha:[gifRep hasAlpha] atRect:r12];
+            [self drawImage:pixelData pixelWidth: [gifRep pixelsWide] pixelHeight:[gifRep pixelsHigh] hasAlpha:[gifRep hasAlpha] atRect:r22];
+            [self drawImage:pixelData pixelWidth: [gifRep pixelsWide] pixelHeight:[gifRep pixelsHigh] hasAlpha:[gifRep hasAlpha] atRect:r32];
+            [self drawImage:pixelData pixelWidth: [gifRep pixelsWide] pixelHeight:[gifRep pixelsHigh] hasAlpha:[gifRep hasAlpha] atRect:r13];
+            [self drawImage:pixelData pixelWidth: [gifRep pixelsWide] pixelHeight:[gifRep pixelsHigh] hasAlpha:[gifRep hasAlpha] atRect:r23];
+            [self drawImage:pixelData pixelWidth: [gifRep pixelsWide] pixelHeight:[gifRep pixelsHigh] hasAlpha:[gifRep hasAlpha] atRect:r33];
         }
             
         //End phase
         glPopMatrix();
         
-        glFlush();
-            
-        [self.glView.openGLContext flushBuffer];
-            
-        [self setNeedsDisplay:YES];
-        
+        [self.glView.openGLContext flushBuffer]; // Swap Buffers and can only used after setting up OpenGL view with option NSOpenGLPFADoubleBuffer otherwise use glFlush()
     
         //calculate next frame of GIF to show
         if (currFrameCount < maxFrameCount-1)
@@ -1360,10 +1382,10 @@
     glDeleteTextures(1,&texturName);
 }
 
-- (void) drawImage:(void *)pixelsBytes atRect:(NSRect) rect
+- (void) drawImage:(void *)pixelsBytes pixelWidth:(NSInteger)width pixelHeight:(NSInteger)height  hasAlpha: (Boolean)alpha atRect:(NSRect) rect
 {
     glEnable(GL_TEXTURE_2D);
-    if ([gifRep hasAlpha] == TRUE) {
+    if (alpha == TRUE) {
         glEnable(GL_BLEND);
         glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
     }
@@ -1398,8 +1420,8 @@
     glTexImage2D(GL_TEXTURE_2D,
                      0,
                      GL_RGBA,
-                     (GLint)[gifRep pixelsWide],
-                     (GLint)[gifRep pixelsHigh],
+                     (GLint)width,
+                     (GLint)height,
                      0,
                      GL_RGBA,
                      GL_UNSIGNED_BYTE,
