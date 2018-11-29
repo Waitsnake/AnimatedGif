@@ -32,6 +32,8 @@ The latest release was tested successfully under Mavericks(10.9.5), El Capitan(1
 <br>
 
 ## If there is an error message saying "[APP NAME] can't be opened because it is from an unidentified developer"
+<br>
+<img src="readme_extra/unidentified_dev.png?raw=true" width="500"/>
 
 1. Open System Preferences
 2. Go to "Security & Privacy"
