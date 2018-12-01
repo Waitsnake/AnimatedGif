@@ -31,13 +31,22 @@ The latest release was tested successfully under Mavericks(10.9.5), El Capitan(1
 </p>
 <br>
 
-## If there is an error message saying "[APP NAME] can't be opened because it is from an unidentified developer"
+## If there is an error message saying "[AnimatedGif.saver] can't be opened because it is from an unidentified developer"
 <br>
-<img src="readme_extra/unidentified_dev.png?raw=true" width="500"/>
+<img src="readme_extra/can_not_open_1.png?raw=true" width="500"/>
 
 1. Open System Preferences
 2. Go to "Security & Privacy"
-3. Click Open
+3. Click "Open Anyway"
+<br>
+<img src="readme_extra/can_not_open_2.png?raw=true" width="500"/>
+4. Click "Open"
+<br>
+<img src="readme_extra/can_not_open_3.png?raw=true" width="500"/>
+5. Choose if you like to install screensaver for actual user onyl or all users
+6. Click "Install"
+<br>
+<img src="readme_extra/can_not_open_4.png?raw=true" width="500"/>
 
 ## Uninstall AnimatedGif
 
