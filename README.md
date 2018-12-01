@@ -44,6 +44,7 @@ The latest release was tested successfully under Mavericks(10.9.5), El Capitan(1
 <br>
 <img src="readme_extra/can_not_open_3.png?raw=true" width="500"/>
 5. Choose if you like to install screensaver for actual user onyl or all users
+<br>
 6. Click "Install"
 <br>
 <img src="readme_extra/can_not_open_4.png?raw=true" width="500"/>
