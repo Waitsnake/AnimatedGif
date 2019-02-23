@@ -11,7 +11,7 @@ You can either open only one single GIF file file or you can choose a directory 
 
 This project was originally written with Xcode 6.2 and SDK for OSX 10.9 Mavericks and latest release was compiled with Xcode 10.1 with SDK for OSX 10.14 Mojave.
 
-The latest release was tested successfully under Mavericks(10.9.5), El Capitan(10.11.6) and Mojave(10.14.1).
+The latest release was tested successfully under Mavericks(10.9.5), El Capitan(10.11.6) and Mojave(10.14.3).
 
 <br>
 
