@@ -138,7 +138,7 @@
 			};
 			buildConfigurationList = CC24BA8F1BF124350045BDC7 /* Build configuration list for PBXProject "AnimatedGif" */;
 			compatibilityVersion = "Xcode 3.2";
-			developmentRegion = English;
+			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
 				en,
