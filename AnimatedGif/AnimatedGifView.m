@@ -19,7 +19,7 @@
     // initialize screensaver defaults with an default value
     ScreenSaverDefaults *defaults = [ScreenSaverDefaults defaultsForModuleWithName:[[NSBundle bundleForClass: [self class]] bundleIdentifier]];
     [defaults registerDefaults:[NSDictionary dictionaryWithObjectsAndKeys:
-                                 @"file:///please/select/an/gif/animation.gif", @"GifFileName", @"30.0", @"GifFrameRate", @"NO", @"GifFrameRateManual", @"0", @"ViewOpt", @"4", @"ScaleOpt", @"0", @"FilterOpt", @"0", @"TileOpt", @"0.0", @"BackgrRed", @"0.0", @"BackgrGreen", @"0.0", @"BackgrBlue", @"NO", @"LoadAniToMem", @"5", @"ChangeInterval",nil]];
+                                 @"file:///please/select/an/gif/animation.gif", @"GifFileName", @"30.0", @"GifFrameRate", @"NO", @"GifFrameRateManual", @"0", @"ViewOpt", @"4", @"ScaleOpt", @"1", @"FilterOpt", @"0", @"TileOpt", @"0.0", @"BackgrRed", @"0.0", @"BackgrGreen", @"0.0", @"BackgrBlue", @"NO", @"LoadAniToMem", @"5", @"ChangeInterval",nil]];
     
     if (self) {
         self.glView = [self createGLView];
@@ -500,7 +500,7 @@
     // in the rarely case of an invalid value from default file we set an valid option
     if (filterOpt > MAX_FILTER_OPT)
     {
-        filterOpt = FILTER_OPT_BLUR;
+        filterOpt = FILTER_OPT_SHARP;
     }
     
     // in the rarely case of an invalid value from default file we set an valid option
