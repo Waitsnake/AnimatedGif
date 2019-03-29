@@ -76,7 +76,7 @@
     NSOpenPanel* openDlg;
 }
 
-- (NSOpenGLView *)createGLView;
+- (NSOpenGLView *)createViewGL;
 - (float)pictureRatioFromWidth:(float)iWidth andHeight:(float)iHeight;
 - (float)calcWidthFromRatio:(float)iRatio andHeight:(float)iHeight;
 - (float)calcHeightFromRatio:(float)iRatio andWidth:(float)iWidth;
@@ -93,8 +93,10 @@
 - (NSRect)calcTargetRectFromOption:(NSInteger)option;
 - (NSTimeInterval)getDurationFromGifFile:(NSString*)gifFileName;
 - (void) receiveDisplaysChangeNote: (NSNotification*) note;
-- (void) drawAttributedString:(NSAttributedString *)attributedString atPoint:(NSPoint)point;
-- (void) drawImage:(void *)pixelsBytes pixelWidth:(NSInteger)width pixelHeight:(NSInteger)height  hasAlpha: (Boolean)alpha atRect:(NSRect) rect;
+- (void) drawAttributedStringGL:(NSAttributedString *)attributedString atPoint:(NSPoint)point;
+- (void) drawImageGL:(void *)pixelsBytes pixelWidth:(NSInteger)width pixelHeight:(NSInteger)height  hasAlpha: (Boolean)alpha atRect:(NSRect) rect;
+- (void) animateNoGifGL;
+- (void) animateWithGifGL;
 
 @property (nonatomic, retain) NSOpenGLView* glView;
 @property (assign) IBOutlet NSPanel *optionsPanel;
