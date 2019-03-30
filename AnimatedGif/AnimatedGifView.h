@@ -80,7 +80,7 @@
     
     NSOpenGLView* glView;
     
-    // TODO we will need maybe a few more members for Metal
+    // TODO we will need maybe a few more properties for Metal
     MTKView* mtlView;
     id <MTLDevice> deviceMTL;
     id <MTLCommandQueue> commandQueueMTL;
@@ -89,7 +89,16 @@
 }
 
 - (NSOpenGLView *)createViewGL;
+- (void) animateNoGifGL;
+- (void) animateWithGifGL;
+- (void) drawAttributedStringGL:(NSAttributedString *)attributedString atPoint:(NSPoint)point;
+- (void) drawImageGL:(void *)pixelsBytes pixelWidth:(NSInteger)width pixelHeight:(NSInteger)height  hasAlpha: (Boolean)alpha atRect:(NSRect) rect;
+
 - (MTKView *)createViewMTL;
+- (void) animateNoGifMTL;
+- (void) animateWithGifMTL;
+- (void) drawAttributedStringMTL:(NSAttributedString *)attributedString atPoint:(NSPoint)point;
+- (void) drawImageMTL:(void *)pixelsBytes pixelWidth:(NSInteger)width pixelHeight:(NSInteger)height  hasAlpha: (Boolean)alpha atRect:(NSRect) rect;
 
 - (float)pictureRatioFromWidth:(float)iWidth andHeight:(float)iHeight;
 - (float)calcWidthFromRatio:(float)iRatio andHeight:(float)iHeight;
@@ -107,10 +116,6 @@
 - (NSRect)calcTargetRectFromOption:(NSInteger)option;
 - (NSTimeInterval)getDurationFromGifFile:(NSString*)gifFileName;
 - (void) receiveDisplaysChangeNote: (NSNotification*) note;
-- (void) drawAttributedStringGL:(NSAttributedString *)attributedString atPoint:(NSPoint)point;
-- (void) drawImageGL:(void *)pixelsBytes pixelWidth:(NSInteger)width pixelHeight:(NSInteger)height  hasAlpha: (Boolean)alpha atRect:(NSRect) rect;
-- (void) animateNoGifGL;
-- (void) animateWithGifGL;
 
 @property (assign) IBOutlet NSPanel *optionsPanel;
 @property (assign) IBOutlet NSTextField *textFieldFileUrl;

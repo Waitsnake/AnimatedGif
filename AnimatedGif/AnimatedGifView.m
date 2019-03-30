@@ -8,10 +8,14 @@
 
 #import "AnimatedGifView.h"
 
+//#define USE_METAL
+
 @implementation AnimatedGifView
 
 - (instancetype)initWithFrame:(NSRect)frame isPreview:(BOOL)isPreview
-{    
+{
+    mtlView = NULL;
+    glView = NULL;
     trigByTimer = FALSE;
     currFrameCount = FRAME_COUNT_NOT_USED;
     self = [super initWithFrame:frame isPreview:isPreview];
@@ -22,8 +26,13 @@
                                  @"file:///please/select/an/gif/animation.gif", @"GifFileName", @"30.0", @"GifFrameRate", @"NO", @"GifFrameRateManual", @"0", @"ViewOpt", @"4", @"ScaleOpt", @"1", @"FilterOpt", @"0", @"TileOpt", @"0.0", @"BackgrRed", @"0.0", @"BackgrGreen", @"0.0", @"BackgrBlue", @"NO", @"LoadAniToMem", @"5", @"ChangeInterval",nil]];
     
     if (self) {
-        //mtlView = [self createViewMTL]; // TODO Metal init not finished yet
-        glView = [self createViewGL];
+#ifdef USE_METAL
+        mtlView = [self createViewMTL]; // TODO Metal init not finished yet
+#endif
+        if (mtlView==NULL)
+        {
+            glView = [self createViewGL]; // only use OpenGL in case there is no Metal
+        }
         [self setAnimationTimeInterval:DEFAULT_ANIME_TIME_INTER];
     }
     
@@ -81,7 +90,7 @@
 {
     // TODO Metal init not finished yet
     
-    // Does the user have any Metal working Metal API(start with OS X 10.11 or later)?
+    // Does the user have any working Metal API(start with OS X 10.11 or later)?
     if (MTLCopyAllDevices == NULL)
     {
         NSLog(@"Your version of the OS does not support Metal. Requires OS X 10.11 or later.");
@@ -151,7 +160,14 @@
 - (void)setFrameSize:(NSSize)newSize
 {
     [super setFrameSize:newSize];
-    [glView setFrameSize:newSize];
+    if (mtlView == NULL)
+    {
+        [glView setFrameSize:newSize];
+    }
+    else
+    {
+        [mtlView setFrameSize:newSize];
+    }
 }
 
 - (BOOL)isOpaque
@@ -162,8 +178,16 @@
 
 - (void)dealloc
 {
-    [glView removeFromSuperview];
-    glView = nil;
+    if (mtlView == NULL)
+    {
+        [glView removeFromSuperview];
+        glView = nil;
+    }
+    else
+    {
+        [mtlView removeFromSuperview];
+        mtlView = nil;
+    }
 }
 
 - (void)timerMethod
@@ -189,8 +213,14 @@
         // only call super method in case startAnimation is not called by timerMethod
         [super startAnimation];
         
-        [self addSubview:mtlView];
-        [self addSubview:glView];
+        if (mtlView == NULL)
+        {
+            [self addSubview:glView];
+        }
+        else
+        {
+            [self addSubview:mtlView];
+        }
         
         // bug of OSX: since 10.13 the background mode of screensaver is brocken (the ScreenSaverEngine uses for background-mode its own space that is in foreground and this space can't be accessed from the ScreenSaverView)
         // workaround: AnimatedGif use the window-mode of the ScreenSaverEngine and change the behavior of that window to an background window
@@ -352,13 +382,28 @@
     {
         // FRAME_COUNT_NOT_USED means no image is loaded and so we clear the screen with the set background color and print an indication message
         
-        [self animateNoGifGL];
+        if (mtlView == NULL)
+        {
+            [self animateNoGifGL];
+        }
+        else
+        {
+            [self animateNoGifMTL];
+        }
     }
     else
     {
         // draw the selected frame
 
-        [self animateWithGifGL];
+        if (mtlView == NULL)
+        {
+            [self animateWithGifGL];
+        }
+        else
+        {
+            [self animateWithGifMTL];
+        }
+        
     
         //calculate next frame of GIF to show
         if (currFrameCount < maxFrameCount-1)
@@ -1455,6 +1500,7 @@
     [glView.openGLContext flushBuffer]; // Swap Buffers and can only used after setting up OpenGL view with option NSOpenGLPFADoubleBuffer otherwise use glFlush()
     
 }
+
 - (void) animateWithGifGL
 {
     // change context to glview
@@ -1523,6 +1569,26 @@
     glPopMatrix();
     
     [glView.openGLContext flushBuffer]; // Swap Buffers and can only used after setting up OpenGL view with option NSOpenGLPFADoubleBuffer otherwise use glFlush()
+}
+
+- (void) drawAttributedStringMTL:(NSAttributedString *)attributedString atPoint:(NSPoint)point
+{
+    // TODO add the render code
+}
+
+- (void) drawImageMTL:(void *)pixelsBytes pixelWidth:(NSInteger)width pixelHeight:(NSInteger)height  hasAlpha: (Boolean)alpha atRect:(NSRect) rect
+{
+    // TODO add the render code
+}
+
+- (void) animateNoGifMTL
+{
+    // TODO add the render code
+}
+
+- (void) animateWithGifMTL
+{
+    // TODO add the render code
 }
 
 @end
