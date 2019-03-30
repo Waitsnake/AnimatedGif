@@ -22,7 +22,8 @@
                                  @"file:///please/select/an/gif/animation.gif", @"GifFileName", @"30.0", @"GifFrameRate", @"NO", @"GifFrameRateManual", @"0", @"ViewOpt", @"4", @"ScaleOpt", @"1", @"FilterOpt", @"0", @"TileOpt", @"0.0", @"BackgrRed", @"0.0", @"BackgrGreen", @"0.0", @"BackgrBlue", @"NO", @"LoadAniToMem", @"5", @"ChangeInterval",nil]];
     
     if (self) {
-        self.glView = [self createViewGL];
+        //mtlView = [self createViewMTL]; // TODO Metal init not finished yet
+        glView = [self createViewGL];
         [self setAnimationTimeInterval:DEFAULT_ANIME_TIME_INTER];
     }
     
@@ -76,6 +77,72 @@
     return glview;
 }
 
+- (MTKView *) createViewMTL
+{
+    // TODO Metal init not finished yet
+    
+    // Does the user have any Metal working Metal API(start with OS X 10.11 or later)?
+    if (MTLCopyAllDevices == NULL)
+    {
+        NSLog(@"Your version of the OS does not support Metal. Requires OS X 10.11 or later.");
+        return NULL;
+    }
+    else
+    {
+        NSArray *devices = MTLCopyAllDevices();
+        
+        // Does the user have any Metal devices available? (This should be yes on all Macs made after mid-2012.)
+        if (!devices || devices.count == 0)
+        {
+
+            NSLog(@"No Metal devices could be found.");
+            return NULL;
+        }
+        else
+        {
+            NSLog(@"Metal devices could be found.");
+            
+            // the easy way for the moment is the system default metal device
+            // instead of this it is also possible to itterate all devices and maybe look for
+            // low power GPU (Macs with a Intel-GPU and a ATI/Nvidia-GPU for example
+            deviceMTL = MTLCreateSystemDefaultDevice();
+            
+            // create an Metal View that uses the metal device
+            MTKView* mtlView = [[MTKView alloc] initWithFrame:NSZeroRect];
+            mtlView.device = deviceMTL;
+            mtlView.clearColor = MTLClearColorMake(1, 1, 1, 1);
+            mtlView.colorPixelFormat = MTLPixelFormatBGRA8Unorm;
+            mtlView.framebufferOnly = NO;
+            mtlView.autoResizeDrawable = NO;
+
+            // get an metal command queue
+            commandQueueMTL = [deviceMTL newCommandQueue];
+            
+            // load the metal libary from the bundle (contains the shader code for the GPU)
+            NSError *err = nil;
+            defaultLibraryMTL = [deviceMTL newLibraryWithFile:[[NSBundle bundleForClass:self.class] pathForResource:@"default" ofType:@"metallib"] error:&err];
+            
+            // create an piple descriptor (defines porperties of an metal pipeline ) for creating an metal pipeline with it
+            MTLRenderPipelineDescriptor *pipelineStateDescriptor = [[MTLRenderPipelineDescriptor alloc] init];
+            pipelineStateDescriptor.label = @"AnimatedGifPipeline";
+            // also add the shader codes that we load from the resource bundle to the metal pipeline
+            pipelineStateDescriptor.vertexFunction = [defaultLibraryMTL newFunctionWithName:@"myVertexShader"];
+            pipelineStateDescriptor.fragmentFunction = [defaultLibraryMTL newFunctionWithName:@"myFragmentShader"];
+            // define the pixel format we will use with metal
+            pipelineStateDescriptor.colorAttachments[0].pixelFormat = MTLPixelFormatBGRA8Unorm;
+            
+            // with that descriptor informations we can finaly create the metal pipeline
+            pipelineState = [deviceMTL newRenderPipelineStateWithDescriptor:pipelineStateDescriptor error:&err];
+
+            NSLog(@"Metal setup done.");
+            
+            return mtlView;
+        
+        }
+    }
+
+}
+
 - (void) drawRect:(NSRect)rect
 {
     // not needed since we use animateOneFrame() and left empty so that super method of NSView is not called to save same CPU time
@@ -84,7 +151,7 @@
 - (void)setFrameSize:(NSSize)newSize
 {
     [super setFrameSize:newSize];
-    [self.glView setFrameSize:newSize];
+    [glView setFrameSize:newSize];
 }
 
 - (BOOL)isOpaque
@@ -95,8 +162,8 @@
 
 - (void)dealloc
 {
-    [self.glView removeFromSuperview];
-    self.glView = nil;
+    [glView removeFromSuperview];
+    glView = nil;
 }
 
 - (void)timerMethod
@@ -122,7 +189,8 @@
         // only call super method in case startAnimation is not called by timerMethod
         [super startAnimation];
         
-        [self addSubview:self.glView];
+        [self addSubview:mtlView];
+        [self addSubview:glView];
         
         // bug of OSX: since 10.13 the background mode of screensaver is brocken (the ScreenSaverEngine uses for background-mode its own space that is in foreground and this space can't be accessed from the ScreenSaverView)
         // workaround: AnimatedGif use the window-mode of the ScreenSaverEngine and change the behavior of that window to an background window
@@ -1337,7 +1405,7 @@
 - (void) animateNoGifGL
 {
     // only clear screen with background color (OpenGL)
-    [self.glView.openGLContext makeCurrentContext];
+    [glView.openGLContext makeCurrentContext];
     glClearColor(backgrRed, backgrGreen, backgrBlue, GL_ALPHA_OPAQUE);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
     
@@ -1384,13 +1452,13 @@
     
     glPopMatrix();
     
-    [self.glView.openGLContext flushBuffer]; // Swap Buffers and can only used after setting up OpenGL view with option NSOpenGLPFADoubleBuffer otherwise use glFlush()
+    [glView.openGLContext flushBuffer]; // Swap Buffers and can only used after setting up OpenGL view with option NSOpenGLPFADoubleBuffer otherwise use glFlush()
     
 }
 - (void) animateWithGifGL
 {
     // change context to glview
-    [self.glView.openGLContext makeCurrentContext];
+    [glView.openGLContext makeCurrentContext];
     
     // first clear screen with background color
     glClearColor(backgrRed, backgrGreen, backgrBlue, GL_ALPHA_OPAQUE);
@@ -1454,7 +1522,7 @@
     //End phase
     glPopMatrix();
     
-    [self.glView.openGLContext flushBuffer]; // Swap Buffers and can only used after setting up OpenGL view with option NSOpenGLPFADoubleBuffer otherwise use glFlush()
+    [glView.openGLContext flushBuffer]; // Swap Buffers and can only used after setting up OpenGL view with option NSOpenGLPFADoubleBuffer otherwise use glFlush()
 }
 
 @end

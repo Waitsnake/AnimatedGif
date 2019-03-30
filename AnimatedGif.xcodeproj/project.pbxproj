@@ -12,6 +12,8 @@
 		CC24BA9D1BF124350045BDC7 /* AnimatedGifView.m in Sources */ = {isa = PBXBuildFile; fileRef = CC24BA9C1BF124350045BDC7 /* AnimatedGifView.m */; };
 		CC4486F21C8A3A50008520D2 /* thumbnail.png in Resources */ = {isa = PBXBuildFile; fileRef = CC4486F01C8A3A50008520D2 /* thumbnail.png */; };
 		CC4486F31C8A3A50008520D2 /* thumbnail@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = CC4486F11C8A3A50008520D2 /* thumbnail@2x.png */; };
+		CC52A2E8224ECC3D00ADC1D0 /* Shaders.metal in Sources */ = {isa = PBXBuildFile; fileRef = CC52A2E7224ECC3D00ADC1D0 /* Shaders.metal */; };
+		CC52A2EA224ECD2400ADC1D0 /* Structs.h in Headers */ = {isa = PBXBuildFile; fileRef = CC52A2E9224ECD0E00ADC1D0 /* Structs.h */; };
 		CC5E750C20FBCCBF0010ACDE /* About.xib in Resources */ = {isa = PBXBuildFile; fileRef = CC5E750E20FBCCBF0010ACDE /* About.xib */; };
 		CCC3B9991C788F8E00FBE423 /* Options.xib in Resources */ = {isa = PBXBuildFile; fileRef = CCC3B99B1C788F8E00FBE423 /* Options.xib */; };
 		CCEF76C8218C83DB0050F7C9 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = CCEF76C6218C83DB0050F7C9 /* Localizable.strings */; };
@@ -27,6 +29,8 @@
 		CC39BE001EDAD834008FCA5C /* ja */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = ja; path = ja.lproj/Options.xib; sourceTree = "<group>"; };
 		CC4486F01C8A3A50008520D2 /* thumbnail.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = thumbnail.png; path = extra/thumbnail.png; sourceTree = SOURCE_ROOT; };
 		CC4486F11C8A3A50008520D2 /* thumbnail@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "thumbnail@2x.png"; path = "extra/thumbnail@2x.png"; sourceTree = SOURCE_ROOT; };
+		CC52A2E7224ECC3D00ADC1D0 /* Shaders.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = Shaders.metal; sourceTree = "<group>"; };
+		CC52A2E9224ECD0E00ADC1D0 /* Structs.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Structs.h; sourceTree = "<group>"; };
 		CCABA29F218921D300E30E6C /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/Options.xib; sourceTree = "<group>"; };
 		CCABA2A0218921D400E30E6C /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/About.xib; sourceTree = "<group>"; };
 		CCC3B99C1C788F9800FBE423 /* de */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = de; path = de.lproj/Options.xib; sourceTree = "<group>"; };
@@ -71,6 +75,8 @@
 			children = (
 				CC24BA9A1BF124350045BDC7 /* AnimatedGifView.h */,
 				CC24BA9C1BF124350045BDC7 /* AnimatedGifView.m */,
+				CC52A2E9224ECD0E00ADC1D0 /* Structs.h */,
+				CC52A2E7224ECC3D00ADC1D0 /* Shaders.metal */,
 				CC24BA981BF124350045BDC7 /* Supporting Files */,
 				CCC3B99B1C788F8E00FBE423 /* Options.xib */,
 				CC5E750E20FBCCBF0010ACDE /* About.xib */,
@@ -98,6 +104,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				CC24BA9B1BF124350045BDC7 /* AnimatedGifView.h in Headers */,
+				CC52A2EA224ECD2400ADC1D0 /* Structs.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -178,6 +185,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				CC52A2E8224ECC3D00ADC1D0 /* Shaders.metal in Sources */,
 				CC24BA9D1BF124350045BDC7 /* AnimatedGifView.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

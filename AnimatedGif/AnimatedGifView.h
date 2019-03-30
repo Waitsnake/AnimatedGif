@@ -9,6 +9,9 @@
 #import <ScreenSaver/ScreenSaver.h>
 #import <GLUT/GLUT.h>
 
+@import MetalKit;
+@import simd;
+
 
 #define LOAD_BTN                    0
 #define UNLOAD_BTN                  1
@@ -74,9 +77,20 @@
     NSInteger tiles;
     float scale;
     NSOpenPanel* openDlg;
+    
+    NSOpenGLView* glView;
+    
+    // TODO we will need maybe a few more members for Metal
+    MTKView* mtlView;
+    id <MTLDevice> deviceMTL;
+    id <MTLCommandQueue> commandQueueMTL;
+    id <MTLLibrary> defaultLibraryMTL;
+    id <MTLRenderPipelineState> pipelineState;
 }
 
 - (NSOpenGLView *)createViewGL;
+- (MTKView *)createViewMTL;
+
 - (float)pictureRatioFromWidth:(float)iWidth andHeight:(float)iHeight;
 - (float)calcWidthFromRatio:(float)iRatio andHeight:(float)iHeight;
 - (float)calcHeightFromRatio:(float)iRatio andWidth:(float)iWidth;
@@ -98,7 +112,6 @@
 - (void) animateNoGifGL;
 - (void) animateWithGifGL;
 
-@property (nonatomic, retain) NSOpenGLView* glView;
 @property (assign) IBOutlet NSPanel *optionsPanel;
 @property (assign) IBOutlet NSTextField *textFieldFileUrl;
 @property (assign) IBOutlet NSButton *checkButtonLoadIntoMem;
