@@ -9,7 +9,6 @@
 #import "AnimatedGifView.h"
 
 //#define USE_METAL
-#define USE_METAL_DEFAULT_DEVICE
 
 @implementation AnimatedGifView
 
@@ -89,8 +88,6 @@
 
 - (MTKView *) createViewMTL
 {
-    // TODO Metal init not finished yet
-    
     // Does the user have any working Metal API(start with OS X 10.11 or later)?
     if (MTLCopyAllDevices == NULL)
     {
@@ -112,25 +109,26 @@
         {
             NSLog(@"Metal devices could be found.");
             
-#ifdef USE_METAL_DEFAULT_DEVICE
-                // the easy way is just using the system default metal device
-                deviceMTL = MTLCreateSystemDefaultDevice();
-#else
-                // instead of using system default metal device it is also possible to itterate all devices and maybe look for a low power GPU (for example for Macs with a Intel-GPU and a ATI/Nvidia-GPU)
-                [devices enumerateObjectsUsingBlock:^(id <MTLDevice> prospectiveDevice, NSUInteger i, BOOL *stop) {
-                    if (prospectiveDevice.lowPower)
-                    {
-                        self->deviceMTL = prospectiveDevice;
-                        *stop = YES;
-                    }
+            // the easy way is just using the system default metal device
+            deviceMTL = MTLCreateSystemDefaultDevice();
+
+            // instead of using system default metal device it is also possible to itterate all devices and maybe look for a low power GPU (for example for Macs with a Intel-GPU and a ATI/Nvidia-GPU)
+            /*
+            [devices enumerateObjectsUsingBlock:^(id <MTLDevice> prospectiveDevice, NSUInteger i, BOOL *stop)
+            {
+                if (prospectiveDevice.lowPower)
+                {
                     self->deviceMTL = prospectiveDevice;
-                }];
-#endif
+                    *stop = YES;
+                }
+                self->deviceMTL = prospectiveDevice;
+            }];
+            */
             
             // create an Metal View that uses the metal device
             MTKView* mtlView = [[MTKView alloc] initWithFrame:NSZeroRect];
             mtlView.device = deviceMTL;
-            mtlView.clearColor = MTLClearColorMake(1, 1, 1, 1);
+            mtlView.clearColor = MTLClearColorMake(0, 0, 0, 1);
             mtlView.colorPixelFormat = MTLPixelFormatBGRA8Unorm;
             mtlView.framebufferOnly = NO;
             mtlView.autoResizeDrawable = NO;
@@ -153,7 +151,7 @@
             pipelineStateDescriptor.colorAttachments[0].pixelFormat = MTLPixelFormatBGRA8Unorm;
             
             // with that descriptor informations we can finaly create the metal pipeline
-            pipelineState = [deviceMTL newRenderPipelineStateWithDescriptor:pipelineStateDescriptor error:&err];
+            pipelineStateMTL = [deviceMTL newRenderPipelineStateWithDescriptor:pipelineStateDescriptor error:&err];
 
             NSLog(@"Metal setup done.");
             
@@ -1461,14 +1459,9 @@
 
 - (void) animateNoGifGL
 {
-    // only clear screen with background color (OpenGL)
-    [glView.openGLContext makeCurrentContext];
-    glClearColor(backgrRed, backgrGreen, backgrBlue, GL_ALPHA_OPAQUE);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+    [self startRenderGL:NO];
     
     // print an indication message
-    glPushMatrix();
-    glOrtho(0,screenRect.size.width,screenRect.size.height,0,-1,1);
     NSMutableDictionary *attribs = [NSMutableDictionary dictionary];
     if ([self isPreview])
     {
@@ -1507,33 +1500,13 @@
         }
     }
     
-    glPopMatrix();
-    
-    [glView.openGLContext flushBuffer]; // Swap Buffers and can only used after setting up OpenGL view with option NSOpenGLPFADoubleBuffer otherwise use glFlush()
+    [self endRenderGL];
     
 }
 
 - (void) animateWithGifGL
 {
-    // change context to glview
-    [glView.openGLContext makeCurrentContext];
-    
-    // first clear screen with background color
-    glClearColor(backgrRed, backgrGreen, backgrBlue, GL_ALPHA_OPAQUE);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-    
-    // Start phase
-    glPushMatrix();
-    
-    // scale the image by a given factor
-    // scale only if needed
-    if (viewOption==VIEW_OPT_SCALE_SIZE && (scale>1.1 || scale<0.9))
-    {
-        glScalef(scale, scale, 1.0);
-    }
-    
-    // defines the pixel resolution of the screen (can be smaller than real screen, but than you will see pixels)
-    glOrtho(0,screenRect.size.width,screenRect.size.height,0,-1,1);
+    [self startRenderGL:YES];
     
     void *pixelData=NULL;
     if (loadAnimationToMem == TRUE)
@@ -1577,6 +1550,33 @@
         [self drawImageGL:pixelData pixelWidth: [gifRep pixelsWide] pixelHeight:[gifRep pixelsHigh] hasAlpha:[gifRep hasAlpha] atRect:r33];
     }
     
+    [self endRenderGL];
+}
+
+- (void) startRenderGL:(BOOL)allowScale
+{
+    // change context to glview and clear screen to setup color
+    [glView.openGLContext makeCurrentContext];
+    glClearColor(backgrRed, backgrGreen, backgrBlue, GL_ALPHA_OPAQUE);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+    glPushMatrix();
+    
+    if (allowScale == YES)
+    {
+        // scale the image by a given factor
+        // scale only if needed
+        if (viewOption==VIEW_OPT_SCALE_SIZE && (scale>1.1 || scale<0.9))
+        {
+            glScalef(scale, scale, 1.0);
+        }
+    }
+    
+    // defines the pixel resolution of the screen (can be smaller than real screen, but than you will see pixels)
+    glOrtho(0,screenRect.size.width,screenRect.size.height,0,-1,1);
+}
+
+- (void) endRenderGL
+{
     //End phase
     glPopMatrix();
     
@@ -1591,70 +1591,36 @@
 - (void) drawImageMTL:(void *)pixelsBytes pixelWidth:(NSInteger)width pixelHeight:(NSInteger)height  hasAlpha: (Boolean)alpha atRect:(NSRect) rect
 {
     // TODO add the render code
+    
+    // test code to show a quad consit of two trinagles
+    
+    struct Vertex vertexArrayData[6] = {
+        {.position={ 1.0, 1.0, 0.0},.color={1.0,0.0,0.0,1.0}}, // Top Right
+        {.position={-1.0, 1.0, 0.0},.color={0.0,1.0,0.0,1.0}}, // Top Left
+        {.position={-1.0,-1.0, 0.0},.color={0.0,0.0,1.0,1.0}}, // Bottom Left
+        {.position={ 1.0, 1.0, 0.0},.color={1.0,0.0,0.0,1.0}}, // Top Right
+        {.position={-1.0,-1.0, 0.0},.color={0.0,0.0,1.0,1.0}}, // Bottom Left
+        {.position={ 1.0,-1.0, 0.0},.color={1.0,0.0,1.0,1.0}}  // Bottom Right
+    };
+    id <MTLBuffer> vertexArray = [deviceMTL newBufferWithBytes: vertexArrayData length: sizeof(vertexArrayData) options: MTLResourceStorageModeManaged];
+    [renderMTL setVertexBuffer: vertexArray offset: 0 atIndex: 0];
+    [renderMTL drawPrimitives: MTLPrimitiveTypeTriangle vertexStart:0 vertexCount:6];
+    
+    // code for still not working texture mapping
+    
+    MTLTextureDescriptor *textureDescriptor = [MTLTextureDescriptor texture2DDescriptorWithPixelFormat:MTLPixelFormatRGBA8Unorm width:[gifRep pixelsWide] height:[gifRep pixelsHigh] mipmapped:YES];
+    id<MTLTexture> texture = [deviceMTL newTextureWithDescriptor:textureDescriptor];
+    MTLRegion region = MTLRegionMake2D(0, 0, [gifRep pixelsWide], [gifRep pixelsHigh]);
+    [texture replaceRegion:region mipmapLevel:0 withBytes:[gifRep bitmapData] bytesPerRow:[gifRep pixelsWide]*SIZE_OF_BGRA_PIXEL];
+    [renderMTL setFragmentTexture:texture atIndex:0];
+    
+    // end test code
+    
 }
 
 - (void) animateNoGifMTL
 {
-    //  Get an available CommandBuffer
-    id <MTLCommandBuffer> commandBuffer = [commandQueueMTL commandBuffer];
-    
-    //  Get this frame’s target drawable
-    id <CAMetalDrawable> drawable = [mtlView currentDrawable];
-    
-    //  Configure the Color0 Attachment
-    MTLRenderPassDescriptor *renderDesc = [MTLRenderPassDescriptor new];
-    renderDesc.colorAttachments[0].texture = drawable.texture;
-    renderDesc.colorAttachments[0].loadAction = MTLLoadActionClear;
-    renderDesc.colorAttachments[0].clearColor = MTLClearColorMake(backgrRed,backgrGreen,backgrBlue,1.0);
-    
-    //  Start a Render command
-    id <MTLRenderCommandEncoder> render = [commandBuffer renderCommandEncoderWithDescriptor: renderDesc];
-    [render setRenderPipelineState: pipelineState];
-    
-    
-    
-    
-    // TODO some not relatet test code
-    
-    //  Create an Vertex Array
-    
-    struct Vertex vertexArrayData[3];
-    vertexArrayData[0].color.r = 1.0;
-    vertexArrayData[0].color.g = 0.0;
-    vertexArrayData[0].color.b = 0.0;
-    vertexArrayData[0].color.a = 1.0;
-    vertexArrayData[0].position.x = 0.0;
-    vertexArrayData[0].position.y = 1.0;
-    vertexArrayData[0].position.z = 0.0;
-    vertexArrayData[0].position.w = 1.0;
-     
-    vertexArrayData[1].color.r = 0.0;
-    vertexArrayData[1].color.g = 1.0;
-    vertexArrayData[1].color.b = 0.0;
-    vertexArrayData[1].color.a = 1.0;
-    vertexArrayData[1].position.x = -1.0;
-    vertexArrayData[1].position.y = -1.0;
-    vertexArrayData[1].position.z = 0.0;
-    vertexArrayData[1].position.w = 1.0;
-     
-    vertexArrayData[2].color.r = 0.0;
-    vertexArrayData[2].color.g = 0.0;
-    vertexArrayData[2].color.b = 1.0;
-    vertexArrayData[2].color.a = 1.0;
-    vertexArrayData[2].position.x = 1.0;
-    vertexArrayData[2].position.y = -1.0;
-    vertexArrayData[2].position.z = 0.0;
-    vertexArrayData[2].position.w = 1.0;
-    
-    
-    id <MTLBuffer> vertexArray = [deviceMTL newBufferWithBytes: vertexArrayData length: sizeof(vertexArrayData) options: MTLResourceStorageModeManaged];
-    [render setVertexBuffer: vertexArray offset: 0 atIndex: 0];
-    [render drawPrimitives: MTLPrimitiveTypeTriangle vertexStart:0 vertexCount:3];
-    
-    // end test code
-    
-    
-    // TODO the following code uses still not implementet functions and should show nothing
+    [self startRenderMTL];
     
     NSMutableDictionary *attribs = [NSMutableDictionary dictionary];
     if ([self isPreview])
@@ -1694,35 +1660,13 @@
         }
     }
     
-    // encode the defined renderer
-    [render endEncoding];
-    
-    // Tell CoreAnimation when to present this drawable 
-    [commandBuffer presentDrawable:drawable];
-    
-    // Put the command buffer into the queue
-    [commandBuffer commit];
+    [self endRenderMTL];
+
 }
 
 - (void) animateWithGifMTL
 {
-    //  Get an available CommandBuffer
-    id <MTLCommandBuffer> commandBuffer = [commandQueueMTL commandBuffer];
-    
-    //  Get this frame’s target drawable
-    id <CAMetalDrawable> drawable = [mtlView currentDrawable];
-    
-    //  Configure the Color0 Attachment
-    MTLRenderPassDescriptor *renderDesc = [MTLRenderPassDescriptor new];
-    renderDesc.colorAttachments[0].texture = drawable.texture;
-    renderDesc.colorAttachments[0].loadAction = MTLLoadActionClear;
-    renderDesc.colorAttachments[0].clearColor = MTLClearColorMake(backgrRed,backgrGreen,backgrBlue,1.0);
-    
-    //  Start a Render command
-    id <MTLRenderCommandEncoder> render = [commandBuffer renderCommandEncoderWithDescriptor: renderDesc];
-    [render setRenderPipelineState: pipelineState];
-    
-    // TODO the following code uses still not implementet functions and should show nothing
+    [self startRenderMTL];
     
     void *pixelData=NULL;
     if (loadAnimationToMem == TRUE)
@@ -1766,14 +1710,38 @@
         [self drawImageMTL:pixelData pixelWidth: [gifRep pixelsWide] pixelHeight:[gifRep pixelsHigh] hasAlpha:[gifRep hasAlpha] atRect:r33];
     }
     
+    [self endRenderMTL];
+}
+
+- (void) startRenderMTL
+{
+    //  Get an available CommandBuffer
+    commandBufferMTL = [commandQueueMTL commandBuffer];
+    
+    //  Get this frame’s target drawable
+    drawableMTL = [mtlView currentDrawable];
+    
+    //  Configure the Color0 Attachment
+    MTLRenderPassDescriptor *renderDesc = [MTLRenderPassDescriptor new];
+    renderDesc.colorAttachments[0].texture = drawableMTL.texture;
+    renderDesc.colorAttachments[0].loadAction = MTLLoadActionClear;
+    renderDesc.colorAttachments[0].clearColor = MTLClearColorMake(backgrRed,backgrGreen,backgrBlue,1.0);
+    
+    //  Start a Render command
+    renderMTL = [commandBufferMTL renderCommandEncoderWithDescriptor: renderDesc];
+    [renderMTL setRenderPipelineState: pipelineStateMTL];
+}
+
+- (void) endRenderMTL
+{
     // encode the defined renderer
-    [render endEncoding];
+    [renderMTL endEncoding];
     
     // Tell CoreAnimation when to present this drawable 
-    [commandBuffer presentDrawable:drawable];
+    [commandBufferMTL presentDrawable:drawableMTL];
     
     // Put the command buffer into the queue
-    [commandBuffer commit];
+    [commandBufferMTL commit];
 }
 
 @end

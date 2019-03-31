@@ -7,10 +7,10 @@
 //
 
 #import <ScreenSaver/ScreenSaver.h>
+
 #import <GLUT/GLUT.h>
 
 @import MetalKit;
-@import simd;
 #import "Structs.h"
 
 
@@ -58,6 +58,8 @@
 #define NS_ALPHA_OPAQUE             1.0
 #define NEVER_CHANGE_GIF            30
 
+#define SIZE_OF_BGRA_PIXEL          4
+
 
 @interface AnimatedGifView : ScreenSaverView {
     // keep track of whether or not drawRect: should erase the background
@@ -79,27 +81,40 @@
     float scale;
     NSOpenPanel* openDlg;
     
+    // Only when using OpenGL to render
     NSOpenGLView* glView;
     
-    // TODO we will need maybe a few more properties for Metal
+    // Only when using Metal to render
+    
+    // The following are available after creating Metal view
     MTKView* mtlView;
     id <MTLDevice> deviceMTL;
     id <MTLCommandQueue> commandQueueMTL;
     id <MTLLibrary> defaultLibraryMTL;
-    id <MTLRenderPipelineState> pipelineState;
+    id <MTLRenderPipelineState> pipelineStateMTL;
+    
+    // The following are only available during rendering pass
+    id <MTLCommandBuffer> commandBufferMTL;
+    id <CAMetalDrawable> drawableMTL;
+    id <MTLRenderCommandEncoder> renderMTL;
 }
 
 - (NSOpenGLView *)createViewGL;
+- (void) startRenderGL:(BOOL)allowScale;
+- (void) endRenderGL;
 - (void) animateNoGifGL;
 - (void) animateWithGifGL;
 - (void) drawAttributedStringGL:(NSAttributedString *)attributedString atPoint:(NSPoint)point;
 - (void) drawImageGL:(void *)pixelsBytes pixelWidth:(NSInteger)width pixelHeight:(NSInteger)height  hasAlpha: (Boolean)alpha atRect:(NSRect) rect;
 
 - (MTKView *)createViewMTL;
+- (void) startRenderMTL;
+- (void) endRenderMTL;
 - (void) animateNoGifMTL;
 - (void) animateWithGifMTL;
 - (void) drawAttributedStringMTL:(NSAttributedString *)attributedString atPoint:(NSPoint)point;
 - (void) drawImageMTL:(void *)pixelsBytes pixelWidth:(NSInteger)width pixelHeight:(NSInteger)height  hasAlpha: (Boolean)alpha atRect:(NSRect) rect;
+
 
 - (float)pictureRatioFromWidth:(float)iWidth andHeight:(float)iHeight;
 - (float)calcWidthFromRatio:(float)iRatio andHeight:(float)iHeight;

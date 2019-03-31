@@ -14,24 +14,42 @@ using namespace metal;
 
 // this Metal file defines the code for the shader that run on the GPU
 
-// TODO this are still dummy shaders from the Apple WWDC presentation
+/*
+Dataflow is like this:
 
-struct VertexOut {
+1.) Renderprogram(CPU) -> Vertex(Data)
+Renderprogram sends an Buffer of vertexs (e.g. from an 3D model to draw) to GPU
+ 
+2.) Vertex(Data) -> myVertexShader(GPU) -> RasterizerData(Data)
+VertexShader is an GPU program written by programmer.
+Input are the vertexs (array of 3D points (with coordinates) and additional Data that defines the programmer like color).
+ 
+3.) RasterizerData(Data) -> Rasterizer(GPU) -> RasterizerData(Data)
+The Rasterizer is fixed in GPU and can not changed by programmer. It interpolates the inputdata.
+
+4.) RasterizerData(Data) -> myFragmentShader(GPU) -> float4(Data that is displayed in the MetalView on screen)
+FragmentShader is an GPU program written by programmer.
+All Pixeldata that comes interpolated from Rasterizer can be changed before its output to screen.
+ 
+*/
+
+// TODO need to add the code to show some textures
+
+struct RasterizerData {
     float4 position [[position]];
     float4 color;
 };
 
-vertex VertexOut myVertexShader(device Vertex* vertexArray    [[ buffer(0) ]],
-                                unsigned int vid              [[ vertex_id ]])
+vertex RasterizerData myVertexShader(device Vertex* vertexArray    [[ buffer(0) ]],
+                                     unsigned int vid              [[ vertex_id ]])
 {
-    VertexOut out;
-    out.position = vertexArray[vid].position;
+    RasterizerData out;
+    out.position = float4(vertexArray[vid].position,1);
     out.color = vertexArray[vid].color;
     return out;
 }
 
-
-fragment float4 myFragmentShader(VertexOut interpolated [[stage_in]])
+fragment float4 myFragmentShader(RasterizerData interpolated [[stage_in]])
 {
     return interpolated.color;
 }

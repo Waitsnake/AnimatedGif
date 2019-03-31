@@ -14,9 +14,8 @@
 // This header is needed so that the shader-code for the GPU and the objective-c-code for the cpu can use the same user defined data types
 
 struct Vertex {
-    vector_float4 position;
+    vector_float3 position;
     vector_float4 color;
 };
-
 
 #endif /* Structs_h */
