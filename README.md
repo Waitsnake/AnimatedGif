@@ -75,5 +75,5 @@ In the linked tools here are 3 different ways to uninstall AnimatedGif. Each too
 <br>
 
 
-Copyright 2015 Marco Koehler
+Copyright 2019 Marco Koehler
 (under the conditions of MIT License)
