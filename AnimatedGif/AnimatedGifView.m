@@ -9,6 +9,7 @@
 #import "AnimatedGifView.h"
 
 //#define USE_METAL
+#define USE_METAL_DEFAULT_DEVICE
 
 @implementation AnimatedGifView
 
@@ -27,7 +28,7 @@
     
     if (self) {
 #ifdef USE_METAL
-        mtlView = [self createViewMTL]; // TODO Metal init not finished yet
+        mtlView = [self createViewMTL]; // TODO Metal not finished yet
 #endif
         if (mtlView==NULL)
         {
@@ -111,10 +112,20 @@
         {
             NSLog(@"Metal devices could be found.");
             
-            // the easy way for the moment is the system default metal device
-            // instead of this it is also possible to itterate all devices and maybe look for
-            // low power GPU (Macs with a Intel-GPU and a ATI/Nvidia-GPU for example
-            deviceMTL = MTLCreateSystemDefaultDevice();
+#ifdef USE_METAL_DEFAULT_DEVICE
+                // the easy way is just using the system default metal device
+                deviceMTL = MTLCreateSystemDefaultDevice();
+#else
+                // instead of using system default metal device it is also possible to itterate all devices and maybe look for a low power GPU (for example for Macs with a Intel-GPU and a ATI/Nvidia-GPU)
+                [devices enumerateObjectsUsingBlock:^(id <MTLDevice> prospectiveDevice, NSUInteger i, BOOL *stop) {
+                    if (prospectiveDevice.lowPower)
+                    {
+                        self->deviceMTL = prospectiveDevice;
+                        *stop = YES;
+                    }
+                    self->deviceMTL = prospectiveDevice;
+                }];
+#endif
             
             // create an Metal View that uses the metal device
             MTKView* mtlView = [[MTKView alloc] initWithFrame:NSZeroRect];
@@ -135,8 +146,12 @@
             MTLRenderPipelineDescriptor *pipelineStateDescriptor = [[MTLRenderPipelineDescriptor alloc] init];
             pipelineStateDescriptor.label = @"AnimatedGifPipeline";
             // also add the shader codes that we load from the resource bundle to the metal pipeline
-            pipelineStateDescriptor.vertexFunction = [defaultLibraryMTL newFunctionWithName:@"myVertexShader"];
-            pipelineStateDescriptor.fragmentFunction = [defaultLibraryMTL newFunctionWithName:@"myFragmentShader"];
+            //pipelineStateDescriptor.vertexFunction = [defaultLibraryMTL newFunctionWithName:@"myVertexShader"];
+            //pipelineStateDescriptor.fragmentFunction = [defaultLibraryMTL newFunctionWithName:@"myFragmentShader"];
+            
+            pipelineStateDescriptor.vertexFunction = [defaultLibraryMTL newFunctionWithName:@"basic_vertex"];
+            pipelineStateDescriptor.fragmentFunction = [defaultLibraryMTL newFunctionWithName:@"basic_fragment"];
+            
             // define the pixel format we will use with metal
             pipelineStateDescriptor.colorAttachments[0].pixelFormat = MTLPixelFormatBGRA8Unorm;
             
@@ -1583,12 +1598,197 @@
 
 - (void) animateNoGifMTL
 {
-    // TODO add the render code
+    //  Get an available CommandBuffer
+    id <MTLCommandBuffer> commandBuffer = [commandQueueMTL commandBuffer];
+    
+    //  Get this frame’s target drawable
+    id <CAMetalDrawable> drawable = [mtlView currentDrawable];
+    
+    //  Configure the Color0 Attachment
+    MTLRenderPassDescriptor *renderDesc = [MTLRenderPassDescriptor new];
+    renderDesc.colorAttachments[0].texture = drawable.texture;
+    renderDesc.colorAttachments[0].loadAction = MTLLoadActionClear;
+    renderDesc.colorAttachments[0].clearColor = MTLClearColorMake(backgrRed,backgrGreen,backgrBlue,1.0);
+    
+    //  Start a Render command
+    id <MTLRenderCommandEncoder> render = [commandBuffer renderCommandEncoderWithDescriptor: renderDesc];
+    [render setRenderPipelineState: pipelineState];
+    
+    
+    
+    
+    // TODO some not relatet test code
+    
+    //  Create an Vertex Array
+    /*
+     struct Vertex vertexArrayData[3];
+     vertexArrayData[0].color.r = 1.0;
+     vertexArrayData[0].color.g = 1.0;
+     vertexArrayData[0].color.b = 1.0;
+     vertexArrayData[0].color.a = 1.0;
+     vertexArrayData[0].position.x = 0.0;
+     vertexArrayData[0].position.y = 1.0;
+     vertexArrayData[0].position.z = 0.0;
+     vertexArrayData[0].position.w = 0.0;
+     
+     vertexArrayData[1].color.r = 1.0;
+     vertexArrayData[1].color.g = 1.0;
+     vertexArrayData[1].color.b = 1.0;
+     vertexArrayData[1].color.a = 1.0;
+     vertexArrayData[1].position.x = -1.0;
+     vertexArrayData[1].position.y = -1.0;
+     vertexArrayData[1].position.z = 0.0;
+     vertexArrayData[1].position.w = 0.0;
+     
+     vertexArrayData[2].color.r = 1.0;
+     vertexArrayData[2].color.g = 1.0;
+     vertexArrayData[2].color.b = 1.0;
+     vertexArrayData[2].color.a = 1.0;
+     vertexArrayData[2].position.x = 1.0;
+     vertexArrayData[2].position.y = -1.0;
+     vertexArrayData[2].position.z = 0.0;
+     vertexArrayData[2].position.w = 0.0;
+     */
+    
+    float vertexData[] = {
+        -0.5,  0.5, 0.0,
+        0.5,  0.5, 0.0,
+        -0.5, -0.5, 0.0,
+        
+        -0.5, -0.5, 0.0,
+        0.5, -0.5, 0.0,
+        0.5,  0.5, 0.0
+    };
+    
+    id <MTLBuffer> vertexArray =
+    //[deviceMTL newBufferWithBytes: vertexArrayData length: sizeof(vertexArrayData) options: MTLResourceStorageModeManaged];
+    [deviceMTL newBufferWithBytes: vertexData length: sizeof(vertexData) options: MTLResourceStorageModeManaged];
+    [render setVertexBuffer: vertexArray offset: 0 atIndex: 0];
+    [render drawPrimitives: MTLPrimitiveTypeTriangle vertexStart:0 vertexCount:6];
+    
+    // end test code
+    
+    
+    // TODO the following code uses still not implementet functions and should show nothing
+    
+    NSMutableDictionary *attribs = [NSMutableDictionary dictionary];
+    if ([self isPreview])
+    {
+        [attribs setObject: [NSFont fontWithName: @"Helvetica" size: 14.0f] forKey: NSFontAttributeName];
+    }
+    else
+    {
+        [attribs setObject: [NSFont fontWithName: @"Helvetica" size: 34.0f] forKey: NSFontAttributeName];
+    }
+    [attribs setObject: [NSColor redColor] forKey: NSForegroundColorAttributeName];
+    NSAttributedString *nogifAtStr = [[NSAttributedString alloc] initWithString:NSLocalizedStringFromTableInBundle(@"nogif",@"Localizable",[NSBundle bundleForClass:[self class]],nil) attributes:attribs];
+    NSAttributedString *selectAtStr = [[NSAttributedString alloc] initWithString:NSLocalizedStringFromTableInBundle(@"select",@"Localizable",[NSBundle bundleForClass:[self class]],nil) attributes:attribs];
+    [self drawAttributedStringMTL:nogifAtStr atPoint:NSMakePoint (screenRect.size.width/2 - [nogifAtStr size].width/2, screenRect.size.height/4-[nogifAtStr size].height/2)];
+    [self drawAttributedStringMTL:selectAtStr atPoint:NSMakePoint (screenRect.size.width/2 - [selectAtStr size].width/2, screenRect.size.height/2-[selectAtStr size].height/2)];
+    
+    NSImage *iconImg = [[NSBundle bundleForClass:[self class]] imageForResource:@"thumbnail.tiff"];
+    if (iconImg)
+    {
+        NSBitmapImageRep *iconRep = [NSBitmapImageRep imageRepWithData:[iconImg TIFFRepresentation]];
+        if (iconRep)
+        {
+            NSSize iconSize;
+            if ([self isPreview])
+            {
+                iconSize = NSMakeSize([iconRep size].width/2, [iconRep size].height/2);
+            }
+            else
+            {
+                iconSize = NSMakeSize([iconRep size].width*2, [iconRep size].height*2);
+            }
+            void *pixelDataIcon= [iconRep bitmapData];;
+            if (pixelDataIcon != NULL)
+            {
+                [self drawImageMTL:pixelDataIcon pixelWidth: [iconRep pixelsWide] pixelHeight:[iconRep pixelsHigh] hasAlpha:[iconRep hasAlpha] atRect:NSMakeRect(screenRect.size.width/2 - iconSize.width/2, screenRect.size.height/4*3 - iconSize.height/2, iconSize.width, iconSize.height)];
+            }
+        }
+    }
+    
+    // encode the defined renderer
+    [render endEncoding];
+    
+    // Tell CoreAnimation when to present this drawable 
+    [commandBuffer presentDrawable:drawable];
+    
+    // Put the command buffer into the queue
+    [commandBuffer commit];
 }
 
 - (void) animateWithGifMTL
 {
-    // TODO add the render code
+    //  Get an available CommandBuffer
+    id <MTLCommandBuffer> commandBuffer = [commandQueueMTL commandBuffer];
+    
+    //  Get this frame’s target drawable
+    id <CAMetalDrawable> drawable = [mtlView currentDrawable];
+    
+    //  Configure the Color0 Attachment
+    MTLRenderPassDescriptor *renderDesc = [MTLRenderPassDescriptor new];
+    renderDesc.colorAttachments[0].texture = drawable.texture;
+    renderDesc.colorAttachments[0].loadAction = MTLLoadActionClear;
+    renderDesc.colorAttachments[0].clearColor = MTLClearColorMake(backgrRed,backgrGreen,backgrBlue,1.0);
+    
+    //  Start a Render command
+    id <MTLRenderCommandEncoder> render = [commandBuffer renderCommandEncoderWithDescriptor: renderDesc];
+    [render setRenderPipelineState: pipelineState];
+    
+    // TODO the following code uses still not implementet functions and should show nothing
+    
+    void *pixelData=NULL;
+    if (loadAnimationToMem == TRUE)
+    {
+        // we load bitmap data from memory and save CPU time (created during startAnimation)
+        NSData *pixels = [animationImages objectAtIndex:currFrameCount];
+        pixelData = (void*)[pixels bytes];
+    }
+    else
+    {
+        // bitmapData needs more CPU time to create bitmap data
+        [gifRep setProperty:NSImageCurrentFrame withValue:@(currFrameCount)];
+        pixelData = [gifRep bitmapData];
+    }
+    
+    if (tiles == TILE_OPT_1)
+    {
+        // only draw one tile
+        [self drawImageMTL:pixelData pixelWidth: [gifRep pixelsWide] pixelHeight:[gifRep pixelsHigh] hasAlpha:[gifRep hasAlpha] atRect:targetRect];
+    }
+    else
+    {
+        // draw 9 tiles (3 by 3)
+        NSRect r11 = NSMakeRect(targetRect.origin.x, targetRect.origin.y, targetRect.size.width/3, targetRect.size.height/3);
+        NSRect r21 = NSMakeRect(targetRect.origin.x+targetRect.size.width/3, targetRect.origin.y, targetRect.size.width/3, targetRect.size.height/3);
+        NSRect r31 = NSMakeRect(targetRect.origin.x+targetRect.size.width/3*2, targetRect.origin.y, targetRect.size.width/3, targetRect.size.height/3);
+        NSRect r12 = NSMakeRect(targetRect.origin.x, targetRect.origin.y+targetRect.size.height/3, targetRect.size.width/3, targetRect.size.height/3);
+        NSRect r22 = NSMakeRect(targetRect.origin.x+targetRect.size.width/3, targetRect.origin.y+targetRect.size.height/3, targetRect.size.width/3, targetRect.size.height/3);
+        NSRect r32 = NSMakeRect(targetRect.origin.x+targetRect.size.width/3*2, targetRect.origin.y+targetRect.size.height/3, targetRect.size.width/3, targetRect.size.height/3);
+        NSRect r13 = NSMakeRect(targetRect.origin.x, targetRect.origin.y+targetRect.size.height/3*2, targetRect.size.width/3, targetRect.size.height/3);
+        NSRect r23 = NSMakeRect(targetRect.origin.x+targetRect.size.width/3, targetRect.origin.y+targetRect.size.height/3*2, targetRect.size.width/3, targetRect.size.height/3);
+        NSRect r33 = NSMakeRect(targetRect.origin.x+targetRect.size.width/3*2, targetRect.origin.y+targetRect.size.height/3*2, targetRect.size.width/3, targetRect.size.height/3);
+        [self drawImageMTL:pixelData pixelWidth: [gifRep pixelsWide] pixelHeight:[gifRep pixelsHigh] hasAlpha:[gifRep hasAlpha] atRect:r11];
+        [self drawImageMTL:pixelData pixelWidth: [gifRep pixelsWide] pixelHeight:[gifRep pixelsHigh] hasAlpha:[gifRep hasAlpha] atRect:r21];
+        [self drawImageMTL:pixelData pixelWidth: [gifRep pixelsWide] pixelHeight:[gifRep pixelsHigh] hasAlpha:[gifRep hasAlpha] atRect:r31];
+        [self drawImageMTL:pixelData pixelWidth: [gifRep pixelsWide] pixelHeight:[gifRep pixelsHigh] hasAlpha:[gifRep hasAlpha] atRect:r12];
+        [self drawImageMTL:pixelData pixelWidth: [gifRep pixelsWide] pixelHeight:[gifRep pixelsHigh] hasAlpha:[gifRep hasAlpha] atRect:r22];
+        [self drawImageMTL:pixelData pixelWidth: [gifRep pixelsWide] pixelHeight:[gifRep pixelsHigh] hasAlpha:[gifRep hasAlpha] atRect:r32];
+        [self drawImageMTL:pixelData pixelWidth: [gifRep pixelsWide] pixelHeight:[gifRep pixelsHigh] hasAlpha:[gifRep hasAlpha] atRect:r13];
+        [self drawImageMTL:pixelData pixelWidth: [gifRep pixelsWide] pixelHeight:[gifRep pixelsHigh] hasAlpha:[gifRep hasAlpha] atRect:r23];
+        [self drawImageMTL:pixelData pixelWidth: [gifRep pixelsWide] pixelHeight:[gifRep pixelsHigh] hasAlpha:[gifRep hasAlpha] atRect:r33];
+    }
+    
+    // encode the defined renderer
+    [render endEncoding];
+    
+    // Tell CoreAnimation when to present this drawable 
+    [commandBuffer presentDrawable:drawable];
+    
+    // Put the command buffer into the queue
+    [commandBuffer commit];
 }
 
 @end

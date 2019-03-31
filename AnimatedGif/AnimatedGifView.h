@@ -11,6 +11,7 @@
 
 @import MetalKit;
 @import simd;
+#import "Structs.h"
 
 
 #define LOAD_BTN                    0

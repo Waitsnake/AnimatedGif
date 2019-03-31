@@ -16,18 +16,12 @@ using namespace metal;
 
 // TODO this are still dummy shaders from the Apple WWDC presentation
 
-struct Vertex {
-    float4 position;
-    float4 color;
-};
-
 struct VertexOut {
     float4 position [[position]];
     float4 color;
 };
 
 vertex VertexOut myVertexShader(device Vertex* vertexArray    [[ buffer(0) ]],
-                                constant uniforms_t& uniforms [[ buffer(1) ]],
                                 unsigned int vid              [[ vertex_id ]])
 {
     VertexOut out;
@@ -36,8 +30,20 @@ vertex VertexOut myVertexShader(device Vertex* vertexArray    [[ buffer(0) ]],
     return out;
 }
 
+
 fragment float4 myFragmentShader(VertexOut interpolated [[stage_in]])
 {
     return interpolated.color;
 }
 
+
+fragment half4 basic_fragment()
+{
+    return half4(1.0);
+}
+
+vertex float4 basic_vertex(const device packed_float3* vertex_array [[ buffer(0) ]],
+                           unsigned int vid [[ vertex_id ]])
+{
+    return float4(vertex_array[vid], 1.0);
+}
