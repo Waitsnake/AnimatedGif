@@ -1592,27 +1592,38 @@
 {
     // TODO add the render code
     
-    // test code to show a quad consit of two trinagles
+    // test code to show a quad consit of two trinagles with an texture
     
+    // add a quad where the texture will be mapped onto
     struct Vertex vertexArrayData[6] = {
-        {.position={ 1.0, 1.0, 0.0},.color={1.0,0.0,0.0,1.0}}, // Top Right
-        {.position={-1.0, 1.0, 0.0},.color={0.0,1.0,0.0,1.0}}, // Top Left
-        {.position={-1.0,-1.0, 0.0},.color={0.0,0.0,1.0,1.0}}, // Bottom Left
-        {.position={ 1.0, 1.0, 0.0},.color={1.0,0.0,0.0,1.0}}, // Top Right
-        {.position={-1.0,-1.0, 0.0},.color={0.0,0.0,1.0,1.0}}, // Bottom Left
-        {.position={ 1.0,-1.0, 0.0},.color={1.0,0.0,1.0,1.0}}  // Bottom Right
+        {.position={ 1.0, 1.0, 0.0},.color={1.0,0.0,0.0,1.0},.textCoord={1.0,0.0}}, // Top Right
+        {.position={-1.0, 1.0, 0.0},.color={0.0,1.0,0.0,1.0},.textCoord={0.0,0.0}}, // Top Left
+        {.position={-1.0,-1.0, 0.0},.color={0.0,0.0,1.0,1.0},.textCoord={0.0,1.0}}, // Bottom Left
+        {.position={ 1.0, 1.0, 0.0},.color={1.0,0.0,0.0,1.0},.textCoord={1.0,0.0}}, // Top Right
+        {.position={-1.0,-1.0, 0.0},.color={0.0,0.0,1.0,1.0},.textCoord={0.0,1.0}}, // Bottom Left
+        {.position={ 1.0,-1.0, 0.0},.color={1.0,0.0,1.0,1.0},.textCoord={1.0,1.0}}  // Bottom Right
     };
     id <MTLBuffer> vertexArray = [deviceMTL newBufferWithBytes: vertexArrayData length: sizeof(vertexArrayData) options: MTLResourceStorageModeManaged];
     [renderMTL setVertexBuffer: vertexArray offset: 0 atIndex: 0];
-    [renderMTL drawPrimitives: MTLPrimitiveTypeTriangle vertexStart:0 vertexCount:6];
     
-    // code for still not working texture mapping
-    
-    MTLTextureDescriptor *textureDescriptor = [MTLTextureDescriptor texture2DDescriptorWithPixelFormat:MTLPixelFormatRGBA8Unorm width:[gifRep pixelsWide] height:[gifRep pixelsHigh] mipmapped:YES];
+    // add a sampler (could be also donde direct in the GPU Shader code
+    MTLSamplerDescriptor *samplerDescriptor = [MTLSamplerDescriptor new];
+    samplerDescriptor.minFilter = MTLSamplerMinMagFilterNearest;
+    samplerDescriptor.magFilter = MTLSamplerMinMagFilterLinear;
+    samplerDescriptor.sAddressMode = MTLSamplerAddressModeRepeat;
+    samplerDescriptor.tAddressMode = MTLSamplerAddressModeRepeat;
+    id<MTLSamplerState> sampler = [deviceMTL newSamplerStateWithDescriptor:samplerDescriptor];
+    [renderMTL setFragmentSamplerState:sampler atIndex:0];
+
+    // add the texture
+    MTLTextureDescriptor *textureDescriptor = [MTLTextureDescriptor texture2DDescriptorWithPixelFormat:MTLPixelFormatRGBA8Unorm width:width height:height mipmapped:YES];
     id<MTLTexture> texture = [deviceMTL newTextureWithDescriptor:textureDescriptor];
-    MTLRegion region = MTLRegionMake2D(0, 0, [gifRep pixelsWide], [gifRep pixelsHigh]);
-    [texture replaceRegion:region mipmapLevel:0 withBytes:[gifRep bitmapData] bytesPerRow:[gifRep pixelsWide]*SIZE_OF_BGRA_PIXEL];
+    MTLRegion region = MTLRegionMake2D(0, 0, width, height);
+    [texture replaceRegion:region mipmapLevel:0 withBytes:pixelsBytes bytesPerRow:width*SIZE_OF_BGRA_PIXEL];
     [renderMTL setFragmentTexture:texture atIndex:0];
+    
+    // needs to be called after vertex, sampler and texture
+    [renderMTL drawPrimitives: MTLPrimitiveTypeTriangle vertexStart:0 vertexCount:6];
     
     // end test code
     

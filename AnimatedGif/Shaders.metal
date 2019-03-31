@@ -33,11 +33,10 @@ All Pixeldata that comes interpolated from Rasterizer can be changed before its 
  
 */
 
-// TODO need to add the code to show some textures
-
 struct RasterizerData {
     float4 position [[position]];
     float4 color;
+    float2 textCoord;
 };
 
 vertex RasterizerData myVertexShader(device Vertex* vertexArray    [[ buffer(0) ]],
@@ -46,11 +45,15 @@ vertex RasterizerData myVertexShader(device Vertex* vertexArray    [[ buffer(0) 
     RasterizerData out;
     out.position = float4(vertexArray[vid].position,1);
     out.color = vertexArray[vid].color;
+    out.textCoord = vertexArray[vid].textCoord;
     return out;
 }
 
-fragment float4 myFragmentShader(RasterizerData interpolated [[stage_in]])
+fragment float4 myFragmentShader(RasterizerData interpolated [[stage_in]],
+                                 sampler sampler2d           [[sampler(0)]],
+                                 texture2d<float> texture   [[texture(0)]])
 {
-    return interpolated.color;
+    float4 color = texture.sample(sampler2d, interpolated.textCoord);
+    return color;
 }
 
