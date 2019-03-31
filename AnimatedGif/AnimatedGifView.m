@@ -146,11 +146,8 @@
             MTLRenderPipelineDescriptor *pipelineStateDescriptor = [[MTLRenderPipelineDescriptor alloc] init];
             pipelineStateDescriptor.label = @"AnimatedGifPipeline";
             // also add the shader codes that we load from the resource bundle to the metal pipeline
-            //pipelineStateDescriptor.vertexFunction = [defaultLibraryMTL newFunctionWithName:@"myVertexShader"];
-            //pipelineStateDescriptor.fragmentFunction = [defaultLibraryMTL newFunctionWithName:@"myFragmentShader"];
-            
-            pipelineStateDescriptor.vertexFunction = [defaultLibraryMTL newFunctionWithName:@"basic_vertex"];
-            pipelineStateDescriptor.fragmentFunction = [defaultLibraryMTL newFunctionWithName:@"basic_fragment"];
+            pipelineStateDescriptor.vertexFunction = [defaultLibraryMTL newFunctionWithName:@"myVertexShader"];
+            pipelineStateDescriptor.fragmentFunction = [defaultLibraryMTL newFunctionWithName:@"myFragmentShader"];
             
             // define the pixel format we will use with metal
             pipelineStateDescriptor.colorAttachments[0].pixelFormat = MTLPixelFormatBGRA8Unorm;
@@ -1620,51 +1617,39 @@
     // TODO some not relatet test code
     
     //  Create an Vertex Array
-    /*
-     struct Vertex vertexArrayData[3];
-     vertexArrayData[0].color.r = 1.0;
-     vertexArrayData[0].color.g = 1.0;
-     vertexArrayData[0].color.b = 1.0;
-     vertexArrayData[0].color.a = 1.0;
-     vertexArrayData[0].position.x = 0.0;
-     vertexArrayData[0].position.y = 1.0;
-     vertexArrayData[0].position.z = 0.0;
-     vertexArrayData[0].position.w = 0.0;
-     
-     vertexArrayData[1].color.r = 1.0;
-     vertexArrayData[1].color.g = 1.0;
-     vertexArrayData[1].color.b = 1.0;
-     vertexArrayData[1].color.a = 1.0;
-     vertexArrayData[1].position.x = -1.0;
-     vertexArrayData[1].position.y = -1.0;
-     vertexArrayData[1].position.z = 0.0;
-     vertexArrayData[1].position.w = 0.0;
-     
-     vertexArrayData[2].color.r = 1.0;
-     vertexArrayData[2].color.g = 1.0;
-     vertexArrayData[2].color.b = 1.0;
-     vertexArrayData[2].color.a = 1.0;
-     vertexArrayData[2].position.x = 1.0;
-     vertexArrayData[2].position.y = -1.0;
-     vertexArrayData[2].position.z = 0.0;
-     vertexArrayData[2].position.w = 0.0;
-     */
     
-    float vertexData[] = {
-        -0.5,  0.5, 0.0,
-        0.5,  0.5, 0.0,
-        -0.5, -0.5, 0.0,
-        
-        -0.5, -0.5, 0.0,
-        0.5, -0.5, 0.0,
-        0.5,  0.5, 0.0
-    };
+    struct Vertex vertexArrayData[3];
+    vertexArrayData[0].color.r = 1.0;
+    vertexArrayData[0].color.g = 0.0;
+    vertexArrayData[0].color.b = 0.0;
+    vertexArrayData[0].color.a = 1.0;
+    vertexArrayData[0].position.x = 0.0;
+    vertexArrayData[0].position.y = 1.0;
+    vertexArrayData[0].position.z = 0.0;
+    vertexArrayData[0].position.w = 1.0;
+     
+    vertexArrayData[1].color.r = 0.0;
+    vertexArrayData[1].color.g = 1.0;
+    vertexArrayData[1].color.b = 0.0;
+    vertexArrayData[1].color.a = 1.0;
+    vertexArrayData[1].position.x = -1.0;
+    vertexArrayData[1].position.y = -1.0;
+    vertexArrayData[1].position.z = 0.0;
+    vertexArrayData[1].position.w = 1.0;
+     
+    vertexArrayData[2].color.r = 0.0;
+    vertexArrayData[2].color.g = 0.0;
+    vertexArrayData[2].color.b = 1.0;
+    vertexArrayData[2].color.a = 1.0;
+    vertexArrayData[2].position.x = 1.0;
+    vertexArrayData[2].position.y = -1.0;
+    vertexArrayData[2].position.z = 0.0;
+    vertexArrayData[2].position.w = 1.0;
     
-    id <MTLBuffer> vertexArray =
-    //[deviceMTL newBufferWithBytes: vertexArrayData length: sizeof(vertexArrayData) options: MTLResourceStorageModeManaged];
-    [deviceMTL newBufferWithBytes: vertexData length: sizeof(vertexData) options: MTLResourceStorageModeManaged];
+    
+    id <MTLBuffer> vertexArray = [deviceMTL newBufferWithBytes: vertexArrayData length: sizeof(vertexArrayData) options: MTLResourceStorageModeManaged];
     [render setVertexBuffer: vertexArray offset: 0 atIndex: 0];
-    [render drawPrimitives: MTLPrimitiveTypeTriangle vertexStart:0 vertexCount:6];
+    [render drawPrimitives: MTLPrimitiveTypeTriangle vertexStart:0 vertexCount:3];
     
     // end test code
     
