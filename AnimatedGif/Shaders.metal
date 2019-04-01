@@ -35,24 +35,34 @@ All Pixeldata that comes interpolated from Rasterizer can be changed before its 
 
 struct RasterizerData {
     float4 position [[position]];
-    float4 color;
     float2 textCoord;
 };
 
 vertex RasterizerData myVertexShader(device Vertex* vertexArray    [[ buffer(0) ]],
+                                     constant uniforms_t& uniforms [[ buffer(1) ]],
+                                     //constant float4x4 &projection [[ buffer(1) ]],
                                      unsigned int vid              [[ vertex_id ]])
 {
     RasterizerData out;
-    out.position = float4(vertexArray[vid].position,1);
-    out.color = vertexArray[vid].color;
+    
+    // the projection matrix defined in the CPU code make it possible to convert here
+    // vertexes with an screen coordinates(0,0,width,height) into vertexes with the Metal Normalized Coordinates (-1,0,1)
+    // as GPU needs it for furter computing
+    out.position =  uniforms.projection * float4(vertexArray[vid].position,1);
+    
+    // scale the coordinates by a fixed factor
+    out.position =  uniforms.scale * out.position;
+    
+    // pass texture coordinates as they are to rasterizer
     out.textCoord = vertexArray[vid].textCoord;
     return out;
 }
 
 fragment float4 myFragmentShader(RasterizerData interpolated [[stage_in]],
                                  sampler sampler2d           [[sampler(0)]],
-                                 texture2d<float> texture   [[texture(0)]])
+                                 texture2d<float> texture    [[texture(0)]])
 {
+    // here the mapping of the texture to the pixels is done by the sampler
     float4 color = texture.sample(sampler2d, interpolated.textCoord);
     return color;
 }

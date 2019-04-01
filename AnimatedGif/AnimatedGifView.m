@@ -8,6 +8,7 @@
 
 #import "AnimatedGifView.h"
 
+//  Metal not finished yet, see other TODOs in Code, that why it disabled here at the moment
 //#define USE_METAL
 
 @implementation AnimatedGifView
@@ -27,7 +28,7 @@
     
     if (self) {
 #ifdef USE_METAL
-        mtlView = [self createViewMTL]; // TODO Metal not finished yet
+        mtlView = [self createViewMTL];
 #endif
         if (mtlView==NULL)
         {
@@ -101,7 +102,6 @@
         // Does the user have any Metal devices available? (This should be yes on all Macs made after mid-2012.)
         if (!devices || devices.count == 0)
         {
-
             NSLog(@"No Metal devices could be found.");
             return NULL;
         }
@@ -111,19 +111,6 @@
             
             // the easy way is just using the system default metal device
             deviceMTL = MTLCreateSystemDefaultDevice();
-
-            // instead of using system default metal device it is also possible to itterate all devices and maybe look for a low power GPU (for example for Macs with a Intel-GPU and a ATI/Nvidia-GPU)
-            /*
-            [devices enumerateObjectsUsingBlock:^(id <MTLDevice> prospectiveDevice, NSUInteger i, BOOL *stop)
-            {
-                if (prospectiveDevice.lowPower)
-                {
-                    self->deviceMTL = prospectiveDevice;
-                    *stop = YES;
-                }
-                self->deviceMTL = prospectiveDevice;
-            }];
-            */
             
             // create an Metal View that uses the metal device
             MTKView* mtlView = [[MTKView alloc] initWithFrame:NSZeroRect];
@@ -146,6 +133,24 @@
             // also add the shader codes that we load from the resource bundle to the metal pipeline
             pipelineStateDescriptor.vertexFunction = [defaultLibraryMTL newFunctionWithName:@"myVertexShader"];
             pipelineStateDescriptor.fragmentFunction = [defaultLibraryMTL newFunctionWithName:@"myFragmentShader"];
+            
+            // enable alpha blending
+            // TODOs
+            // 0) the file "bowserspin.gif" is an alpha blended file that needs alpha blending
+            // 1) the file "dots-new.gif" from an older issue post is not running correct when alpha blending active!
+            //    (only first frame visable and all other frames are black)
+            // 2) the file "sunset.gif" is flickering hard when alpha blending active!
+            //    (one frame picture, one frame black,one frame picture, one frame black)
+            // -> need to find options that works in all three cases like it does in OpenGL with "glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);"
+            /*
+            pipelineStateDescriptor.colorAttachments[0].blendingEnabled = YES;
+            pipelineStateDescriptor.colorAttachments[0].rgbBlendOperation           = MTLBlendOperationAdd;
+            pipelineStateDescriptor.colorAttachments[0].alphaBlendOperation         = MTLBlendOperationAdd;
+            pipelineStateDescriptor.colorAttachments[0].sourceRGBBlendFactor        = MTLBlendFactorSourceAlpha;
+            pipelineStateDescriptor.colorAttachments[0].destinationRGBBlendFactor   = MTLBlendFactorOneMinusSourceAlpha;
+            pipelineStateDescriptor.colorAttachments[0].sourceAlphaBlendFactor      = MTLBlendFactorOne;
+            pipelineStateDescriptor.colorAttachments[0].destinationAlphaBlendFactor = MTLBlendFactorOneMinusSourceAlpha;
+            */
             
             // define the pixel format we will use with metal
             pipelineStateDescriptor.colorAttachments[0].pixelFormat = MTLPixelFormatBGRA8Unorm;
@@ -1351,7 +1356,7 @@
 
 - (void) drawAttributedStringGL:(NSAttributedString *)attributedString atPoint:(NSPoint)point
 {
-    GLuint texturName = 0;
+    //GLuint texturName = 0;
     NSSize texturSize = NSMakeSize(0.0f, 0.0f);
     NSSize frameSize = NSMakeSize(0.0f, 0.0f);
     
@@ -1366,31 +1371,10 @@
     texturSize.height = [bitmap pixelsHigh];
     NSRect bounds = NSMakeRect (point.x, point.y, texturSize.width, texturSize.height);
     
-    glPushAttrib(GL_TEXTURE_BIT);
-    glGenTextures (1, &texturName);
-    glBindTexture (GL_TEXTURE_RECTANGLE_EXT, texturName);
-    glTexParameteri(GL_TEXTURE_RECTANGLE_EXT, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_RECTANGLE_EXT, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexImage2D(GL_TEXTURE_RECTANGLE_EXT, 0, GL_RGBA, texturSize.width, texturSize.height, 0, [bitmap hasAlpha] ? GL_RGBA : GL_RGB, GL_UNSIGNED_BYTE, [bitmap bitmapData]);
-    glPopAttrib();
-    
-    glPushAttrib(GL_ENABLE_BIT | GL_TEXTURE_BIT | GL_COLOR_BUFFER_BIT);
-    glDisable (GL_DEPTH_TEST);
-    glEnable (GL_BLEND);
-    glBlendFunc (GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
-    glEnable (GL_TEXTURE_RECTANGLE_EXT);
-    glBindTexture (GL_TEXTURE_RECTANGLE_EXT, texturName);
-    glBegin (GL_QUADS);
-    glTexCoord2f (0.0f, 0.0f); glVertex2f (bounds.origin.x, bounds.origin.y);
-    glTexCoord2f (0.0f, texturSize.height); glVertex2f (bounds.origin.x, bounds.origin.y + bounds.size.height);
-    glTexCoord2f (texturSize.width, texturSize.height); glVertex2f (bounds.origin.x + bounds.size.width, bounds.origin.y + bounds.size.height);
-    glTexCoord2f (texturSize.width, 0.0f); glVertex2f (bounds.origin.x + bounds.size.width, bounds.origin.y);
-    glEnd ();
-    glPopAttrib();
-    glDeleteTextures(1,&texturName);
+    [self drawImageGL:[bitmap bitmapData] pixelWidth:texturSize.width pixelHeight:texturSize.height withFilter:FILTER_OPT_BLUR hasAlpha:YES atRect:bounds];
 }
 
-- (void) drawImageGL:(void *)pixelsBytes pixelWidth:(NSInteger)width pixelHeight:(NSInteger)height  hasAlpha: (Boolean)alpha atRect:(NSRect) rect
+- (void) drawImageGL:(void *)pixelsBytes pixelWidth:(NSInteger)width pixelHeight:(NSInteger)height withFilter:(NSInteger)filter hasAlpha: (Boolean)alpha atRect:(NSRect) rect
 {
     glEnable(GL_TEXTURE_2D);
     if (alpha == TRUE) {
@@ -1417,9 +1401,9 @@
     }
     else
     {
-        // use blur filter as default
-        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        // use sharp filter as default
+        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_NEAREST);
+        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     }
     
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -1495,13 +1479,12 @@
             void *pixelDataIcon= [iconRep bitmapData];;
             if (pixelDataIcon != NULL)
             {
-                [self drawImageGL:pixelDataIcon pixelWidth: [iconRep pixelsWide] pixelHeight:[iconRep pixelsHigh] hasAlpha:[iconRep hasAlpha] atRect:NSMakeRect(screenRect.size.width/2 - iconSize.width/2, screenRect.size.height/4*3 - iconSize.height/2, iconSize.width, iconSize.height)];
+                [self drawImageGL:pixelDataIcon pixelWidth: [iconRep pixelsWide] pixelHeight:[iconRep pixelsHigh] withFilter:FILTER_OPT_BLUR hasAlpha:[iconRep hasAlpha] atRect:NSMakeRect(screenRect.size.width/2 - iconSize.width/2, screenRect.size.height/4*3 - iconSize.height/2, iconSize.width, iconSize.height)];
             }
         }
     }
     
     [self endRenderGL];
-    
 }
 
 - (void) animateWithGifGL
@@ -1525,7 +1508,7 @@
     if (tiles == TILE_OPT_1)
     {
         // only draw one tile
-        [self drawImageGL:pixelData pixelWidth: [gifRep pixelsWide] pixelHeight:[gifRep pixelsHigh] hasAlpha:[gifRep hasAlpha] atRect:targetRect];
+        [self drawImageGL:pixelData pixelWidth: [gifRep pixelsWide] pixelHeight:[gifRep pixelsHigh] withFilter:filter hasAlpha:[gifRep hasAlpha] atRect:targetRect];
     }
     else
     {
@@ -1539,15 +1522,15 @@
         NSRect r13 = NSMakeRect(targetRect.origin.x, targetRect.origin.y+targetRect.size.height/3*2, targetRect.size.width/3, targetRect.size.height/3);
         NSRect r23 = NSMakeRect(targetRect.origin.x+targetRect.size.width/3, targetRect.origin.y+targetRect.size.height/3*2, targetRect.size.width/3, targetRect.size.height/3);
         NSRect r33 = NSMakeRect(targetRect.origin.x+targetRect.size.width/3*2, targetRect.origin.y+targetRect.size.height/3*2, targetRect.size.width/3, targetRect.size.height/3);
-        [self drawImageGL:pixelData pixelWidth: [gifRep pixelsWide] pixelHeight:[gifRep pixelsHigh] hasAlpha:[gifRep hasAlpha] atRect:r11];
-        [self drawImageGL:pixelData pixelWidth: [gifRep pixelsWide] pixelHeight:[gifRep pixelsHigh] hasAlpha:[gifRep hasAlpha] atRect:r21];
-        [self drawImageGL:pixelData pixelWidth: [gifRep pixelsWide] pixelHeight:[gifRep pixelsHigh] hasAlpha:[gifRep hasAlpha] atRect:r31];
-        [self drawImageGL:pixelData pixelWidth: [gifRep pixelsWide] pixelHeight:[gifRep pixelsHigh] hasAlpha:[gifRep hasAlpha] atRect:r12];
-        [self drawImageGL:pixelData pixelWidth: [gifRep pixelsWide] pixelHeight:[gifRep pixelsHigh] hasAlpha:[gifRep hasAlpha] atRect:r22];
-        [self drawImageGL:pixelData pixelWidth: [gifRep pixelsWide] pixelHeight:[gifRep pixelsHigh] hasAlpha:[gifRep hasAlpha] atRect:r32];
-        [self drawImageGL:pixelData pixelWidth: [gifRep pixelsWide] pixelHeight:[gifRep pixelsHigh] hasAlpha:[gifRep hasAlpha] atRect:r13];
-        [self drawImageGL:pixelData pixelWidth: [gifRep pixelsWide] pixelHeight:[gifRep pixelsHigh] hasAlpha:[gifRep hasAlpha] atRect:r23];
-        [self drawImageGL:pixelData pixelWidth: [gifRep pixelsWide] pixelHeight:[gifRep pixelsHigh] hasAlpha:[gifRep hasAlpha] atRect:r33];
+        [self drawImageGL:pixelData pixelWidth: [gifRep pixelsWide] pixelHeight:[gifRep pixelsHigh] withFilter:filter hasAlpha:[gifRep hasAlpha] atRect:r11];
+        [self drawImageGL:pixelData pixelWidth: [gifRep pixelsWide] pixelHeight:[gifRep pixelsHigh] withFilter:filter hasAlpha:[gifRep hasAlpha] atRect:r21];
+        [self drawImageGL:pixelData pixelWidth: [gifRep pixelsWide] pixelHeight:[gifRep pixelsHigh] withFilter:filter hasAlpha:[gifRep hasAlpha] atRect:r31];
+        [self drawImageGL:pixelData pixelWidth: [gifRep pixelsWide] pixelHeight:[gifRep pixelsHigh] withFilter:filter hasAlpha:[gifRep hasAlpha] atRect:r12];
+        [self drawImageGL:pixelData pixelWidth: [gifRep pixelsWide] pixelHeight:[gifRep pixelsHigh] withFilter:filter hasAlpha:[gifRep hasAlpha] atRect:r22];
+        [self drawImageGL:pixelData pixelWidth: [gifRep pixelsWide] pixelHeight:[gifRep pixelsHigh] withFilter:filter hasAlpha:[gifRep hasAlpha] atRect:r32];
+        [self drawImageGL:pixelData pixelWidth: [gifRep pixelsWide] pixelHeight:[gifRep pixelsHigh] withFilter:filter hasAlpha:[gifRep hasAlpha] atRect:r13];
+        [self drawImageGL:pixelData pixelWidth: [gifRep pixelsWide] pixelHeight:[gifRep pixelsHigh] withFilter:filter hasAlpha:[gifRep hasAlpha] atRect:r23];
+        [self drawImageGL:pixelData pixelWidth: [gifRep pixelsWide] pixelHeight:[gifRep pixelsHigh] withFilter:filter hasAlpha:[gifRep hasAlpha] atRect:r33];
     }
     
     [self endRenderGL];
@@ -1585,31 +1568,57 @@
 
 - (void) drawAttributedStringMTL:(NSAttributedString *)attributedString atPoint:(NSPoint)point
 {
-    // TODO add the render code
+    NSSize texturSize = NSMakeSize(0.0f, 0.0f);
+    NSSize frameSize = NSMakeSize(0.0f, 0.0f);
+    
+    frameSize = [attributedString size];
+    NSImage * image = [[NSImage alloc] initWithSize:frameSize];
+    [image lockFocus];
+    [[NSGraphicsContext currentContext] setShouldAntialias:YES];
+    [attributedString drawAtPoint:NSMakePoint (0.0f, 0.0f)];
+    NSBitmapImageRep *bitmap = [[NSBitmapImageRep alloc] initWithFocusedViewRect:NSMakeRect(0.0f, 0.0f, frameSize.width, frameSize.height)];
+    [image unlockFocus];
+    texturSize.width = [bitmap pixelsWide];
+    texturSize.height = [bitmap pixelsHigh];
+    NSRect bounds = NSMakeRect (point.x, point.y, texturSize.width, texturSize.height);
+    
+    [self drawImageMTL:[bitmap bitmapData] pixelWidth:texturSize.width pixelHeight:texturSize.height withFilter:FILTER_OPT_BLUR hasAlpha:YES atRect:bounds];
 }
 
-- (void) drawImageMTL:(void *)pixelsBytes pixelWidth:(NSInteger)width pixelHeight:(NSInteger)height  hasAlpha: (Boolean)alpha atRect:(NSRect) rect
+- (void) drawImageMTL:(void *)pixelsBytes pixelWidth:(NSInteger)width pixelHeight:(NSInteger)height withFilter:(NSInteger)filter hasAlpha: (Boolean)alpha atRect:(NSRect) rect
 {
-    // TODO add the render code
-    
-    // test code to show a quad consit of two trinagles with an texture
-    
     // add a quad where the texture will be mapped onto
     struct Vertex vertexArrayData[6] = {
-        {.position={ 1.0, 1.0, 0.0},.color={1.0,0.0,0.0,1.0},.textCoord={1.0,0.0}}, // Top Right
-        {.position={-1.0, 1.0, 0.0},.color={0.0,1.0,0.0,1.0},.textCoord={0.0,0.0}}, // Top Left
-        {.position={-1.0,-1.0, 0.0},.color={0.0,0.0,1.0,1.0},.textCoord={0.0,1.0}}, // Bottom Left
-        {.position={ 1.0, 1.0, 0.0},.color={1.0,0.0,0.0,1.0},.textCoord={1.0,0.0}}, // Top Right
-        {.position={-1.0,-1.0, 0.0},.color={0.0,0.0,1.0,1.0},.textCoord={0.0,1.0}}, // Bottom Left
-        {.position={ 1.0,-1.0, 0.0},.color={1.0,0.0,1.0,1.0},.textCoord={1.0,1.0}}  // Bottom Right
+        {.position={rect.origin.x+rect.size.width, rect.origin.y,                  0.0},.textCoord={1.0,0.0}}, // Top Right
+        {.position={rect.origin.x,                 rect.origin.y,                  0.0},.textCoord={0.0,0.0}}, // Top Left
+        {.position={rect.origin.x,                 rect.origin.y+rect.size.height, 0.0},.textCoord={0.0,1.0}}, // Bottom Left
+        {.position={rect.origin.x+rect.size.width, rect.origin.y,                  0.0},.textCoord={1.0,0.0}}, // Top Right
+        {.position={rect.origin.x,                 rect.origin.y+rect.size.height, 0.0},.textCoord={0.0,1.0}}, // Bottom Left
+        {.position={rect.origin.x+rect.size.width, rect.origin.y+rect.size.height, 0.0},.textCoord={1.0,1.0}}  // Bottom Right
     };
+
     id <MTLBuffer> vertexArray = [deviceMTL newBufferWithBytes: vertexArrayData length: sizeof(vertexArrayData) options: MTLResourceStorageModeManaged];
     [renderMTL setVertexBuffer: vertexArray offset: 0 atIndex: 0];
     
-    // add a sampler (could be also donde direct in the GPU Shader code
+    // add a sampler (could be also donde direct in the GPU Shader code)
     MTLSamplerDescriptor *samplerDescriptor = [MTLSamplerDescriptor new];
-    samplerDescriptor.minFilter = MTLSamplerMinMagFilterNearest;
-    samplerDescriptor.magFilter = MTLSamplerMinMagFilterLinear;
+    // set paramter for texture
+    if (filter == FILTER_OPT_BLUR)
+    {
+        samplerDescriptor.minFilter = MTLSamplerMinMagFilterLinear;
+        samplerDescriptor.magFilter = MTLSamplerMinMagFilterLinear;
+    }
+    else if (filter == FILTER_OPT_SHARP)
+    {
+        samplerDescriptor.minFilter = MTLSamplerMinMagFilterNearest;
+        samplerDescriptor.magFilter = MTLSamplerMinMagFilterNearest;
+    }
+    else
+    {
+        // use sharp filter as default
+        samplerDescriptor.minFilter = MTLSamplerMinMagFilterNearest;
+        samplerDescriptor.magFilter = MTLSamplerMinMagFilterNearest;
+    }
     samplerDescriptor.sAddressMode = MTLSamplerAddressModeRepeat;
     samplerDescriptor.tAddressMode = MTLSamplerAddressModeRepeat;
     id<MTLSamplerState> sampler = [deviceMTL newSamplerStateWithDescriptor:samplerDescriptor];
@@ -1624,14 +1633,11 @@
     
     // needs to be called after vertex, sampler and texture
     [renderMTL drawPrimitives: MTLPrimitiveTypeTriangle vertexStart:0 vertexCount:6];
-    
-    // end test code
-    
 }
 
 - (void) animateNoGifMTL
 {
-    [self startRenderMTL];
+    [self startRenderMTL:NO];
     
     NSMutableDictionary *attribs = [NSMutableDictionary dictionary];
     if ([self isPreview])
@@ -1666,18 +1672,17 @@
             void *pixelDataIcon= [iconRep bitmapData];;
             if (pixelDataIcon != NULL)
             {
-                [self drawImageMTL:pixelDataIcon pixelWidth: [iconRep pixelsWide] pixelHeight:[iconRep pixelsHigh] hasAlpha:[iconRep hasAlpha] atRect:NSMakeRect(screenRect.size.width/2 - iconSize.width/2, screenRect.size.height/4*3 - iconSize.height/2, iconSize.width, iconSize.height)];
+                [self drawImageMTL:pixelDataIcon pixelWidth: [iconRep pixelsWide] pixelHeight:[iconRep pixelsHigh] withFilter:FILTER_OPT_BLUR hasAlpha:[iconRep hasAlpha] atRect:NSMakeRect(screenRect.size.width/2 - iconSize.width/2, screenRect.size.height/4*3 - iconSize.height/2, iconSize.width, iconSize.height)];
             }
         }
     }
     
     [self endRenderMTL];
-
 }
 
 - (void) animateWithGifMTL
 {
-    [self startRenderMTL];
+    [self startRenderMTL:YES];
     
     void *pixelData=NULL;
     if (loadAnimationToMem == TRUE)
@@ -1696,7 +1701,7 @@
     if (tiles == TILE_OPT_1)
     {
         // only draw one tile
-        [self drawImageMTL:pixelData pixelWidth: [gifRep pixelsWide] pixelHeight:[gifRep pixelsHigh] hasAlpha:[gifRep hasAlpha] atRect:targetRect];
+        [self drawImageMTL:pixelData pixelWidth: [gifRep pixelsWide] pixelHeight:[gifRep pixelsHigh] withFilter:filter hasAlpha:[gifRep hasAlpha] atRect:targetRect];
     }
     else
     {
@@ -1710,22 +1715,42 @@
         NSRect r13 = NSMakeRect(targetRect.origin.x, targetRect.origin.y+targetRect.size.height/3*2, targetRect.size.width/3, targetRect.size.height/3);
         NSRect r23 = NSMakeRect(targetRect.origin.x+targetRect.size.width/3, targetRect.origin.y+targetRect.size.height/3*2, targetRect.size.width/3, targetRect.size.height/3);
         NSRect r33 = NSMakeRect(targetRect.origin.x+targetRect.size.width/3*2, targetRect.origin.y+targetRect.size.height/3*2, targetRect.size.width/3, targetRect.size.height/3);
-        [self drawImageMTL:pixelData pixelWidth: [gifRep pixelsWide] pixelHeight:[gifRep pixelsHigh] hasAlpha:[gifRep hasAlpha] atRect:r11];
-        [self drawImageMTL:pixelData pixelWidth: [gifRep pixelsWide] pixelHeight:[gifRep pixelsHigh] hasAlpha:[gifRep hasAlpha] atRect:r21];
-        [self drawImageMTL:pixelData pixelWidth: [gifRep pixelsWide] pixelHeight:[gifRep pixelsHigh] hasAlpha:[gifRep hasAlpha] atRect:r31];
-        [self drawImageMTL:pixelData pixelWidth: [gifRep pixelsWide] pixelHeight:[gifRep pixelsHigh] hasAlpha:[gifRep hasAlpha] atRect:r12];
-        [self drawImageMTL:pixelData pixelWidth: [gifRep pixelsWide] pixelHeight:[gifRep pixelsHigh] hasAlpha:[gifRep hasAlpha] atRect:r22];
-        [self drawImageMTL:pixelData pixelWidth: [gifRep pixelsWide] pixelHeight:[gifRep pixelsHigh] hasAlpha:[gifRep hasAlpha] atRect:r32];
-        [self drawImageMTL:pixelData pixelWidth: [gifRep pixelsWide] pixelHeight:[gifRep pixelsHigh] hasAlpha:[gifRep hasAlpha] atRect:r13];
-        [self drawImageMTL:pixelData pixelWidth: [gifRep pixelsWide] pixelHeight:[gifRep pixelsHigh] hasAlpha:[gifRep hasAlpha] atRect:r23];
-        [self drawImageMTL:pixelData pixelWidth: [gifRep pixelsWide] pixelHeight:[gifRep pixelsHigh] hasAlpha:[gifRep hasAlpha] atRect:r33];
+        [self drawImageMTL:pixelData pixelWidth: [gifRep pixelsWide] pixelHeight:[gifRep pixelsHigh] withFilter:filter hasAlpha:[gifRep hasAlpha] atRect:r11];
+        [self drawImageMTL:pixelData pixelWidth: [gifRep pixelsWide] pixelHeight:[gifRep pixelsHigh] withFilter:filter hasAlpha:[gifRep hasAlpha] atRect:r21];
+        [self drawImageMTL:pixelData pixelWidth: [gifRep pixelsWide] pixelHeight:[gifRep pixelsHigh] withFilter:filter hasAlpha:[gifRep hasAlpha] atRect:r31];
+        [self drawImageMTL:pixelData pixelWidth: [gifRep pixelsWide] pixelHeight:[gifRep pixelsHigh] withFilter:filter hasAlpha:[gifRep hasAlpha] atRect:r12];
+        [self drawImageMTL:pixelData pixelWidth: [gifRep pixelsWide] pixelHeight:[gifRep pixelsHigh] withFilter:filter hasAlpha:[gifRep hasAlpha] atRect:r22];
+        [self drawImageMTL:pixelData pixelWidth: [gifRep pixelsWide] pixelHeight:[gifRep pixelsHigh] withFilter:filter hasAlpha:[gifRep hasAlpha] atRect:r32];
+        [self drawImageMTL:pixelData pixelWidth: [gifRep pixelsWide] pixelHeight:[gifRep pixelsHigh] withFilter:filter hasAlpha:[gifRep hasAlpha] atRect:r13];
+        [self drawImageMTL:pixelData pixelWidth: [gifRep pixelsWide] pixelHeight:[gifRep pixelsHigh] withFilter:filter hasAlpha:[gifRep hasAlpha] atRect:r23];
+        [self drawImageMTL:pixelData pixelWidth: [gifRep pixelsWide] pixelHeight:[gifRep pixelsHigh] withFilter:filter hasAlpha:[gifRep hasAlpha] atRect:r33];
     }
     
     [self endRenderMTL];
 }
 
-- (void) startRenderMTL
+- (void) startRenderMTL:(BOOL)allowScale
 {
+    uniforms_t uniforms;
+    vector_float4 scale4 = {1.0,1.0,1.0,1.0}; // default scale is 1.0 and that means no scaling at all
+    
+    if (allowScale == YES)
+    {
+        // scale the image by a given factor
+        // scale only if needed
+        if (viewOption==VIEW_OPT_SCALE_SIZE && (scale>1.1 || scale<0.9))
+        {
+            scale4.x = scale;
+            scale4.y = scale;
+            scale4.z = scale;
+        }
+    }
+    uniforms.scale = scale4;
+    
+    // TODOs:
+    // 1) the Metal render code is only single buffered at the moment and needs to be changed to double buffer like OpenGL render code
+    // 2) show somewhere in Configuration GUI if OpenGL or Metal is used for Rendering
+    
     //  Get an available CommandBuffer
     commandBufferMTL = [commandQueueMTL commandBuffer];
     
@@ -1741,6 +1766,15 @@
     //  Start a Render command
     renderMTL = [commandBufferMTL renderCommandEncoderWithDescriptor: renderDesc];
     [renderMTL setRenderPipelineState: pipelineStateMTL];
+    
+    // add a projection matrix with screen coordinates so that we can define our vertex-positions relativ to it (equivalent to glOrtho)
+    // vertexes with an screen coordinates(0,0,width,height) will be than convertet in vertex shader of GPU into vertexes
+    // with the Metal Normalized Coordinates (-1,0,1)
+    // as GPU needs it for furter computing
+    uniforms.projection = matrix_ortho(0, screenRect.size.width, screenRect.size.height, 0, 0, 1);
+    
+    // add uniforms data (at the moment scale factor and projection matrix)
+    [renderMTL setVertexBytes:&uniforms length:sizeof(uniforms_t) atIndex:1];
 }
 
 - (void) endRenderMTL

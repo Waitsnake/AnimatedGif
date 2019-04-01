@@ -105,16 +105,15 @@
 - (void) animateNoGifGL;
 - (void) animateWithGifGL;
 - (void) drawAttributedStringGL:(NSAttributedString *)attributedString atPoint:(NSPoint)point;
-- (void) drawImageGL:(void *)pixelsBytes pixelWidth:(NSInteger)width pixelHeight:(NSInteger)height  hasAlpha: (Boolean)alpha atRect:(NSRect) rect;
+- (void) drawImageGL:(void *)pixelsBytes pixelWidth:(NSInteger)width pixelHeight:(NSInteger)height withFilter:(NSInteger)filter hasAlpha: (Boolean)alpha atRect:(NSRect) rect;
 
 - (MTKView *)createViewMTL;
-- (void) startRenderMTL;
+- (void) startRenderMTL:(BOOL)allowScale;
 - (void) endRenderMTL;
 - (void) animateNoGifMTL;
 - (void) animateWithGifMTL;
 - (void) drawAttributedStringMTL:(NSAttributedString *)attributedString atPoint:(NSPoint)point;
-- (void) drawImageMTL:(void *)pixelsBytes pixelWidth:(NSInteger)width pixelHeight:(NSInteger)height  hasAlpha: (Boolean)alpha atRect:(NSRect) rect;
-
+- (void) drawImageMTL:(void *)pixelsBytes pixelWidth:(NSInteger)width pixelHeight:(NSInteger)height withFilter:(NSInteger)filter hasAlpha: (Boolean)alpha atRect:(NSRect) rect;
 
 - (float)pictureRatioFromWidth:(float)iWidth andHeight:(float)iHeight;
 - (float)calcWidthFromRatio:(float)iRatio andHeight:(float)iHeight;
