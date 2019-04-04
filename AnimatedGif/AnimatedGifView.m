@@ -135,23 +135,14 @@
             pipelineStateDescriptor.fragmentFunction = [defaultLibraryMTL newFunctionWithName:@"myFragmentShader"];
             
             // enable alpha blending
-            // TODOs
-            // 0) the file "bowserspin.gif" is an alpha blended file that needs alpha blending
-            // 1) the file "dots-new.gif" from an older issue post is not running correct when alpha blending active!
-            //    (only first frame visable and all other frames are black)
-            // 2) the file "sunset.gif" is flickering hard when alpha blending active!
-            //    (one frame picture, one frame black,one frame picture, one frame black)
-            // -> need to find options that works in all three cases like it does in OpenGL with "glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);"
-            /*
             pipelineStateDescriptor.colorAttachments[0].blendingEnabled = YES;
             pipelineStateDescriptor.colorAttachments[0].rgbBlendOperation           = MTLBlendOperationAdd;
             pipelineStateDescriptor.colorAttachments[0].alphaBlendOperation         = MTLBlendOperationAdd;
-            pipelineStateDescriptor.colorAttachments[0].sourceRGBBlendFactor        = MTLBlendFactorSourceAlpha;
+            pipelineStateDescriptor.colorAttachments[0].sourceRGBBlendFactor        = MTLBlendFactorOne;
             pipelineStateDescriptor.colorAttachments[0].destinationRGBBlendFactor   = MTLBlendFactorOneMinusSourceAlpha;
             pipelineStateDescriptor.colorAttachments[0].sourceAlphaBlendFactor      = MTLBlendFactorOne;
             pipelineStateDescriptor.colorAttachments[0].destinationAlphaBlendFactor = MTLBlendFactorOneMinusSourceAlpha;
-            */
-            
+
             // define the pixel format we will use with metal
             pipelineStateDescriptor.colorAttachments[0].pixelFormat = MTLPixelFormatBGRA8Unorm;
             
@@ -442,6 +433,26 @@
     NSString *version = [[NSBundle bundleForClass:[self class]] objectForInfoDictionaryKey: @"CFBundleShortVersionString"];
     [self.labelVersion2 setStringValue:version];
     [self.textLicence setEditable:NO];
+    if (glView == NULL)
+    {
+        [self.imgGL setAlphaValue:0.25];
+        [self.imgGL setEnabled:NO];
+    }
+    else
+    {
+        [self.imgGL setAlphaValue:1.00];
+        [self.imgGL setEnabled:YES];
+    }
+    if (mtlView == NULL)
+    {
+        [self.imgMTL setAlphaValue:0.25];
+        [self.imgMTL setEnabled:NO];
+    }
+    else
+    {
+        [self.imgMTL setAlphaValue:1.00];
+        [self.imgMTL setEnabled:YES];
+    }
     NSError *err = nil;
     NSString *path =[[NSBundle bundleForClass:[self class]] pathForResource:@"LICENSE" ofType:@"md"];
     NSString *contents = [NSString stringWithContentsOfFile:path encoding:NSUTF8StringEncoding error:&err];
@@ -1356,7 +1367,6 @@
 
 - (void) drawAttributedStringGL:(NSAttributedString *)attributedString atPoint:(NSPoint)point
 {
-    //GLuint texturName = 0;
     NSSize texturSize = NSMakeSize(0.0f, 0.0f);
     NSSize frameSize = NSMakeSize(0.0f, 0.0f);
     
@@ -1748,8 +1758,7 @@
     uniforms.scale = scale4;
     
     // TODOs:
-    // 1) the Metal render code is only single buffered at the moment and needs to be changed to double buffer like OpenGL render code
-    // 2) show somewhere in Configuration GUI if OpenGL or Metal is used for Rendering
+    // the Metal render code is only single buffered at the moment and needs to be changed to double buffer like OpenGL render code
     
     //  Get an available CommandBuffer
     commandBufferMTL = [commandQueueMTL commandBuffer];
