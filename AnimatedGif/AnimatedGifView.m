@@ -8,8 +8,6 @@
 
 #import "AnimatedGifView.h"
 
-//  Metal not finished yet, see other TODOs in Code, that why it disabled here at the moment
-//#define USE_METAL
 
 @implementation AnimatedGifView
 
@@ -27,9 +25,7 @@
                                  @"file:///please/select/an/gif/animation.gif", @"GifFileName", @"30.0", @"GifFrameRate", @"NO", @"GifFrameRateManual", @"0", @"ViewOpt", @"4", @"ScaleOpt", @"1", @"FilterOpt", @"0", @"TileOpt", @"0.0", @"BackgrRed", @"0.0", @"BackgrGreen", @"0.0", @"BackgrBlue", @"NO", @"LoadAniToMem", @"5", @"ChangeInterval",nil]];
     
     if (self) {
-#ifdef USE_METAL
         mtlView = [self createViewMTL];
-#endif
         if (mtlView==NULL)
         {
             NSLog(@"Since Metal setup was not possible try to use OpenGL setup.");
