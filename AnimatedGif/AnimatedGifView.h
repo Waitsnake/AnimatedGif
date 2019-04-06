@@ -150,6 +150,7 @@
 @property (assign) IBOutlet NSPopUpButton *popupButtonScaleOptions;
 
 @property (assign) IBOutlet NSTextField *labelVersion;
+@property (assign) IBOutlet NSTextField *labelRender;
 
 @property (assign) IBOutlet NSSlider *sliderChangeInterval;
 @property (assign) IBOutlet NSTextField *labelChangeInterval;
@@ -173,7 +174,5 @@
 @property (nonatomic, strong) NSWindowController *aboutWindowController;
 @property (assign) IBOutlet NSTextField *labelVersion2;
 @property (assign) IBOutlet NSTextView *textLicence;
-@property (assign) IBOutlet NSImageView *imgGL;
-@property (assign) IBOutlet NSImageView *imgMTL;
 
 @end

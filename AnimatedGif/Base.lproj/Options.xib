@@ -25,6 +25,7 @@
                 <outlet property="labelFpsT4" destination="IMN-oe-cqe" id="Chs-8m-CaB"/>
                 <outlet property="labelFpsT5" destination="hhA-OU-fO4" id="yrt-b5-ssR"/>
                 <outlet property="labelFpsT6" destination="yeR-Gc-HfV" id="L4K-yn-Mcy"/>
+                <outlet property="labelRender" destination="pI4-w3-pQK" id="w9v-Uw-do4"/>
                 <outlet property="labelVersion" destination="VOg-kC-79W" id="1Uk-Am-0za"/>
                 <outlet property="optionsPanel" destination="QvC-M9-y7g" id="S9j-MZ-x3G"/>
                 <outlet property="popupButtonFilterOptions" destination="lmW-e2-7c2" id="ksl-Eb-fyv"/>
@@ -423,6 +424,15 @@ Gw
                         <rect key="frame" x="526" y="316" width="21" height="17"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="60" id="Zxp-6N-m2s">
+                            <font key="font" metaFont="system"/>
+                            <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
+                            <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                        </textFieldCell>
+                    </textField>
+                    <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="pI4-w3-pQK">
+                        <rect key="frame" x="185" y="23" width="187" height="17"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" enabled="NO" sendsActionOnEndEditing="YES" alignment="center" placeholderString="No Renderer found" id="18j-wX-g0I">
                             <font key="font" metaFont="system"/>
                             <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
                             <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>

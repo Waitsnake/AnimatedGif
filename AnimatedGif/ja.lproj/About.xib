@@ -9,8 +9,6 @@
         <customObject id="-2" userLabel="File's Owner" customClass="AnimatedGifView">
             <connections>
                 <outlet property="aboutWindow" destination="QvC-M9-y7g" id="NMX-M0-e1f"/>
-                <outlet property="imgGL" destination="dqi-n3-uBZ" id="S4v-vG-neY"/>
-                <outlet property="imgMTL" destination="dCA-oe-FqV" id="vN6-gr-Bh6"/>
                 <outlet property="labelVersion2" destination="EYf-oR-hEa" id="rC0-9Q-DbY"/>
                 <outlet property="textLicence" destination="HJM-tk-zdy" id="AUk-LE-HHj"/>
             </connections>
@@ -85,24 +83,12 @@
                             <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                         </textFieldCell>
                     </textField>
-                    <imageView horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="dqi-n3-uBZ">
-                        <rect key="frame" x="59" y="279" width="102" height="73"/>
-                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                        <imageCell key="cell" enabled="NO" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyDown" image="Opengl_logo" id="XJk-Eg-IrN"/>
-                    </imageView>
-                    <imageView horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="dCA-oe-FqV">
-                        <rect key="frame" x="329" y="279" width="102" height="73"/>
-                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                        <imageCell key="cell" enabled="NO" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyDown" image="Metal_logo" id="rYc-Wy-G7p"/>
-                    </imageView>
                 </subviews>
             </view>
             <point key="canvasLocation" x="406" y="267"/>
         </window>
     </objects>
     <resources>
-        <image name="Metal_logo" width="128" height="128"/>
-        <image name="Opengl_logo" width="237.60000610351562" height="102.40000152587891"/>
         <image name="thumbnail" width="90" height="58"/>
     </resources>
 </document>

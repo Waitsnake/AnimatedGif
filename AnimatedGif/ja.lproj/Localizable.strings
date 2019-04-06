@@ -10,3 +10,6 @@
 "titleopendlg" = "AnimatedGif: ファイルまたはディレクトリを選択";
 "nogif" = "GIFファイルが見つかりませんでした。";
 "select" = "ファイルまたはフォルダを選択してください。";
+"renderGL" = "OpenGLでレンダリングする";
+"renderMTL" = "Metalでレンダリングする";
+"renderNO" = "レンダラが見つかりませんでした";

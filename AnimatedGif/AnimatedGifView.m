@@ -444,26 +444,6 @@
     NSString *version = [[NSBundle bundleForClass:[self class]] objectForInfoDictionaryKey: @"CFBundleShortVersionString"];
     [self.labelVersion2 setStringValue:version];
     [self.textLicence setEditable:NO];
-    if (glView == NULL)
-    {
-        [self.imgGL setAlphaValue:0.25];
-        [self.imgGL setEnabled:NO];
-    }
-    else
-    {
-        [self.imgGL setAlphaValue:1.00];
-        [self.imgGL setEnabled:YES];
-    }
-    if (mtlView == NULL)
-    {
-        [self.imgMTL setAlphaValue:0.25];
-        [self.imgMTL setEnabled:NO];
-    }
-    else
-    {
-        [self.imgMTL setAlphaValue:1.00];
-        [self.imgMTL setEnabled:YES];
-    }
     NSError *err = nil;
     NSString *path =[[NSBundle bundleForClass:[self class]] pathForResource:@"LICENSE" ofType:@"md"];
     NSString *contents = [NSString stringWithContentsOfFile:path encoding:NSUTF8StringEncoding error:&err];
@@ -575,6 +555,22 @@
         [self enableSliderChangeInterval:NO];
     }
     
+    if (mtlView==NULL)
+    {
+        if (glView==NULL)
+        {
+            [self.labelRender setStringValue:NSLocalizedStringFromTableInBundle(@"renderNO", @"Localizable",[NSBundle bundleForClass:[self class]], nil)];
+        }
+        else
+        {
+            [self.labelRender setStringValue:NSLocalizedStringFromTableInBundle(@"renderGL", @"Localizable",[NSBundle bundleForClass:[self class]], nil)];
+        }
+    }
+    else
+    {
+        [self.labelRender setStringValue:NSLocalizedStringFromTableInBundle(@"renderMTL", @"Localizable",[NSBundle bundleForClass:[self class]], nil)];
+    }
+    [self.labelRender setTextColor:[NSColor lightGrayColor]];
     
     // set the visible value in dialog to the last saved value
     NSString *version = [[NSBundle bundleForClass:[self class]] objectForInfoDictionaryKey: @"CFBundleShortVersionString"];

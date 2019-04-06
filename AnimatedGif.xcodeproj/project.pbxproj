@@ -15,8 +15,6 @@
 		CC52A2E8224ECC3D00ADC1D0 /* Shaders.metal in Sources */ = {isa = PBXBuildFile; fileRef = CC52A2E7224ECC3D00ADC1D0 /* Shaders.metal */; };
 		CC52A2EA224ECD2400ADC1D0 /* Structs.h in Headers */ = {isa = PBXBuildFile; fileRef = CC52A2E9224ECD0E00ADC1D0 /* Structs.h */; };
 		CC5E750C20FBCCBF0010ACDE /* About.xib in Resources */ = {isa = PBXBuildFile; fileRef = CC5E750E20FBCCBF0010ACDE /* About.xib */; };
-		CCBAC88722569021001A3C4D /* Metal_logo.png in Resources */ = {isa = PBXBuildFile; fileRef = CCBAC88622569021001A3C4D /* Metal_logo.png */; };
-		CCBAC88922569035001A3C4D /* Opengl_logo.png in Resources */ = {isa = PBXBuildFile; fileRef = CCBAC88822569035001A3C4D /* Opengl_logo.png */; };
 		CCC3B9991C788F8E00FBE423 /* Options.xib in Resources */ = {isa = PBXBuildFile; fileRef = CCC3B99B1C788F8E00FBE423 /* Options.xib */; };
 		CCEF76C8218C83DB0050F7C9 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = CCEF76C6218C83DB0050F7C9 /* Localizable.strings */; };
 /* End PBXBuildFile section */
@@ -35,8 +33,6 @@
 		CC52A2E9224ECD0E00ADC1D0 /* Structs.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Structs.h; sourceTree = "<group>"; };
 		CCABA29F218921D300E30E6C /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/Options.xib; sourceTree = "<group>"; };
 		CCABA2A0218921D400E30E6C /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/About.xib; sourceTree = "<group>"; };
-		CCBAC88622569021001A3C4D /* Metal_logo.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = Metal_logo.png; path = extra/Metal_logo.png; sourceTree = SOURCE_ROOT; };
-		CCBAC88822569035001A3C4D /* Opengl_logo.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = Opengl_logo.png; path = extra/Opengl_logo.png; sourceTree = SOURCE_ROOT; };
 		CCC3B99C1C788F9800FBE423 /* de */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = de; path = de.lproj/Options.xib; sourceTree = "<group>"; };
 		CCC8F19B20FBD471007C9FAE /* de */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = de; path = de.lproj/About.xib; sourceTree = "<group>"; };
 		CCC8F19C20FBD474007C9FAE /* es */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = es; path = es.lproj/About.xib; sourceTree = "<group>"; };
@@ -92,8 +88,6 @@
 		CC24BA981BF124350045BDC7 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
-				CCBAC88822569035001A3C4D /* Opengl_logo.png */,
-				CCBAC88622569021001A3C4D /* Metal_logo.png */,
 				CC1777E920A1E7DF0043C210 /* LICENSE.md */,
 				CC4486F01C8A3A50008520D2 /* thumbnail.png */,
 				CC4486F11C8A3A50008520D2 /* thumbnail@2x.png */,
@@ -179,10 +173,8 @@
 				CCEF76C8218C83DB0050F7C9 /* Localizable.strings in Resources */,
 				CC4486F21C8A3A50008520D2 /* thumbnail.png in Resources */,
 				CCC3B9991C788F8E00FBE423 /* Options.xib in Resources */,
-				CCBAC88722569021001A3C4D /* Metal_logo.png in Resources */,
 				CC5E750C20FBCCBF0010ACDE /* About.xib in Resources */,
 				CC4486F31C8A3A50008520D2 /* thumbnail@2x.png in Resources */,
-				CCBAC88922569035001A3C4D /* Opengl_logo.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
