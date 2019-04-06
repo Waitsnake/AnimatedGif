@@ -128,6 +128,8 @@
             mtlView.colorPixelFormat = MTLPixelFormatBGRA8Unorm;
             mtlView.framebufferOnly = NO;
             mtlView.autoResizeDrawable = NO;
+            // here the presentaion framerate of metal is setup. it should be equal or higher as the framerate of the gif
+            mtlView.preferredFramesPerSecond = MAX_FRAME_RATE;
 
             // get an metal command queue
             commandQueueMTL = [deviceMTL newCommandQueue];
@@ -1293,17 +1295,40 @@
         maxFrameCount = [[gifRep valueForProperty: NSImageFrameCount] integerValue];
         
         // setup FPS of loaded GIF
+        NSTimeInterval duration;
         if(manualFpsActive)
         {
             // set frame rate manual
-            [self setAnimationTimeInterval:1/fps];
+            
+            // allow no fps larger as maximum MAX_FRAME_RATE
+            if (fps > MAX_FRAME_RATE)
+            {
+                duration = 1/MAX_FRAME_RATE;
+            }
+            else
+            {
+                duration = 1/fps;
+            }
         }
         else
         {
             // set frame duration from data from gif file
-            NSTimeInterval duration = [self getDurationFromGifFile:gifFileName];
-            [self setAnimationTimeInterval:duration];
+            
+            duration = [self getDurationFromGifFile:gifFileName];
+            float fps_for_duration = 1/duration;
+            
+            // allow no fps larger as maximum MAX_FRAME_RATE
+            if (fps_for_duration > MAX_FRAME_RATE)
+            {
+                duration = 1/MAX_FRAME_RATE;
+            }
+            else
+            {
+                // duration already set
+            }
+            
         }
+        [self setAnimationTimeInterval:duration];
         
         // in case of no review mode and active config option create an array in memory with all frames of bitmap in bitmap format (can be used directly as OpenGL texture)
         if (loadAnimationToMem == TRUE)
@@ -1766,13 +1791,15 @@
     }
     uniforms.scale = scale4;
     
-    // TODOs:
-    // 1) the Metal render code is only single buffered at the moment and needs to be changed to double buffer like OpenGL render code
-    //    -> at the moment is the missing double buffering no problem and all runs smooth
-    
-    
     //  Get an available CommandBuffer
     commandBufferMTL = [commandQueueMTL commandBuffer];
+    
+    /* Thoughts on double and triple buffering in Metal:
+       The Metal render code is only single buffered at the moment and needs to be changed to double buffer like OpenGL render code:
+        -> at the moment is the missing double buffering is no problem and all runs smooth even vor 60 fps
+        -> seems the buffering is handled by MTKView automaticly by setting preferredFramesPerSecond and getting an currentDrawable. But documentation and Internet are not quite exact about this.
+        -> explicit setup of the number of used buffers is only possible by using "CAMetalLayer" and setting up "maximumDrawableCount" between 1 and 3. MTKView seems to encapsulate CAMetalLayer and so it can't setup directly with MTKView. -> Since I like the similarity between MTKView and NSOpenGLView I let it for the moment and don't change this. Maybe in the futre I will try this.
+     */
     
     //  Get this frame’s target drawable
     drawableMTL = [mtlView currentDrawable];

@@ -13,6 +13,13 @@
 @import MetalKit;
 #import "Structs.h"
 
+/* The maximum frame rate of an GIF could not go higher than 100 fps (respectively no delay/duration lower than 0.01s is possible) according to GIF89a Specification.
+   Anyway whatever the theoretical maximum of an GIF might be while debuging with tool FrameMeter of "Quartz Debug" I could never reach more than 60fps whatever value aboth 60fps I use (with Metal and OpenGL).
+   I read in internet this is the maximum that Quartz uses on most Apple Laptops and maybe only a few newer systems support 120fps here (answers are quit spongy at this topic). Within "Quartz Debug" it is possible to disable the "Enable Vertical Sync" option and than also 120fps where possible. But I don't find an API to switch this option outside of Quartz Debug". Furthermore the animation looks very ugly at 120fps due to tear effects, since Animation draws than more fps as the screen supports.
+ 
+    Because of that experience I set the maximum to 60fps and this will do the job on most systems. I also doubt there are many GIFs out there that go to this theoretical maximim of 100fps.
+*/
+#define MAX_FRAME_RATE              60
 
 #define LOAD_BTN                    0
 #define UNLOAD_BTN                  1
