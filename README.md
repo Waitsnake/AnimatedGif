@@ -15,6 +15,10 @@ The release 1.4.0 was compiled with Xcode 10.1 with SDK for OSX 10.14 Mojave. It
 
 The release 1.5.0 (latest) was compiled with Xcode 10.2 with SDK for OSX 10.14 Mojave. It was tested successfully under Mavericks(10.9.5), High Sierra(10.13.6) and Mojave(10.14.4).
 
+Since release 1.5.0 AnimatedGif supports Metal(API) for rendering.
+
+When started AnimatedGif tries to initialise Metal as first choice for rendering. Only if this initialisation fails (on older macOS versions or if graphics card is not supported) it tries to initialise OpenGL for rendering(as it was default between release 1.0 till 1.4.0). If initialisation of OpenGL also fails you can not use AnimatedGif at all, since there is no CoreAnimation rendering. OpenGL for rendering(as it was default between release 1.0 till 1.4.0). If initialization of OpenGL also fails you can not use AnimatedGif at all, since there is no CoreAnimation rendering.
+
 <br>
 
 ## Setup - Mac
