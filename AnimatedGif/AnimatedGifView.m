@@ -32,7 +32,16 @@
 #endif
         if (mtlView==NULL)
         {
+            NSLog(@"Since Metal setup was not possible try to use OpenGL setup.");
             glView = [self createViewGL]; // only use OpenGL in case there is no Metal
+            if (glView==NULL)
+            {
+                NSLog(@"OpenGL setup was not possible.");
+            }
+            else
+            {
+                NSLog(@"OpenGL setup done.");
+            }
         }
         [self setAnimationTimeInterval:DEFAULT_ANIME_TIME_INTER];
     }
@@ -102,7 +111,7 @@
         // Does the user have any Metal devices available? (This should be yes on all Macs made after mid-2012.)
         if (!devices || devices.count == 0)
         {
-            NSLog(@"No Metal devices could be found.");
+            NSLog(@"No Metal device could be found.");
             return NULL;
         }
         else
@@ -997,7 +1006,7 @@
     }
     
     // set values here...
-    NSDictionary *cfg  = @{@"Label":@"com.waitsnake.animatedgif", @"ProgramArguments":@[pathToScreenSaverEngine,@"-window"], @"KeepAlive":@{@"OtherJobEnabled":@{@"com.apple.SystemUIServer.agent":@YES,@"com.apple.Finder":@YES,@"com.apple.Dock.agent":@YES}}, @"ThrottleInterval":@0};
+    NSDictionary *cfg  = @{@"Label":@"com.waitsnake.animatedgif", @"ProgramArguments":@[pathToScreenSaverEngine,@"-window"], @"KeepAlive":@{@"OtherJobEnabled":@{@"com.apple.SystemUIServer.agent":@YES,@"com.apple.Finder":@YES,@"com.apple.Dock.agent":@YES}}, @"ThrottleInterval":@0,@"ProcessType":@"Interactive",@"LegacyTimers":@YES};
     [plist addEntriesFromDictionary:cfg];
     
     // saves the agent plist file
@@ -1758,7 +1767,9 @@
     uniforms.scale = scale4;
     
     // TODOs:
-    // the Metal render code is only single buffered at the moment and needs to be changed to double buffer like OpenGL render code
+    // 1) the Metal render code is only single buffered at the moment and needs to be changed to double buffer like OpenGL render code
+    //    -> at the moment is the missing double buffering no problem and all runs smooth
+    
     
     //  Get an available CommandBuffer
     commandBufferMTL = [commandQueueMTL commandBuffer];
@@ -1796,6 +1807,11 @@
     
     // Put the command buffer into the queue
     [commandBufferMTL commit];
+    
+    // direct call of draw from MTKView after finishing of rendering avoids the console logs:
+    // "[CAMetalLayerDrawable texture] should not be called after already presenting this drawable. Get a nextDrawable instead."
+    // "[CAMetalLayerDrawable present] should not be called after already presenting this drawable. Get a nextDrawable instead."
+    [mtlView draw];
 }
 
 @end
