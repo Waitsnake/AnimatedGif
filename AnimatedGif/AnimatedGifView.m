@@ -433,41 +433,56 @@
 }
 
 -(IBAction)aboutClick:(id)sender {
-    // load about window from nib
-    [[NSBundle bundleForClass:[self class]] loadNibNamed:@"About" owner:self topLevelObjects:nil];
-    
-    // prepare about window with content
-    NSString *version = [[NSBundle bundleForClass:[self class]] objectForInfoDictionaryKey: @"CFBundleShortVersionString"];
-    [self.labelVersion2 setStringValue:version];
-    [self.textLicence setEditable:NO];
-    NSError *err = nil;
-    NSString *path =[[NSBundle bundleForClass:[self class]] pathForResource:@"LICENSE" ofType:@"md"];
-    NSString *contents = [NSString stringWithContentsOfFile:path encoding:NSUTF8StringEncoding error:&err];
-    if (contents)
+    if (!_aboutWindowController)
     {
-        NSString *osxMode = [[NSUserDefaults standardUserDefaults] stringForKey:@"AppleInterfaceStyle"];
-        NSMutableAttributedString *attrString;
-        if ([osxMode isEqualToString:@"Dark"])
+        // load about window from nib
+        [[NSBundle bundleForClass:[self class]] loadNibNamed:@"About" owner:self topLevelObjects:nil];
+        
+        // prepare about window with content
+        NSString *version = [[NSBundle bundleForClass:[self class]] objectForInfoDictionaryKey: @"CFBundleShortVersionString"];
+        [self.labelVersion2 setStringValue:version];
+        [self.textLicence setEditable:NO];
+        NSError *err = nil;
+        NSString *path =[[NSBundle bundleForClass:[self class]] pathForResource:@"LICENSE" ofType:@"md"];
+        NSString *contents = [NSString stringWithContentsOfFile:path encoding:NSUTF8StringEncoding error:&err];
+        if (contents)
         {
-            NSDictionary *attributes = @{ NSForegroundColorAttributeName : [NSColor lightGrayColor]};
-            attrString = [[NSMutableAttributedString alloc] initWithString:contents attributes:attributes];
+            NSString *osxMode = [[NSUserDefaults standardUserDefaults] stringForKey:@"AppleInterfaceStyle"];
+            NSMutableAttributedString *attrString;
+            if ([osxMode isEqualToString:@"Dark"])
+            {
+                NSDictionary *attributes = @{ NSForegroundColorAttributeName : [NSColor lightGrayColor]};
+                attrString = [[NSMutableAttributedString alloc] initWithString:contents attributes:attributes];
+            }
+            else
+            {
+                attrString = [[NSMutableAttributedString alloc] initWithString:contents];
+            }
+
+            [[self.textLicence textStorage] appendAttributedString:attrString];
+        }
+        
+        // Create the modal controller for about window
+        _aboutWindowController = [[NSWindowController alloc] initWithWindow:self.aboutWindow];
+        
+        // Show window
+        [_aboutWindowController showWindow:self];
+        // unfortunately the modal not longer works since 10.14 and crashes the whole app
+        //[NSApp runModalForWindow:self.aboutWindow];
+    }
+    else
+    {
+        // make it visible again
+        if (self.aboutWindow.visible == NO)
+        {
+            [_aboutWindowController showWindow:self];
         }
         else
         {
-            attrString = [[NSMutableAttributedString alloc] initWithString:contents];
+            [_aboutWindowController close];
+            [_aboutWindowController showWindow:self];
         }
-
-        [[self.textLicence textStorage] appendAttributedString:attrString];
     }
-    
-    // Create the modal controller for about window
-    if (!_aboutWindowController)
-        _aboutWindowController = [[NSWindowController alloc] initWithWindow:self.aboutWindow];
-    
-    // Show window
-    if (_aboutWindowController) [_aboutWindowController showWindow:self];
-    // unfortunately the modal not longer works since 10.14 and crashes the whole app
-    //[NSApp runModalForWindow:self.aboutWindow];
 }
 
 - (BOOL)hasConfigureSheet
@@ -773,7 +788,11 @@
         _aboutWindowController = nil;
     }
     
-    [openDlg close];
+    if (openDlg)
+    {
+        [openDlg close];
+        openDlg = nil;
+    }
 }
 
 - (IBAction)closeConfigCancel:(id)sender
@@ -788,7 +807,11 @@
         _aboutWindowController = nil;
     }
     
-    [openDlg close];
+    if (openDlg)
+    {
+        [openDlg close];
+        openDlg = nil;
+    }
 }
 
 - (IBAction)pressCheckboxSetFpsManual:(id)sender
@@ -893,88 +916,98 @@
 - (IBAction)sendFileButtonAction:(id)sender
 {
     
-    if (!openDlg) openDlg = [NSOpenPanel openPanel];
-    
-    // Since the open dialog can no longer opend modal since 10.14 at least we give it a title
-    [openDlg setMessage:NSLocalizedStringFromTableInBundle(@"titleopendlg", @"Localizable",[NSBundle bundleForClass:[self class]], nil)];
-    
-    // Enable the selection of files in the dialog.
-    [openDlg setCanChooseFiles:YES];
-    
-    // Enable the selection of directories in the dialog.
-    [openDlg setCanChooseDirectories:YES];
-    
-    // Disable the selection of more than one file
-    [openDlg setAllowsMultipleSelection:NO];
-
-    // set dialog to one level above of last selected file/directory
-    if ([self isDir:[self.textFieldFileUrl stringValue]])
+    if (!openDlg)
     {
-        // in case of an directory remove one level of path before open it
-        [openDlg setDirectoryURL:[[NSURL URLWithString:[self.textFieldFileUrl stringValue]] URLByDeletingLastPathComponent]];
+        // if there is no OpenWindow create a new one
+        
+        openDlg = [OpenWindow openPanel];
+    
+        // Since the open dialog can no longer opend modal since 10.14 at least we give it a title
+        [openDlg setMessage:NSLocalizedStringFromTableInBundle(@"titleopendlg", @"Localizable",[NSBundle bundleForClass:[self class]], nil)];
+        
+        // Enable the selection of files in the dialog.
+        [openDlg setCanChooseFiles:YES];
+        
+        // Enable the selection of directories in the dialog.
+        [openDlg setCanChooseDirectories:YES];
+        
+        // Disable the selection of more than one file
+        [openDlg setAllowsMultipleSelection:NO];
+
+        // set dialog to one level above of last selected file/directory
+        if ([self isDir:[self.textFieldFileUrl stringValue]])
+        {
+            // in case of an directory remove one level of path before open it
+            [openDlg setDirectoryURL:[[NSURL URLWithString:[self.textFieldFileUrl stringValue]] URLByDeletingLastPathComponent]];
+        }
+        else
+        {
+            // in case of an file remove two level of path before open it
+            [openDlg setDirectoryURL:[[[NSURL URLWithString:[self.textFieldFileUrl stringValue]] URLByDeletingLastPathComponent] URLByDeletingLastPathComponent]];
+        }
+        
+        // try to 'focus' only on GIF files (Yes, I know all image types are working with NSImage)
+        [openDlg setAllowedFileTypes:[[NSArray alloc] initWithObjects:@"gif", @"GIF", nil]];
+
     }
     else
     {
-        // in case of an file remove two level of path before open it
-        [openDlg setDirectoryURL:[[[NSURL URLWithString:[self.textFieldFileUrl stringValue]] URLByDeletingLastPathComponent] URLByDeletingLastPathComponent]];
+        // if there is a OpenWindow just close it, it will be reopend in next step with beginWithCompletionHandler
+        [openDlg close];
     }
-    
-    // try to 'focus' only on GIF files (Yes, I know all image types are working with NSImage)
-    [openDlg setAllowedFileTypes:[[NSArray alloc] initWithObjects:@"gif", @"GIF", nil]];
     
     // Display the dialog.  If the OK button was pressed,
     // process the files.
-
+    
     // unfortunately [openDlg runModal] crashes when selecting a single file
     // as workaround [openDlg runModal] is replaced by [openDlg beginWithCompletionHandler:]
     [openDlg beginWithCompletionHandler:^(NSInteger result)
-    {
-        
-        //if the result is NSOKButton
-        //the user selected a file
-        
-        if (result==NSModalResponseOK)
-        {
-            
-            // Get an array containing the full filenames of all
-            // files and directories selected.
-            NSArray* files = [self->openDlg URLs];
-            
-            NSURL *newSelectedFileOrDir = [files objectAtIndex:0];
-            
-            // set GUI element with selected URL
-            [self.textFieldFileUrl setStringValue:newSelectedFileOrDir.absoluteString];
-            
-            
-            if ([self isDir:newSelectedFileOrDir.absoluteString])
-            {
-                // if we have an directory an fps value for a file makes not much sense
-                // we could calculate it for an randomly selected file but this would make thinks to complex
-                [self.labelFpsGif setStringValue:NSLocalizedStringFromTableInBundle(@"dir",@"Localizable",[NSBundle bundleForClass:[self class]],nil)];
-                [self hideFpsFromFile:YES];
-                
-                // enable time interval slider only in case that an directory is selected
-                [self enableSliderChangeInterval:YES];
-            }
-            else
-            {
-                // update file fps in GUI
-                NSTimeInterval duration = [self getDurationFromGifFile:[NSURL URLWithString:newSelectedFileOrDir.absoluteString].absoluteString];
-                float fps = 1/duration;
-                [self.labelFpsGif setStringValue:[NSString stringWithFormat:@"%2.1f", fps]];
-                [self hideFpsFromFile:NO];
-                
-                // disable time interval slider only in case that an file is selected
-                [self enableSliderChangeInterval:NO];
-            }
-            
-        }
-        else if (result== NSModalResponseCancel)
-        {
-            //do nothing
-        }
-    }];
-    
+     {
+         
+         //if the result is NSOKButton
+         //the user selected a file
+         
+         if (result==NSModalResponseOK)
+         {
+             
+             // Get an array containing the full filenames of all
+             // files and directories selected.
+             NSArray* files = [self->openDlg URLs];
+             
+             NSURL *newSelectedFileOrDir = [files objectAtIndex:0];
+             
+             // set GUI element with selected URL
+             [self.textFieldFileUrl setStringValue:newSelectedFileOrDir.absoluteString];
+             
+             
+             if ([self isDir:newSelectedFileOrDir.absoluteString])
+             {
+                 // if we have an directory an fps value for a file makes not much sense
+                 // we could calculate it for an randomly selected file but this would make thinks to complex
+                 [self.labelFpsGif setStringValue:NSLocalizedStringFromTableInBundle(@"dir",@"Localizable",[NSBundle bundleForClass:[self class]],nil)];
+                 [self hideFpsFromFile:YES];
+                 
+                 // enable time interval slider only in case that an directory is selected
+                 [self enableSliderChangeInterval:YES];
+             }
+             else
+             {
+                 // update file fps in GUI
+                 NSTimeInterval duration = [self getDurationFromGifFile:[NSURL URLWithString:newSelectedFileOrDir.absoluteString].absoluteString];
+                 float fps = 1/duration;
+                 [self.labelFpsGif setStringValue:[NSString stringWithFormat:@"%2.1f", fps]];
+                 [self hideFpsFromFile:NO];
+                 
+                 // disable time interval slider only in case that an file is selected
+                 [self enableSliderChangeInterval:NO];
+             }
+             [self->openDlg close];
+         }
+         else if (result== NSModalResponseCancel)
+         {
+             [self->openDlg close];
+         }
+     }];
 }
 
 - (void)loadAgent

@@ -7,6 +7,7 @@
 //
 
 #import <ScreenSaver/ScreenSaver.h>
+#import "AnimatedGifWindowClasses.h"
 
 #import <GLUT/GLUT.h>
 
@@ -170,7 +171,7 @@
 @property (assign) IBOutlet NSTextField *labelFpsT5;
 @property (assign) IBOutlet NSTextField *labelFpsT6;
 
-@property (assign) IBOutlet NSWindow *aboutWindow;
+@property (assign) IBOutlet AboutWindow *aboutWindow;
 @property (nonatomic, strong) NSWindowController *aboutWindowController;
 @property (assign) IBOutlet NSTextField *labelVersion2;
 @property (assign) IBOutlet NSTextView *textLicence;

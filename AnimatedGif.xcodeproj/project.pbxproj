@@ -16,6 +16,7 @@
 		CC52A2EA224ECD2400ADC1D0 /* Structs.h in Headers */ = {isa = PBXBuildFile; fileRef = CC52A2E9224ECD0E00ADC1D0 /* Structs.h */; };
 		CC5E750C20FBCCBF0010ACDE /* About.xib in Resources */ = {isa = PBXBuildFile; fileRef = CC5E750E20FBCCBF0010ACDE /* About.xib */; };
 		CCC3B9991C788F8E00FBE423 /* Options.xib in Resources */ = {isa = PBXBuildFile; fileRef = CCC3B99B1C788F8E00FBE423 /* Options.xib */; };
+		CCED59B6225F92CA00B53CF0 /* AnimatedGifWindowClasses.h in Headers */ = {isa = PBXBuildFile; fileRef = CCED59B5225F92CA00B53CF0 /* AnimatedGifWindowClasses.h */; };
 		CCEF76C8218C83DB0050F7C9 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = CCEF76C6218C83DB0050F7C9 /* Localizable.strings */; };
 /* End PBXBuildFile section */
 
@@ -37,6 +38,7 @@
 		CCC8F19B20FBD471007C9FAE /* de */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = de; path = de.lproj/About.xib; sourceTree = "<group>"; };
 		CCC8F19C20FBD474007C9FAE /* es */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = es; path = es.lproj/About.xib; sourceTree = "<group>"; };
 		CCC8F19D20FBD476007C9FAE /* ja */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = ja; path = ja.lproj/About.xib; sourceTree = "<group>"; };
+		CCED59B5225F92CA00B53CF0 /* AnimatedGifWindowClasses.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AnimatedGifWindowClasses.h; sourceTree = "<group>"; };
 		CCEF76C7218C83DB0050F7C9 /* de */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.strings; name = de; path = de.lproj/Localizable.strings; sourceTree = "<group>"; };
 		CCEF76C9218C83ED0050F7C9 /* es */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.strings; name = es; path = es.lproj/Localizable.strings; sourceTree = "<group>"; };
 		CCEF76CA218C83F80050F7C9 /* ja */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.strings; name = ja; path = ja.lproj/Localizable.strings; sourceTree = "<group>"; usesTabs = 0; };
@@ -75,6 +77,7 @@
 			children = (
 				CC24BA9A1BF124350045BDC7 /* AnimatedGifView.h */,
 				CC24BA9C1BF124350045BDC7 /* AnimatedGifView.m */,
+				CCED59B5225F92CA00B53CF0 /* AnimatedGifWindowClasses.h */,
 				CC52A2E9224ECD0E00ADC1D0 /* Structs.h */,
 				CC52A2E7224ECC3D00ADC1D0 /* Shaders.metal */,
 				CC24BA981BF124350045BDC7 /* Supporting Files */,
@@ -103,6 +106,7 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				CCED59B6225F92CA00B53CF0 /* AnimatedGifWindowClasses.h in Headers */,
 				CC24BA9B1BF124350045BDC7 /* AnimatedGifView.h in Headers */,
 				CC52A2EA224ECD2400ADC1D0 /* Structs.h in Headers */,
 			);
