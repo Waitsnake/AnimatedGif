@@ -1393,7 +1393,7 @@
 {
     /* If the fps is "too fast" NSBitmapImageRep gives back a clamped value for slower fps and not the value from the file! WTF? */
     /*
-    [gifRep setProperty:NSImageCurrentFrame withValue:@(2)];
+    [gifRep setProperty:NSImageCurrentFrame withValue:@(FIRST_FRAME)];
     NSTimeInterval currFrameDuration = [[gifRep valueForProperty: NSImageCurrentFrameDuration] floatValue];
     return currFrameDuration;
     */
@@ -1402,12 +1402,19 @@
     CGImageSourceRef source = CGImageSourceCreateWithURL ( (__bridge CFURLRef) [NSURL URLWithString:gifFileName], NULL);
     if (source)
     {
-        CFDictionaryRef cfdProperties = CGImageSourceCopyPropertiesAtIndex(source, 0, nil);
+        CFDictionaryRef cfdProperties = CGImageSourceCopyPropertiesAtIndex(source, FIRST_FRAME, nil);
         NSDictionary *properties = CFBridgingRelease(cfdProperties);
         NSNumber *durationGIF = [[properties objectForKey:(__bridge NSString *)kCGImagePropertyGIFDictionary]
                            objectForKey:(__bridge NSString *) kCGImagePropertyGIFUnclampedDelayTime];
-        NSNumber *durationPNG = [[properties objectForKey:(__bridge NSString *)kCGImagePropertyPNGDictionary]
+        // Support of animated PNG start with macOS 10.10 and we can not use this API on lower systems.
+        // Because of ths on lower systems a APNG will stand still like an normal PNG.
+        NSNumber *durationPNG = 0;
+        NSOperatingSystemVersion osVer = [[NSProcessInfo processInfo] operatingSystemVersion];
+        if (osVer.majorVersion > 10 || osVer.minorVersion >= 10)
+        {
+            durationPNG = [[properties objectForKey:(__bridge NSString *)kCGImagePropertyPNGDictionary]
                                  objectForKey:(__bridge NSString *) kCGImagePropertyAPNGUnclampedDelayTime];
+        }
         
         CFRelease(source);
         
