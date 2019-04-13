@@ -557,7 +557,7 @@
     else
     {
         // set file fps in GUI
-        NSTimeInterval duration = [self getDurationFromGifFile:gifFileName];
+        NSTimeInterval duration = [self getDurationFromFile:gifFileName];
         float fps = 1/duration;
         [self.labelFpsGif setStringValue:[NSString stringWithFormat:@"%2.1f", fps]];
         [self hideFpsFromFile:NO];
@@ -947,7 +947,7 @@
         }
         
         // try to 'focus' only on GIF files (Yes, I know all image types are working with NSImage)
-        [openDlg setAllowedFileTypes:[[NSArray alloc] initWithObjects:@"gif", @"GIF", nil]];
+        [openDlg setAllowedFileTypes:[[NSArray alloc] initWithObjects:@"gif", @"GIF", @"png", @"PNG", nil]];
 
     }
     else
@@ -993,7 +993,7 @@
              else
              {
                  // update file fps in GUI
-                 NSTimeInterval duration = [self getDurationFromGifFile:[NSURL URLWithString:newSelectedFileOrDir.absoluteString].absoluteString];
+                 NSTimeInterval duration = [self getDurationFromFile:[NSURL URLWithString:newSelectedFileOrDir.absoluteString].absoluteString];
                  float fps = 1/duration;
                  [self.labelFpsGif setStringValue:[NSString stringWithFormat:@"%2.1f", fps]];
                  [self hideFpsFromFile:NO];
@@ -1123,7 +1123,7 @@
         NSArray *files = [[NSFileManager defaultManager] contentsOfDirectoryAtURL:[NSURL URLWithString:fileOrDir] includingPropertiesForKeys:@[] options:NSDirectoryEnumerationSkipsHiddenFiles error:nil];
             
         // create an filter for GIF files
-        NSPredicate *predicate = [NSPredicate predicateWithFormat:@"pathExtension == 'gif'"];
+        NSPredicate *predicate = [NSPredicate predicateWithFormat:@"pathExtension IN {'gif','png'}"];
             
         // apply filer for GIF files only to an new array
         NSArray *filesFilter = [files filteredArrayUsingPredicate:predicate];
@@ -1315,9 +1315,15 @@
     if (img)
     {
         // get an NSBitmapImageRep that we need to get to the bitmap data and properties of GIF
-        gifRep = (NSBitmapImageRep *)[[img representations] objectAtIndex:FIRST_FRAME];
-        // get max number of frames of GIF
-        maxFrameCount = [[gifRep valueForProperty: NSImageFrameCount] integerValue];
+        imgRep = (NSBitmapImageRep *)[[img representations] objectAtIndex:FIRST_FRAME];
+        // get max number of frames
+        // get number of frames in case it is an GIF
+        maxFrameCount = [[imgRep valueForProperty: NSImageFrameCount] integerValue];
+        if (maxFrameCount == 0)
+        {
+            // if it was not a GIF than NSImageFrameCount will return '0' and so we look to the number of representations (this is for GIF allways '1', but for PNG it could be a greater number)
+            maxFrameCount = [[img representations] count];
+        }
         
         // setup FPS of loaded GIF
         NSTimeInterval duration;
@@ -1339,7 +1345,7 @@
         {
             // set frame duration from data from gif file
             
-            duration = [self getDurationFromGifFile:gifFileName];
+            duration = [self getDurationFromFile:gifFileName];
             float fps_for_duration = 1/duration;
             
             // allow no fps larger as maximum MAX_FRAME_RATE
@@ -1361,11 +1367,11 @@
             animationImages = [[NSMutableArray alloc] init];
             for(NSUInteger frame=0;frame<maxFrameCount;frame++)
             {
-                [gifRep setProperty:NSImageCurrentFrame withValue:@(frame)];
+                [imgRep setProperty:NSImageCurrentFrame withValue:@(frame)];
                 // bitmapData needs most CPU time during animation.
                 // thats why we execute bitmapData here during startAnimation and not in animateOneFrame. the start of screensaver will be than slower of cause, but during animation itself we need less CPU time
-                unsigned char *data = [gifRep bitmapData];
-                unsigned long size = [gifRep bytesPerPlane]*sizeof(unsigned char);
+                unsigned char *data = [imgRep bitmapData];
+                unsigned long size = [imgRep bytesPerPlane]*sizeof(unsigned char);
                 // copy the bitmap data into an NSData object, that can be save transferred to animateOneFrame
                 NSData *imgData = [[NSData alloc] initWithBytes:data length:size];
                 [animationImages addObject:imgData];
@@ -1383,7 +1389,7 @@
     }
 }
 
-- (NSTimeInterval)getDurationFromGifFile:(NSString*)gifFileName
+- (NSTimeInterval)getDurationFromFile:(NSString*)gifFileName
 {
     /* If the fps is "too fast" NSBitmapImageRep gives back a clamped value for slower fps and not the value from the file! WTF? */
     /*
@@ -1398,28 +1404,41 @@
     {
         CFDictionaryRef cfdProperties = CGImageSourceCopyPropertiesAtIndex(source, 0, nil);
         NSDictionary *properties = CFBridgingRelease(cfdProperties);
-        NSNumber *duration = [[properties objectForKey:(__bridge NSString *)kCGImagePropertyGIFDictionary]
+        NSNumber *durationGIF = [[properties objectForKey:(__bridge NSString *)kCGImagePropertyGIFDictionary]
                            objectForKey:(__bridge NSString *) kCGImagePropertyGIFUnclampedDelayTime];
+        NSNumber *durationPNG = [[properties objectForKey:(__bridge NSString *)kCGImagePropertyPNGDictionary]
+                                 objectForKey:(__bridge NSString *) kCGImagePropertyAPNGUnclampedDelayTime];
         
         CFRelease(source);
         
         //scale duration by 1000 to get ms, because it is in sec and a fraction between 1 and 0
-        NSInteger durMs = [duration doubleValue] * 1000.0;
+        NSInteger durMs = [durationGIF doubleValue] * 1000.0;
         // We want to catch the case that duration is 0ms (infinity fps!), because vale was not set in frame 0 frame of GIF
         if (durMs== 0)
         {
-            // wenn NO duration was set, we use an default duration (15 fps)
-            return DEFAULT_ANIME_TIME_INTER;
+            // wenn NO duration was set it could be still an PNG file
+            durMs = [durationPNG doubleValue] * 1000.0;
+            if (durMs== 0)
+            {
+                // wenn NO duration was set, we use an default duration (15 fps)
+                return DEFAULT_ANIME_TIME_INTER;
+            }
+            else
+            {
+                // if we have a valid duration from an PNG than return it
+                return [durationPNG doubleValue];
+            }
+
         }
         else
         {
             // if we have a valid duration than return it
-            return [duration doubleValue];
+            return [durationGIF doubleValue];
         }
     }
     else
     {
-        // if not even a GIF file could be open, we use an default duration (15 fps)
+        // if not even a file could be open, we use an default duration (15 fps)
         return DEFAULT_ANIME_TIME_INTER;
     }
 }
@@ -1570,14 +1589,14 @@
     else
     {
         // bitmapData needs more CPU time to create bitmap data
-        [gifRep setProperty:NSImageCurrentFrame withValue:@(currFrameCount)];
-        pixelData = [gifRep bitmapData];
+        [imgRep setProperty:NSImageCurrentFrame withValue:@(currFrameCount)];
+        pixelData = [imgRep bitmapData];
     }
     
     if (tiles == TILE_OPT_1)
     {
         // only draw one tile
-        [self drawImageGL:pixelData pixelWidth: [gifRep pixelsWide] pixelHeight:[gifRep pixelsHigh] withFilter:filter hasAlpha:[gifRep hasAlpha] atRect:targetRect];
+        [self drawImageGL:pixelData pixelWidth: [imgRep pixelsWide] pixelHeight:[imgRep pixelsHigh] withFilter:filter hasAlpha:[imgRep hasAlpha] atRect:targetRect];
     }
     else
     {
@@ -1591,15 +1610,15 @@
         NSRect r13 = NSMakeRect(targetRect.origin.x, targetRect.origin.y+targetRect.size.height/3*2, targetRect.size.width/3, targetRect.size.height/3);
         NSRect r23 = NSMakeRect(targetRect.origin.x+targetRect.size.width/3, targetRect.origin.y+targetRect.size.height/3*2, targetRect.size.width/3, targetRect.size.height/3);
         NSRect r33 = NSMakeRect(targetRect.origin.x+targetRect.size.width/3*2, targetRect.origin.y+targetRect.size.height/3*2, targetRect.size.width/3, targetRect.size.height/3);
-        [self drawImageGL:pixelData pixelWidth: [gifRep pixelsWide] pixelHeight:[gifRep pixelsHigh] withFilter:filter hasAlpha:[gifRep hasAlpha] atRect:r11];
-        [self drawImageGL:pixelData pixelWidth: [gifRep pixelsWide] pixelHeight:[gifRep pixelsHigh] withFilter:filter hasAlpha:[gifRep hasAlpha] atRect:r21];
-        [self drawImageGL:pixelData pixelWidth: [gifRep pixelsWide] pixelHeight:[gifRep pixelsHigh] withFilter:filter hasAlpha:[gifRep hasAlpha] atRect:r31];
-        [self drawImageGL:pixelData pixelWidth: [gifRep pixelsWide] pixelHeight:[gifRep pixelsHigh] withFilter:filter hasAlpha:[gifRep hasAlpha] atRect:r12];
-        [self drawImageGL:pixelData pixelWidth: [gifRep pixelsWide] pixelHeight:[gifRep pixelsHigh] withFilter:filter hasAlpha:[gifRep hasAlpha] atRect:r22];
-        [self drawImageGL:pixelData pixelWidth: [gifRep pixelsWide] pixelHeight:[gifRep pixelsHigh] withFilter:filter hasAlpha:[gifRep hasAlpha] atRect:r32];
-        [self drawImageGL:pixelData pixelWidth: [gifRep pixelsWide] pixelHeight:[gifRep pixelsHigh] withFilter:filter hasAlpha:[gifRep hasAlpha] atRect:r13];
-        [self drawImageGL:pixelData pixelWidth: [gifRep pixelsWide] pixelHeight:[gifRep pixelsHigh] withFilter:filter hasAlpha:[gifRep hasAlpha] atRect:r23];
-        [self drawImageGL:pixelData pixelWidth: [gifRep pixelsWide] pixelHeight:[gifRep pixelsHigh] withFilter:filter hasAlpha:[gifRep hasAlpha] atRect:r33];
+        [self drawImageGL:pixelData pixelWidth: [imgRep pixelsWide] pixelHeight:[imgRep pixelsHigh] withFilter:filter hasAlpha:[imgRep hasAlpha] atRect:r11];
+        [self drawImageGL:pixelData pixelWidth: [imgRep pixelsWide] pixelHeight:[imgRep pixelsHigh] withFilter:filter hasAlpha:[imgRep hasAlpha] atRect:r21];
+        [self drawImageGL:pixelData pixelWidth: [imgRep pixelsWide] pixelHeight:[imgRep pixelsHigh] withFilter:filter hasAlpha:[imgRep hasAlpha] atRect:r31];
+        [self drawImageGL:pixelData pixelWidth: [imgRep pixelsWide] pixelHeight:[imgRep pixelsHigh] withFilter:filter hasAlpha:[imgRep hasAlpha] atRect:r12];
+        [self drawImageGL:pixelData pixelWidth: [imgRep pixelsWide] pixelHeight:[imgRep pixelsHigh] withFilter:filter hasAlpha:[imgRep hasAlpha] atRect:r22];
+        [self drawImageGL:pixelData pixelWidth: [imgRep pixelsWide] pixelHeight:[imgRep pixelsHigh] withFilter:filter hasAlpha:[imgRep hasAlpha] atRect:r32];
+        [self drawImageGL:pixelData pixelWidth: [imgRep pixelsWide] pixelHeight:[imgRep pixelsHigh] withFilter:filter hasAlpha:[imgRep hasAlpha] atRect:r13];
+        [self drawImageGL:pixelData pixelWidth: [imgRep pixelsWide] pixelHeight:[imgRep pixelsHigh] withFilter:filter hasAlpha:[imgRep hasAlpha] atRect:r23];
+        [self drawImageGL:pixelData pixelWidth: [imgRep pixelsWide] pixelHeight:[imgRep pixelsHigh] withFilter:filter hasAlpha:[imgRep hasAlpha] atRect:r33];
     }
     
     [self endRenderGL];
@@ -1763,14 +1782,14 @@
     else
     {
         // bitmapData needs more CPU time to create bitmap data
-        [gifRep setProperty:NSImageCurrentFrame withValue:@(currFrameCount)];
-        pixelData = [gifRep bitmapData];
+        [imgRep setProperty:NSImageCurrentFrame withValue:@(currFrameCount)];
+        pixelData = [imgRep bitmapData];
     }
     
     if (tiles == TILE_OPT_1)
     {
         // only draw one tile
-        [self drawImageMTL:pixelData pixelWidth: [gifRep pixelsWide] pixelHeight:[gifRep pixelsHigh] withFilter:filter hasAlpha:[gifRep hasAlpha] atRect:targetRect];
+        [self drawImageMTL:pixelData pixelWidth: [imgRep pixelsWide] pixelHeight:[imgRep pixelsHigh] withFilter:filter hasAlpha:[imgRep hasAlpha] atRect:targetRect];
     }
     else
     {
@@ -1784,15 +1803,15 @@
         NSRect r13 = NSMakeRect(targetRect.origin.x, targetRect.origin.y+targetRect.size.height/3*2, targetRect.size.width/3, targetRect.size.height/3);
         NSRect r23 = NSMakeRect(targetRect.origin.x+targetRect.size.width/3, targetRect.origin.y+targetRect.size.height/3*2, targetRect.size.width/3, targetRect.size.height/3);
         NSRect r33 = NSMakeRect(targetRect.origin.x+targetRect.size.width/3*2, targetRect.origin.y+targetRect.size.height/3*2, targetRect.size.width/3, targetRect.size.height/3);
-        [self drawImageMTL:pixelData pixelWidth: [gifRep pixelsWide] pixelHeight:[gifRep pixelsHigh] withFilter:filter hasAlpha:[gifRep hasAlpha] atRect:r11];
-        [self drawImageMTL:pixelData pixelWidth: [gifRep pixelsWide] pixelHeight:[gifRep pixelsHigh] withFilter:filter hasAlpha:[gifRep hasAlpha] atRect:r21];
-        [self drawImageMTL:pixelData pixelWidth: [gifRep pixelsWide] pixelHeight:[gifRep pixelsHigh] withFilter:filter hasAlpha:[gifRep hasAlpha] atRect:r31];
-        [self drawImageMTL:pixelData pixelWidth: [gifRep pixelsWide] pixelHeight:[gifRep pixelsHigh] withFilter:filter hasAlpha:[gifRep hasAlpha] atRect:r12];
-        [self drawImageMTL:pixelData pixelWidth: [gifRep pixelsWide] pixelHeight:[gifRep pixelsHigh] withFilter:filter hasAlpha:[gifRep hasAlpha] atRect:r22];
-        [self drawImageMTL:pixelData pixelWidth: [gifRep pixelsWide] pixelHeight:[gifRep pixelsHigh] withFilter:filter hasAlpha:[gifRep hasAlpha] atRect:r32];
-        [self drawImageMTL:pixelData pixelWidth: [gifRep pixelsWide] pixelHeight:[gifRep pixelsHigh] withFilter:filter hasAlpha:[gifRep hasAlpha] atRect:r13];
-        [self drawImageMTL:pixelData pixelWidth: [gifRep pixelsWide] pixelHeight:[gifRep pixelsHigh] withFilter:filter hasAlpha:[gifRep hasAlpha] atRect:r23];
-        [self drawImageMTL:pixelData pixelWidth: [gifRep pixelsWide] pixelHeight:[gifRep pixelsHigh] withFilter:filter hasAlpha:[gifRep hasAlpha] atRect:r33];
+        [self drawImageMTL:pixelData pixelWidth: [imgRep pixelsWide] pixelHeight:[imgRep pixelsHigh] withFilter:filter hasAlpha:[imgRep hasAlpha] atRect:r11];
+        [self drawImageMTL:pixelData pixelWidth: [imgRep pixelsWide] pixelHeight:[imgRep pixelsHigh] withFilter:filter hasAlpha:[imgRep hasAlpha] atRect:r21];
+        [self drawImageMTL:pixelData pixelWidth: [imgRep pixelsWide] pixelHeight:[imgRep pixelsHigh] withFilter:filter hasAlpha:[imgRep hasAlpha] atRect:r31];
+        [self drawImageMTL:pixelData pixelWidth: [imgRep pixelsWide] pixelHeight:[imgRep pixelsHigh] withFilter:filter hasAlpha:[imgRep hasAlpha] atRect:r12];
+        [self drawImageMTL:pixelData pixelWidth: [imgRep pixelsWide] pixelHeight:[imgRep pixelsHigh] withFilter:filter hasAlpha:[imgRep hasAlpha] atRect:r22];
+        [self drawImageMTL:pixelData pixelWidth: [imgRep pixelsWide] pixelHeight:[imgRep pixelsHigh] withFilter:filter hasAlpha:[imgRep hasAlpha] atRect:r32];
+        [self drawImageMTL:pixelData pixelWidth: [imgRep pixelsWide] pixelHeight:[imgRep pixelsHigh] withFilter:filter hasAlpha:[imgRep hasAlpha] atRect:r13];
+        [self drawImageMTL:pixelData pixelWidth: [imgRep pixelsWide] pixelHeight:[imgRep pixelsHigh] withFilter:filter hasAlpha:[imgRep hasAlpha] atRect:r23];
+        [self drawImageMTL:pixelData pixelWidth: [imgRep pixelsWide] pixelHeight:[imgRep pixelsHigh] withFilter:filter hasAlpha:[imgRep hasAlpha] atRect:r33];
     }
     
     [self endRenderMTL];

@@ -75,7 +75,7 @@
     NSInteger currFrameCount;
     NSInteger maxFrameCount;
     NSImage *img;
-    NSBitmapImageRep *gifRep;
+    NSBitmapImageRep *imgRep;
     float backgrRed;
     float backgrGreen;
     float backgrBlue;
@@ -137,7 +137,7 @@
 - (BOOL)loadGifFromFile:(NSString*)gifFileName andUseManualFps: (BOOL)manualFpsActive withFps: (float)fps;
 - (float)calcScaleFromScaleOption:(NSInteger)option;
 - (NSRect)calcTargetRectFromOption:(NSInteger)option;
-- (NSTimeInterval)getDurationFromGifFile:(NSString*)gifFileName;
+- (NSTimeInterval)getDurationFromFile:(NSString*)gifFileName;
 - (void) receiveDisplaysChangeNote: (NSNotification*) note;
 
 @property (assign) IBOutlet NSPanel *optionsPanel;
