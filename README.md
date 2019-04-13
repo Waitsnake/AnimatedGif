@@ -6,7 +6,7 @@ It also has a background mode to let you run the gif as a desktop background (or
 
 You can either open only one single GIF file file or you can choose a directory that contains more than one GIF file. In case of a selected directory the option panel of screensaver will let you choose a time between 1 and 30 minutes after which the GIF file is randomly changed.
 
-Since 1.5.1 also animated PNG (Animated Portable Network Graphics (APNG)) are supported.
+Since 1.5.1 also animated PNG (Animated Portable Network Graphics (APNG)) are supported (starting with OSX 10.10).
 <br>
 
 ## Compatibility
