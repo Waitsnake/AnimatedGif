@@ -13,8 +13,8 @@
 
 - (instancetype)initWithFrame:(NSRect)frame isPreview:(BOOL)isPreview
 {
-    mtlView = NULL;
-    glView = NULL;
+    mtlView = nil;
+    glView = nil;
     trigByTimer = FALSE;
     currFrameCount = FRAME_COUNT_NOT_USED;
     self = [super initWithFrame:frame isPreview:isPreview];
@@ -26,11 +26,11 @@
     
     if (self) {
         mtlView = [self createViewMTL];
-        if (mtlView==NULL)
+        if (mtlView==nil)
         {
             NSLog(@"Since Metal setup was not possible try to use OpenGL setup.");
             glView = [self createViewGL]; // only use OpenGL in case there is no Metal
-            if (glView==NULL)
+            if (glView==nil)
             {
                 NSLog(@"OpenGL setup was not possible.");
             }
@@ -98,7 +98,7 @@
     if (MTLCopyAllDevices == NULL)
     {
         NSLog(@"Your version of the OS does not support Metal. Requires OS X 10.11 or later.");
-        return NULL;
+        return nil;
     }
     else
     {
@@ -108,7 +108,7 @@
         if (!devices || devices.count == 0)
         {
             NSLog(@"No Metal device could be found.");
-            return NULL;
+            return nil;
         }
         else
         {
@@ -173,7 +173,7 @@
 - (void)setFrameSize:(NSSize)newSize
 {
     [super setFrameSize:newSize];
-    if (mtlView == NULL)
+    if (mtlView == nil)
     {
         [glView setFrameSize:newSize];
     }
@@ -191,7 +191,7 @@
 
 - (void)dealloc
 {
-    if (mtlView == NULL)
+    if (mtlView == nil)
     {
         [glView removeFromSuperview];
         glView = nil;
@@ -226,7 +226,7 @@
         // only call super method in case startAnimation is not called by timerMethod
         [super startAnimation];
         
-        if (mtlView == NULL)
+        if (mtlView == nil)
         {
             [self addSubview:glView];
         }
@@ -329,7 +329,7 @@
     {
 
         // start a one-time timer at end of startAnimation otherwise the time for loading the GIF is part of the timer
-        [NSTimer scheduledTimerWithTimeInterval:(changeIntervalInMin * 60)
+        changeTimer = [NSTimer scheduledTimerWithTimeInterval:(changeIntervalInMin * 60)
                                          target:self
                                        selector:@selector(timerMethod)
                                        userInfo:nil
@@ -353,7 +353,7 @@
     [[NSNotificationCenter defaultCenter] addObserver: self
                                                            selector: @selector(receiveDisplaysChangeNote:)
                                                                name: NSApplicationDidChangeScreenParametersNotification
-                                                             object: NULL];
+                                                             object: nil];
 }
 
 - (void) receiveDisplaysChangeNote: (NSNotification*) note
@@ -376,6 +376,11 @@
     {
         // only call super method in case stopAnimation is not called by timerMethod
         [super stopAnimation];
+        
+        // stop change timer with end of animation (otherwise in the screensaver preview will running multiple timer each time congigure panel is closed)
+        if (changeTimer != nil) {
+            [changeTimer invalidate];
+        }
     }
     
     if (loadAnimationToMem == TRUE)
@@ -390,12 +395,13 @@
 
 - (void)animateOneFrame
 {
+  @autoreleasepool {
 
     if (currFrameCount == FRAME_COUNT_NOT_USED)
     {
         // FRAME_COUNT_NOT_USED means no image is loaded and so we clear the screen with the set background color and print an indication message
         
-        if (mtlView == NULL)
+        if (mtlView == nil)
         {
             [self animateNoGifGL];
         }
@@ -408,7 +414,7 @@
     {
         // draw the selected frame
 
-        if (mtlView == NULL)
+        if (mtlView == nil)
         {
             [self animateWithGifGL];
         }
@@ -430,6 +436,7 @@
     }
     
     return;
+  }
 }
 
 -(IBAction)aboutClick:(id)sender {
@@ -566,9 +573,9 @@
         [self enableSliderChangeInterval:NO];
     }
     
-    if (mtlView==NULL)
+    if (mtlView==nil)
     {
-        if (glView==NULL)
+        if (glView==nil)
         {
             [self.labelRender setStringValue:NSLocalizedStringFromTableInBundle(@"renderNO", @"Localizable",[NSBundle bundleForClass:[self class]], nil)];
         }
@@ -1571,7 +1578,7 @@
             {
                 iconSize = NSMakeSize([iconRep size].width*2, [iconRep size].height*2);
             }
-            void *pixelDataIcon= [iconRep bitmapData];;
+            void *pixelDataIcon= [iconRep bitmapData];
             if (pixelDataIcon != NULL)
             {
                 [self drawImageGL:pixelDataIcon pixelWidth: [iconRep pixelsWide] pixelHeight:[iconRep pixelsHigh] withFilter:FILTER_OPT_BLUR hasAlpha:[iconRep hasAlpha] atRect:NSMakeRect(screenRect.size.width/2 - iconSize.width/2, screenRect.size.height/4*3 - iconSize.height/2, iconSize.width, iconSize.height)];
@@ -1764,7 +1771,7 @@
             {
                 iconSize = NSMakeSize([iconRep size].width*2, [iconRep size].height*2);
             }
-            void *pixelDataIcon= [iconRep bitmapData];;
+            void *pixelDataIcon= [iconRep bitmapData];
             if (pixelDataIcon != NULL)
             {
                 [self drawImageMTL:pixelDataIcon pixelWidth: [iconRep pixelsWide] pixelHeight:[iconRep pixelsHigh] withFilter:FILTER_OPT_BLUR hasAlpha:[iconRep hasAlpha] atRect:NSMakeRect(screenRect.size.width/2 - iconSize.width/2, screenRect.size.height/4*3 - iconSize.height/2, iconSize.width, iconSize.height)];

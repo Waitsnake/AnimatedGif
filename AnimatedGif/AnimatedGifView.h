@@ -88,6 +88,7 @@
     NSInteger tiles;
     float scale;
     NSOpenPanel* openDlg;
+    NSTimer* changeTimer;
     
     // Only when using OpenGL to render
     NSOpenGLView* glView;
