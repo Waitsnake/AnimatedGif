@@ -135,14 +135,14 @@
             defaultLibraryMTL = [deviceMTL newLibraryWithFile:[[NSBundle bundleForClass:self.class] pathForResource:@"default" ofType:@"metallib"] error:&err];
             
             // create an piple descriptor (defines porperties of an metal pipeline ) for creating an metal pipeline with it
-            MTLRenderPipelineDescriptor *pipelineStateDescriptor = [[MTLRenderPipelineDescriptor alloc] init];
+            pipelineStateDescriptor = [[MTLRenderPipelineDescriptor alloc] init];
             pipelineStateDescriptor.label = @"AnimatedGifPipeline";
             // also add the shader codes that we load from the resource bundle to the metal pipeline
             pipelineStateDescriptor.vertexFunction = [defaultLibraryMTL newFunctionWithName:@"myVertexShader"];
             pipelineStateDescriptor.fragmentFunction = [defaultLibraryMTL newFunctionWithName:@"myFragmentShader"];
             
-            // enable alpha blending
-            pipelineStateDescriptor.colorAttachments[0].blendingEnabled = YES;
+            // setup parameters for alpha blending, but not enable it here (this is done in drawImageMTL)
+            pipelineStateDescriptor.colorAttachments[0].blendingEnabled = NO;
             pipelineStateDescriptor.colorAttachments[0].rgbBlendOperation           = MTLBlendOperationAdd;
             pipelineStateDescriptor.colorAttachments[0].alphaBlendOperation         = MTLBlendOperationAdd;
             pipelineStateDescriptor.colorAttachments[0].sourceRGBBlendFactor        = MTLBlendFactorOne;
@@ -1689,6 +1689,11 @@
 
 - (void) drawImageMTL:(void *)pixelsBytes pixelWidth:(NSInteger)width pixelHeight:(NSInteger)height withFilter:(NSInteger)filter hasAlpha: (Boolean)alpha atRect:(NSRect) rect
 {
+    // update alpha blending depending on hasAlpha (in an GIF file not each frame uses alpha blending and it needs to be set for each frame individually)
+    NSError *err = nil;
+    pipelineStateDescriptor.colorAttachments[0].blendingEnabled = alpha;
+    pipelineStateMTL = [deviceMTL newRenderPipelineStateWithDescriptor:pipelineStateDescriptor error:&err];
+    
     // add a quad where the texture will be mapped onto
     struct Vertex vertexArrayData[6] = {
         {.position={rect.origin.x+rect.size.width, rect.origin.y,                  0.0},.textCoord={1.0,0.0}}, // Top Right

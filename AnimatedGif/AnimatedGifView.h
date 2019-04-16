@@ -101,6 +101,7 @@
     id <MTLCommandQueue> commandQueueMTL;
     id <MTLLibrary> defaultLibraryMTL;
     id <MTLRenderPipelineState> pipelineStateMTL;
+    MTLRenderPipelineDescriptor* pipelineStateDescriptor;
     
     // The following are only available during rendering pass
     id <MTLCommandBuffer> commandBufferMTL;
