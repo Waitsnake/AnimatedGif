@@ -310,6 +310,18 @@
     else
     {
         currFrameCount = FRAME_COUNT_NOT_USED;
+        
+        // stop an old timer if there is one
+        if (animateTimer != nil) {
+            [animateTimer invalidate];
+        }
+        
+        // start a repeated timer that triggers timerAnimateOneFrame to print an indication message
+        animateTimer = [NSTimer scheduledTimerWithTimeInterval:0.05
+                                                        target:self
+                                                      selector:@selector(timerAnimateOneFrame)
+                                                      userInfo:nil
+                                                       repeats:YES];
     }
 
     // calculate target and screen rectangle size
@@ -1784,8 +1796,6 @@
 
 - (void) drawImageMTL:(void *)pixelsBytes pixelWidth:(NSInteger)width pixelHeight:(NSInteger)height withFilter:(NSInteger)filter hasAlpha: (Boolean)alpha atRect:(NSRect) rect
 {
-    // TODO: use blitter to genereate mipmaps
-    
     // update alpha blending depending on hasAlpha (in an GIF file not each frame uses alpha blending and it needs to be set for each frame individually)
     NSError *err = nil;
     pipelineStateDescriptor.colorAttachments[0].blendingEnabled = alpha;
@@ -1811,17 +1821,20 @@
     {
         samplerDescriptor.minFilter = MTLSamplerMinMagFilterLinear;
         samplerDescriptor.magFilter = MTLSamplerMinMagFilterLinear;
+        //samplerDescriptor.mipFilter = MTLSamplerMipFilterLinear;
     }
     else if (filter == FILTER_OPT_SHARP)
     {
         samplerDescriptor.minFilter = MTLSamplerMinMagFilterNearest;
         samplerDescriptor.magFilter = MTLSamplerMinMagFilterNearest;
+        //samplerDescriptor.mipFilter = MTLSamplerMipFilterNearest;
     }
     else
     {
         // use sharp filter as default
         samplerDescriptor.minFilter = MTLSamplerMinMagFilterNearest;
         samplerDescriptor.magFilter = MTLSamplerMinMagFilterNearest;
+        //samplerDescriptor.mipFilter = MTLSamplerMipFilterNearest;
     }
     samplerDescriptor.sAddressMode = MTLSamplerAddressModeRepeat;
     samplerDescriptor.tAddressMode = MTLSamplerAddressModeRepeat;
@@ -1833,6 +1846,13 @@
     id<MTLTexture> texture = [deviceMTL newTextureWithDescriptor:textureDescriptor];
     MTLRegion region = MTLRegionMake2D(0, 0, width, height);
     [texture replaceRegion:region mipmapLevel:0 withBytes:pixelsBytes bytesPerRow:width*SIZE_OF_BGRA_PIXEL];
+    
+    /* TODO: use blitter to genereate mipmaps
+       comment out since this increases CPU load quite a lot, especially when rendering the 3x3 tiles
+       -> it would be better in this case to greate mimmaps only once per texture instead of 9 times as the code is structured at the moment
+     */
+    //[self generateMipmapsForTexture:texture];
+    
     [renderMTL setFragmentTexture:texture atIndex:0];
     
     // needs to be called after vertex, sampler and texture
@@ -1931,6 +1951,20 @@
     }
     
     [self endRenderMTL];
+}
+
+- (void)generateMipmapsForTexture:(id<MTLTexture>)texture
+{
+    id<MTLDevice> device = [texture device];
+    // creating a new command queue for every texture
+    id<MTLCommandQueue> commandQueue = [device newCommandQueue];
+    id<MTLCommandBuffer> commandBuffer = [commandQueue commandBuffer];
+    id<MTLBlitCommandEncoder> blitEncoder = [commandBuffer blitCommandEncoder];
+    [blitEncoder generateMipmapsForTexture:texture];
+    [blitEncoder endEncoding];
+    [commandBuffer commit];
+    // block until finished
+    [commandBuffer waitUntilCompleted];
 }
 
 - (void) startRenderMTL:(BOOL)allowScale
