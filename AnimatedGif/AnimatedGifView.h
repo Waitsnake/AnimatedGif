@@ -61,7 +61,6 @@
 #define FRAME_COUNT_NOT_USED        -1
 #define FIRST_FRAME                 0
 
-#define DEFAULT_ANIME_TIME_INTER    1/15.0
 #define GL_ALPHA_OPAQUE             1.0f
 #define NS_ALPHA_OPAQUE             1.0
 #define NEVER_CHANGE_GIF            30
@@ -72,6 +71,7 @@
 @interface AnimatedGifView : ScreenSaverView {
     // keep track of whether or not drawRect: should erase the background
     NSMutableArray *animationImages;
+    NSMutableArray *animationDurations;
     NSInteger currFrameCount;
     NSInteger maxFrameCount;
     NSImage *img;
@@ -88,7 +88,11 @@
     NSInteger tiles;
     float scale;
     NSOpenPanel* openDlg;
+    NSTimer* animateTimer;
     NSTimer* changeTimer;
+    NSTimeInterval lastDuration;
+    float manualFrameRate;
+    BOOL isManualFrameRate;
     
     // Only when using OpenGL to render
     NSOpenGLView* glView;
@@ -136,10 +140,11 @@
 - (void)enableSliderChangeInterval:(BOOL)enable;
 - (void)enableSliderFpsManual:(BOOL)enable;
 - (void)hideFpsFromFile:(BOOL)hide;
-- (BOOL)loadGifFromFile:(NSString*)gifFileName andUseManualFps: (BOOL)manualFpsActive withFps: (float)fps;
+- (BOOL)loadGifFromFile:(NSString*)gifFileName;
 - (float)calcScaleFromScaleOption:(NSInteger)option;
 - (NSRect)calcTargetRectFromOption:(NSInteger)option;
-- (NSTimeInterval)getDurationFromFile:(NSString*)gifFileName;
+- (NSTimeInterval)getDurationFromFile:(NSString*)gifFileName atFrame:(NSInteger)frame;
+- (void)setAnimationIntervalAtFrame:(NSInteger)frame;
 - (void) receiveDisplaysChangeNote: (NSNotification*) note;
 
 @property (assign) IBOutlet NSPanel *optionsPanel;

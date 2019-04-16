@@ -16,6 +16,7 @@
     mtlView = nil;
     glView = nil;
     trigByTimer = FALSE;
+    lastDuration = 0;
     currFrameCount = FRAME_COUNT_NOT_USED;
     self = [super initWithFrame:frame isPreview:isPreview];
     
@@ -39,7 +40,8 @@
                 NSLog(@"OpenGL setup done.");
             }
         }
-        [self setAnimationTimeInterval:DEFAULT_ANIME_TIME_INTER];
+        // this is just an high dummy value for animateOneFrame (not longer used)
+        [self setAnimationTimeInterval:600];
     }
     
     // get the program arguments of the process
@@ -167,7 +169,7 @@
 
 - (void) drawRect:(NSRect)rect
 {
-    // not needed since we use animateOneFrame() and left empty so that super method of NSView is not called to save same CPU time
+    // not needed since we use timerAnimateOneFrame and left empty so that super method of NSView is not called to save same CPU time
 }
 
 - (void)setFrameSize:(NSSize)newSize
@@ -278,8 +280,8 @@
     // get filename from screensaver defaults
     ScreenSaverDefaults *defaults = [ScreenSaverDefaults defaultsForModuleWithName:[[NSBundle bundleForClass: [self class]] bundleIdentifier]];
     NSString *gifFileName = [defaults objectForKey:@"GifFileName"];
-    float frameRate = [defaults floatForKey:@"GifFrameRate"];
-    BOOL frameRateManual = [defaults boolForKey:@"GifFrameRateManual"];
+    manualFrameRate = [defaults floatForKey:@"GifFrameRate"];
+    isManualFrameRate = [defaults boolForKey:@"GifFrameRateManual"];
     loadAnimationToMem = [defaults boolForKey:@"LoadAniToMem"];
     viewOption = [defaults integerForKey:@"ViewOpt"];
     NSInteger scaleOption = [defaults integerForKey:@"ScaleOpt"];
@@ -297,10 +299,10 @@
     }
     
     // select a random file from directory or keep the file if it was already a file
-    NSString *newGifFileName = [self getRandomGifFile:gifFileName];
+    NSString *selectedGifFileName = [self getRandomGifFile:gifFileName];
     
     // load GIF image
-    BOOL isFileLoaded = [self loadGifFromFile:newGifFileName andUseManualFps:frameRateManual withFps:frameRate];
+    BOOL isFileLoaded = [self loadGifFromFile:selectedGifFileName];
     if (isFileLoaded)
     {
         currFrameCount = FIRST_FRAME;
@@ -381,6 +383,12 @@
         if (changeTimer != nil) {
             [changeTimer invalidate];
         }
+        
+        // stop an old timer if there is one
+        if (animateTimer != nil) {
+            [animateTimer invalidate];
+        }
+        lastDuration = 0;
     }
     
     if (loadAnimationToMem == TRUE)
@@ -389,13 +397,24 @@
         [animationImages removeAllObjects];
         animationImages = nil;
     }
+    [animationDurations removeAllObjects];
+    animationDurations = nil;
     img = nil;
     currFrameCount = FRAME_COUNT_NOT_USED;
 }
 
 - (void)animateOneFrame
 {
+    /*
+    not longer used since animationTimeInterval can not be changed during animation, but GIFs have this feature. As new way timerAnimateOneFrame is used that is triggert by animateTimer.
+     */
+}
+
+- (void)timerAnimateOneFrame
+{
   @autoreleasepool {
+      
+    [self lockFocus];
 
     if (currFrameCount == FRAME_COUNT_NOT_USED)
     {
@@ -433,8 +452,12 @@
         {
             currFrameCount = FIRST_FRAME;
         }
+        
+        [self setAnimationIntervalAtFrame:currFrameCount];
     }
     
+    [self unlockFocus];
+      
     return;
   }
 }
@@ -564,7 +587,7 @@
     else
     {
         // set file fps in GUI
-        NSTimeInterval duration = [self getDurationFromFile:gifFileName];
+        NSTimeInterval duration = [self getDurationFromFile:gifFileName atFrame:FIRST_FRAME];
         float fps = 1/duration;
         [self.labelFpsGif setStringValue:[NSString stringWithFormat:@"%2.1f", fps]];
         [self hideFpsFromFile:NO];
@@ -1000,7 +1023,7 @@
              else
              {
                  // update file fps in GUI
-                 NSTimeInterval duration = [self getDurationFromFile:[NSURL URLWithString:newSelectedFileOrDir.absoluteString].absoluteString];
+                 NSTimeInterval duration = [self getDurationFromFile:[NSURL URLWithString:newSelectedFileOrDir.absoluteString].absoluteString atFrame:FIRST_FRAME];
                  float fps = 1/duration;
                  [self.labelFpsGif setStringValue:[NSString stringWithFormat:@"%2.1f", fps]];
                  [self hideFpsFromFile:NO];
@@ -1313,7 +1336,7 @@
     return targetRe;
 }
 
-- (BOOL)loadGifFromFile:(NSString*)gifFileName andUseManualFps: (BOOL)manualFpsActive withFps: (float)fps;
+- (BOOL)loadGifFromFile:(NSString*)gifFileName;
 {
     // load the GIF
     img = [[NSImage alloc] initWithContentsOfURL:[NSURL URLWithString:gifFileName]];
@@ -1332,41 +1355,52 @@
             maxFrameCount = [[img representations] count];
         }
         
+        // load all fps data from the file and store them to memory
+        CGImageSourceRef source = CGImageSourceCreateWithURL ( (__bridge CFURLRef) [NSURL URLWithString:gifFileName], NULL);
+        if (source)
+        {
+            animationDurations = [[NSMutableArray alloc] init];
+            for(NSUInteger frame=0;frame<maxFrameCount;frame++)
+            {
+                CFDictionaryRef cfdProperties = CGImageSourceCopyPropertiesAtIndex(source, frame, nil);
+                NSDictionary *properties = CFBridgingRelease(cfdProperties);
+                NSNumber *durationGIF = [[properties objectForKey:(__bridge NSString *)kCGImagePropertyGIFDictionary]
+                                         objectForKey:(__bridge NSString *) kCGImagePropertyGIFUnclampedDelayTime];
+                //scale duration by 1000 to get ms, because it is in sec and a fraction between 1 and 0
+                NSInteger durMs = [durationGIF doubleValue] * 1000.0;
+                // We want to catch the case that duration is 0ms (infinity fps!), because vale was not set in frame 0 frame of GIF
+                if (durMs == 0)
+                {
+                    // Support of animated PNG start with macOS 10.10 and we can not use this API on lower systems.
+                    // Because of ths on lower systems a APNG will stand still like an normal PNG.
+                    NSNumber *durationPNG = 0;
+                    NSOperatingSystemVersion osVer = [[NSProcessInfo processInfo] operatingSystemVersion];
+                    if (osVer.majorVersion > 10 || osVer.minorVersion >= 10)
+                    {
+                        durationPNG = [[properties objectForKey:(__bridge NSString *)kCGImagePropertyPNGDictionary]
+                                       objectForKey:(__bridge NSString *) kCGImagePropertyAPNGUnclampedDelayTime];
+                    }
+                    durMs = [durationPNG doubleValue] * 1000.0;
+                    if (durMs == 0)
+                    {
+                        [animationDurations addObject:[[NSNumber alloc] initWithDouble:1/(MAX_FRAME_RATE*1.0)]];
+                    }
+                    else
+                    {
+                        [animationDurations addObject:durationPNG];
+                    }
+                }
+                else
+                {
+                    [animationDurations addObject:durationGIF];
+                }
+            }
+            CFRelease(source);
+        }
+            
+        
         // setup FPS of loaded GIF
-        NSTimeInterval duration;
-        if(manualFpsActive)
-        {
-            // set frame rate manual
-            
-            // allow no fps larger as maximum MAX_FRAME_RATE
-            if (fps > MAX_FRAME_RATE)
-            {
-                duration = 1/MAX_FRAME_RATE;
-            }
-            else
-            {
-                duration = 1/fps;
-            }
-        }
-        else
-        {
-            // set frame duration from data from gif file
-            
-            duration = [self getDurationFromFile:gifFileName];
-            float fps_for_duration = 1/duration;
-            
-            // allow no fps larger as maximum MAX_FRAME_RATE
-            if (fps_for_duration > MAX_FRAME_RATE)
-            {
-                duration = 1/MAX_FRAME_RATE;
-            }
-            else
-            {
-                // duration already set
-            }
-            
-        }
-        [self setAnimationTimeInterval:duration];
+        [self setAnimationIntervalAtFrame:FIRST_FRAME];
         
         // in case of no review mode and active config option create an array in memory with all frames of bitmap in bitmap format (can be used directly as OpenGL texture)
         if (loadAnimationToMem == TRUE)
@@ -1396,11 +1430,72 @@
     }
 }
 
-- (NSTimeInterval)getDurationFromFile:(NSString*)gifFileName
+- (void)setAnimationIntervalAtFrame:(NSInteger)frame
+{
+    NSTimeInterval duration = 1;
+    if(isManualFrameRate)
+    {
+        // set frame rate manual
+        
+        // allow no fps larger as maximum MAX_FRAME_RATE
+        if (manualFrameRate > MAX_FRAME_RATE)
+        {
+            duration = 1/MAX_FRAME_RATE;
+        }
+        else
+        {
+            duration = 1/manualFrameRate;
+        }
+    }
+    else
+    {
+        // set frame duration from data from gif file
+        if (animationDurations != nil)
+        {
+            duration = [[animationDurations objectAtIndex:frame] doubleValue];
+        }
+        
+        float fps_for_duration = 1/duration;
+        
+        // allow no fps larger as maximum MAX_FRAME_RATE
+        if (fps_for_duration > MAX_FRAME_RATE)
+        {
+            duration = 1/MAX_FRAME_RATE;
+        }
+        else
+        {
+            // duration already set
+        }
+        
+    }
+    
+    // only change timer when there is an change needed
+    if (lastDuration != duration)
+    {
+        // old way to change timer interval for animateOneFrame. but it can not changed during animation running.
+        //[self setAnimationTimeInterval:duration];
+        
+        // stop an old timer if there is one
+        if (animateTimer != nil) {
+            [animateTimer invalidate];
+        }
+    
+        // start a repeated timer that triggers timerAnimateOneFrame
+        animateTimer = [NSTimer scheduledTimerWithTimeInterval:duration
+                                                   target:self
+                                                 selector:@selector(timerAnimateOneFrame)
+                                                 userInfo:nil
+                                                  repeats:YES];
+    }
+    lastDuration = duration;
+}
+
+
+- (NSTimeInterval)getDurationFromFile:(NSString*)gifFileName atFrame:(NSInteger)frame
 {
     /* If the fps is "too fast" NSBitmapImageRep gives back a clamped value for slower fps and not the value from the file! WTF? */
     /*
-    [gifRep setProperty:NSImageCurrentFrame withValue:@(FIRST_FRAME)];
+    [gifRep setProperty:NSImageCurrentFrame withValue:@(frame)];
     NSTimeInterval currFrameDuration = [[gifRep valueForProperty: NSImageCurrentFrameDuration] floatValue];
     return currFrameDuration;
     */
@@ -1409,7 +1504,7 @@
     CGImageSourceRef source = CGImageSourceCreateWithURL ( (__bridge CFURLRef) [NSURL URLWithString:gifFileName], NULL);
     if (source)
     {
-        CFDictionaryRef cfdProperties = CGImageSourceCopyPropertiesAtIndex(source, FIRST_FRAME, nil);
+        CFDictionaryRef cfdProperties = CGImageSourceCopyPropertiesAtIndex(source, frame, nil);
         NSDictionary *properties = CFBridgingRelease(cfdProperties);
         NSNumber *durationGIF = [[properties objectForKey:(__bridge NSString *)kCGImagePropertyGIFDictionary]
                            objectForKey:(__bridge NSString *) kCGImagePropertyGIFUnclampedDelayTime];
@@ -1434,8 +1529,8 @@
             durMs = [durationPNG doubleValue] * 1000.0;
             if (durMs== 0)
             {
-                // wenn NO duration was set, we use an default duration (15 fps)
-                return DEFAULT_ANIME_TIME_INTER;
+                // wenn NO duration was set, we use an default duration (60 fps)
+                return 1/(MAX_FRAME_RATE*1.0);
             }
             else
             {
@@ -1452,8 +1547,8 @@
     }
     else
     {
-        // if not even a file could be open, we use an default duration (15 fps)
-        return DEFAULT_ANIME_TIME_INTER;
+        // if not even a file could be open, we use an default duration (60 fps)
+        return 1/MAX_FRAME_RATE;
     }
 }
 
@@ -1689,6 +1784,8 @@
 
 - (void) drawImageMTL:(void *)pixelsBytes pixelWidth:(NSInteger)width pixelHeight:(NSInteger)height withFilter:(NSInteger)filter hasAlpha: (Boolean)alpha atRect:(NSRect) rect
 {
+    // TODO: use blitter to genereate mipmaps
+    
     // update alpha blending depending on hasAlpha (in an GIF file not each frame uses alpha blending and it needs to be set for each frame individually)
     NSError *err = nil;
     pipelineStateDescriptor.colorAttachments[0].blendingEnabled = alpha;
