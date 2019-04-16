@@ -1,91 +1,91 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ufwb version="1.17">
-    <grammar name="GIF (full)" start="id:10" author="Marco Köhler" fileextension="gif" uti="com.compuserve.gif" complete="yes">
+    <grammar name="GIF (full)" start="id:155" author="Marco Köhler" fileextension="gif" uti="com.compuserve.gif" complete="yes">
         <description>Full Grammar for GIF files</description>
-        <structure name="defaults" id="11" length="0" encoding="ISO_8859-1:1987" endian="little" signed="no"/>
-        <structure name="Header" id="13" length="6" extends="id:11">
-            <string name="EyeCatcher" mustmatch="yes" id="14" fillcolor="FF7B7A" type="fixed-length" length="3" encoding="ISO_8859-1:1987">
+        <structure name="defaults" id="156" length="0" encoding="ISO_8859-1:1987" endian="little" signed="no"/>
+        <structure name="Header" id="158" length="6" extends="id:156">
+            <string name="EyeCatcher" mustmatch="yes" id="159" fillcolor="FF7B7A" type="fixed-length" length="3" encoding="ISO_8859-1:1987">
                 <fixedvalues>
                     <fixedvalue name="Eye catcher" value="GIF"/>
                 </fixedvalues>
             </string>
-            <string name="Version" id="15" fillcolor="FF7B7A" type="fixed-length" length="3" encoding="ISO_8859-1:1987"/>
+            <string name="Version" id="160" fillcolor="FF7B7A" type="fixed-length" length="3" encoding="ISO_8859-1:1987"/>
         </structure>
-        <structure name="LogicalScreenDescriptor" id="17" length="7" extends="id:11" fillcolor="29FEBB">
-            <number name="Width" id="18" fillcolor="29FEBB" type="integer" length="2"/>
-            <number name="Height" id="19" fillcolor="29FEBB" type="integer" length="2"/>
-            <structure name="PackedFields" id="20" length="1">
-                <number name="GlobalColorTableFlag" id="21" fillcolor="29FEBB" type="integer" length="1" lengthunit="bit">
+        <structure name="LogicalScreenDescriptor" id="162" length="7" extends="id:156" fillcolor="29FEBB">
+            <number name="Width" id="163" fillcolor="29FEBB" type="integer" length="2"/>
+            <number name="Height" id="164" fillcolor="29FEBB" type="integer" length="2"/>
+            <structure name="PackedFields" id="165" length="1">
+                <number name="GlobalColorTableFlag" id="166" fillcolor="29FEBB" type="integer" length="1" lengthunit="bit">
                     <fixedvalues>
                         <fixedvalue name="NoTableActive" value="0"/>
                         <fixedvalue name="TableActive" value="1"/>
                     </fixedvalues>
                 </number>
-                <number name="ColorResolution" id="22" fillcolor="29FEBB" type="integer" length="3" lengthunit="bit"/>
-                <number name="SortFlag" id="23" fillcolor="29FEBB" type="integer" length="1" lengthunit="bit">
+                <number name="ColorResolution" id="167" fillcolor="29FEBB" type="integer" length="3" lengthunit="bit"/>
+                <number name="SortFlag" id="168" fillcolor="29FEBB" type="integer" length="1" lengthunit="bit">
                     <fixedvalues>
                         <fixedvalue name="Not ordered" value="0"/>
                         <fixedvalue name="Ordered by decreasing importance" value="1"/>
                     </fixedvalues>
                 </number>
-                <number name="SizeGlobalColorTable" id="24" fillcolor="29FEBB" type="integer" length="3" lengthunit="bit"/>
+                <number name="SizeGlobalColorTable" id="169" fillcolor="29FEBB" type="integer" length="3" lengthunit="bit"/>
             </structure>
-            <number name="BackgroundColorIndex" id="26" fillcolor="29FEBB" type="integer" length="1"/>
-            <number name="PixelAspectRatio" id="27" fillcolor="29FEBB" type="integer" length="1">
+            <number name="BackgroundColorIndex" id="171" fillcolor="29FEBB" type="integer" length="1"/>
+            <number name="PixelAspectRatio" id="172" fillcolor="29FEBB" type="integer" length="1">
                 <fixedvalues>
                     <fixedvalue name="No aspect ratio information is given" value="0"/>
                 </fixedvalues>
             </number>
         </structure>
-        <structure name="GlobalColorTable" id="29" repeatmin="0" repeatmax="GlobalColorTableFlag" extends="id:11">
-            <structure name="GlobalColorTableEntry" id="30" length="3" repeatmin="0" repeatmax="GlobalColorTableFlag*pow(2,SizeGlobalColorTable+1)">
-                <number name="Red" id="31" fillcolor="FF2600" type="integer" length="1"/>
-                <number name="Green" id="32" fillcolor="00F900" type="integer" length="1"/>
-                <number name="Blue" id="33" fillcolor="0432FF" type="integer" length="1"/>
+        <structure name="GlobalColorTable" id="174" repeatmin="0" repeatmax="GlobalColorTableFlag" extends="id:156">
+            <structure name="GlobalColorTableEntry" id="175" length="3" repeatmin="0" repeatmax="GlobalColorTableFlag*pow(2,SizeGlobalColorTable+1)">
+                <number name="Red" id="176" fillcolor="FF2600" type="integer" length="1"/>
+                <number name="Green" id="177" fillcolor="00F900" type="integer" length="1"/>
+                <number name="Blue" id="178" fillcolor="0432FF" type="integer" length="1"/>
             </structure>
         </structure>
-        <structure name="Extensions" id="36" extends="id:11">
-            <structure name="ApplicationExtension" id="37" repeatmin="0" fillcolor="FEFB00">
-                <number name="ExtensionIntroducer" mustmatch="yes" id="38" fillcolor="FEFB00" type="integer" length="1">
+        <structure name="Extensions" id="181" extends="id:156" order="variable">
+            <structure name="ApplicationExtension" id="182" repeatmin="0" fillcolor="FEFB00">
+                <number name="ExtensionIntroducer" mustmatch="yes" id="183" fillcolor="FEFB00" type="integer" length="1">
                     <fixedvalues>
                         <fixedvalue name="extension" value="33"/>
                     </fixedvalues>
                 </number>
-                <number name="ExtensionLabel" mustmatch="yes" id="39" fillcolor="FEFB00" type="integer" length="1">
+                <number name="ExtensionLabel" mustmatch="yes" id="184" fillcolor="FEFB00" type="integer" length="1">
                     <fixedvalues>
                         <fixedvalue name="Application Extension" value="255"/>
                     </fixedvalues>
                 </number>
-                <number name="BlockSize" mustmatch="yes" id="40" fillcolor="FEFB00" type="integer" length="1">
+                <number name="BlockSize" mustmatch="yes" id="185" fillcolor="FEFB00" type="integer" length="1">
                     <fixedvalues>
                         <fixedvalue name="fixed size" value="11"/>
                     </fixedvalues>
                 </number>
-                <structure name="AppExtensions" id="41">
-                    <structure name="AnimExtension" id="42" repeatmin="0">
-                        <string name="AppIdentifier" mustmatch="yes" id="43" fillcolor="FEFB00" type="fixed-length" length="8">
+                <structure name="AppExtensions" id="186" order="variable">
+                    <structure name="AnimExtension" id="187" repeatmin="0">
+                        <string name="AppIdentifier" mustmatch="yes" id="188" fillcolor="FEFB00" type="fixed-length" length="8">
                             <fixedvalues>
                                 <fixedvalue name="Anim" value="ANIMEXTS"/>
                             </fixedvalues>
                         </string>
-                        <string name="AppAuthenticationCode" id="44" fillcolor="FEFB00" type="fixed-length" length="3"/>
-                        <number name="AnimBlockSize" id="45" fillcolor="FEFB00" type="integer" length="1"/>
-                        <string name="AnimData" id="46" fillcolor="FEFB00" type="fixed-length" length="AnimBlockSize"/>
-                        <number name="BlockTerminator" mustmatch="yes" id="47" fillcolor="FEFB00" type="integer" length="1">
+                        <string name="AppAuthenticationCode" id="189" fillcolor="FEFB00" type="fixed-length" length="3"/>
+                        <number name="AnimBlockSize" id="190" fillcolor="FEFB00" type="integer" length="1"/>
+                        <string name="AnimData" id="191" fillcolor="FEFB00" type="fixed-length" length="AnimBlockSize"/>
+                        <number name="BlockTerminator" mustmatch="yes" id="192" fillcolor="FEFB00" type="integer" length="1">
                             <fixedvalues>
                                 <fixedvalue name="terminator" value="0"/>
                             </fixedvalues>
                         </number>
                     </structure>
-                    <structure name="FractintExtension" id="146" repeatmin="0">
-                        <string name="AppIdentifier" mustmatch="yes" id="148" fillcolor="FEFB00" type="fixed-length" length="8">
+                    <structure name="FractintExtension" id="194" repeatmin="0">
+                        <string name="AppIdentifier" mustmatch="yes" id="195" fillcolor="FEFB00" type="fixed-length" length="8">
                             <fixedvalues>
                                 <fixedvalue name="fract" value="fractint"/>
                             </fixedvalues>
                         </string>
-                        <string name="AppAuthenticationCode" id="149" fillcolor="FEFB00" type="fixed-length" length="3"/>
-                        <structure name="FractintBlock" id="153" repeatmax="-1">
-                            <number name="FractintBlockSize" mustmatch="yes" id="151" fillcolor="FEFB00" type="integer" length="1">
+                        <string name="AppAuthenticationCode" id="196" fillcolor="FEFB00" type="fixed-length" length="3"/>
+                        <structure name="FractintBlock" id="197" repeatmax="-1">
+                            <number name="FractintBlockSize" mustmatch="yes" id="198" fillcolor="FEFB00" type="integer" length="1">
                                 <fixedvalues>
                                     <fixedvalue name="&lt;unnamed&gt;" value="1"/>
                                     <fixedvalue name="&lt;unnamed&gt;" value="2"/>
@@ -344,37 +344,37 @@
                                     <fixedvalue name="&lt;unnamed&gt;" value="255"/>
                                 </fixedvalues>
                             </number>
-                            <string name="FractintBlockData" id="155" fillcolor="FEFB00" type="fixed-length" length="FractintBlockSize"/>
+                            <string name="FractintBlockData" id="199" fillcolor="FEFB00" type="fixed-length" length="FractintBlockSize"/>
                         </structure>
-                        <number name="BlockTerminator" mustmatch="yes" id="156" fillcolor="FEFB00" type="integer" length="1">
+                        <number name="BlockTerminator" mustmatch="yes" id="201" fillcolor="FEFB00" type="integer" length="1">
                             <fixedvalues>
                                 <fixedvalue name="terminator" value="0"/>
                             </fixedvalues>
                         </number>
                     </structure>
-                    <structure name="IccExtension" id="49" repeatmin="0">
-                        <string name="AppIdentifier" mustmatch="yes" id="50" fillcolor="FEFB00" type="fixed-length" length="8">
+                    <structure name="IccExtension" id="203" repeatmin="0">
+                        <string name="AppIdentifier" mustmatch="yes" id="204" fillcolor="FEFB00" type="fixed-length" length="8">
                             <fixedvalues>
                                 <fixedvalue name="ICC" value="ICCRGBG1"/>
                             </fixedvalues>
                         </string>
-                        <string name="AppAuthenticationCode" id="51" fillcolor="FEFB00" type="fixed-length" length="3"/>
-                        <string name="ICCData" id="52" fillcolor="FEFB00" type="zero-terminated"/>
-                        <number name="BlockTerminator" mustmatch="yes" id="53" fillcolor="FEFB00" type="integer" length="1">
+                        <string name="AppAuthenticationCode" id="205" fillcolor="FEFB00" type="fixed-length" length="3"/>
+                        <string name="ICCData" id="206" fillcolor="FEFB00" type="zero-terminated"/>
+                        <number name="BlockTerminator" mustmatch="yes" id="207" fillcolor="FEFB00" type="integer" length="1">
                             <fixedvalues>
                                 <fixedvalue name="terminator" value="0"/>
                             </fixedvalues>
                         </number>
                     </structure>
-                    <structure name="MathTypeExtension" id="55" repeatmin="0">
-                        <string name="AppIdentifier" mustmatch="yes" id="56" fillcolor="FEFB00" type="fixed-length" length="8">
+                    <structure name="MathTypeExtension" id="209" repeatmin="0">
+                        <string name="AppIdentifier" mustmatch="yes" id="210" fillcolor="FEFB00" type="fixed-length" length="8">
                             <fixedvalues>
                                 <fixedvalue name="MathType" value="MathType"/>
                             </fixedvalues>
                         </string>
-                        <string name="AppAuthenticationCode" id="57" fillcolor="FEFB00" type="fixed-length" length="3"/>
-                        <structure name="MathTypeBlock" id="58" repeatmax="-1">
-                            <number name="MathTypeBlockSize" mustmatch="yes" id="59" fillcolor="FEFB00" type="integer" length="1">
+                        <string name="AppAuthenticationCode" id="211" fillcolor="FEFB00" type="fixed-length" length="3"/>
+                        <structure name="MathTypeBlock" id="212" repeatmax="-1">
+                            <number name="MathTypeBlockSize" mustmatch="yes" id="213" fillcolor="FEFB00" type="integer" length="1">
                                 <fixedvalues>
                                     <fixedvalue name="&lt;unnamed&gt;" value="1"/>
                                     <fixedvalue name="&lt;unnamed&gt;" value="2"/>
@@ -633,38 +633,38 @@
                                     <fixedvalue name="&lt;unnamed&gt;" value="255"/>
                                 </fixedvalues>
                             </number>
-                            <string name="MathTypeBlockData" id="60" fillcolor="FEFB00" type="fixed-length" length="MathTypeBlockSize"/>
+                            <string name="MathTypeBlockData" id="214" fillcolor="FEFB00" type="fixed-length" length="MathTypeBlockSize"/>
                         </structure>
-                        <number name="BlockTerminator" mustmatch="yes" id="62" fillcolor="FEFB00" type="integer" length="1">
+                        <number name="BlockTerminator" mustmatch="yes" id="216" fillcolor="FEFB00" type="integer" length="1">
                             <fixedvalues>
                                 <fixedvalue name="terminator" value="0"/>
                             </fixedvalues>
                         </number>
                     </structure>
-                    <structure name="NetscapeExtension" id="64" repeatmin="0">
-                        <string name="AppIdentifier" mustmatch="yes" id="65" fillcolor="FEFB00" type="fixed-length" length="8">
+                    <structure name="NetscapeExtension" id="218" repeatmin="0">
+                        <string name="AppIdentifier" mustmatch="yes" id="219" fillcolor="FEFB00" type="fixed-length" length="8">
                             <fixedvalues>
                                 <fixedvalue name="netscape" value="NETSCAPE"/>
                             </fixedvalues>
                         </string>
-                        <string name="AppAuthenticationCode" id="66" fillcolor="FEFB00" type="fixed-length" length="3"/>
-                        <number name="NetscapeBlockSize" id="67" fillcolor="FEFB00" type="integer" length="1"/>
-                        <string name="NetscapeData" id="68" fillcolor="FEFB00" type="fixed-length" length="NetscapeBlockSize"/>
-                        <number name="BlockTerminator" mustmatch="yes" id="69" fillcolor="FEFB00" type="integer" length="1">
+                        <string name="AppAuthenticationCode" id="220" fillcolor="FEFB00" type="fixed-length" length="3"/>
+                        <number name="NetscapeBlockSize" id="221" fillcolor="FEFB00" type="integer" length="1"/>
+                        <string name="NetscapeData" id="222" fillcolor="FEFB00" type="fixed-length" length="NetscapeBlockSize"/>
+                        <number name="BlockTerminator" mustmatch="yes" id="223" fillcolor="FEFB00" type="integer" length="1">
                             <fixedvalues>
                                 <fixedvalue name="terminator" value="0"/>
                             </fixedvalues>
                         </number>
                     </structure>
-                    <structure name="XMPExtension" id="71" repeatmin="0">
-                        <string name="AppIdentifier" mustmatch="yes" id="72" fillcolor="FEFB00" type="fixed-length" length="8">
+                    <structure name="XMPExtension" id="225" repeatmin="0">
+                        <string name="AppIdentifier" mustmatch="yes" id="226" fillcolor="FEFB00" type="fixed-length" length="8">
                             <fixedvalues>
                                 <fixedvalue name="XMP" value="XMP Data"/>
                             </fixedvalues>
                         </string>
-                        <string name="AppAuthenticationCode" id="73" fillcolor="FEFB00" type="fixed-length" length="3"/>
-                        <string name="XMPData" id="74" fillcolor="FEFB00" type="zero-terminated"/>
-                        <number name="BlockTerminator" mustmatch="yes" id="75" fillcolor="FEFB00" type="integer" length="1">
+                        <string name="AppAuthenticationCode" id="227" fillcolor="FEFB00" type="fixed-length" length="3"/>
+                        <string name="XMPData" id="228" fillcolor="FEFB00" type="zero-terminated"/>
+                        <number name="BlockTerminator" mustmatch="yes" id="229" fillcolor="FEFB00" type="integer" length="1">
                             <fixedvalues>
                                 <fixedvalue name="terminator" value="0"/>
                             </fixedvalues>
@@ -672,25 +672,25 @@
                     </structure>
                 </structure>
             </structure>
-            <structure name="GraphicsControlExtension" id="79" repeatmin="0">
-                <number name="ExtensionIntroducer" mustmatch="yes" id="80" fillcolor="00FCFF" type="integer" length="1">
+            <structure name="GraphicsControlExtension" id="233" repeatmin="0">
+                <number name="ExtensionIntroducer" mustmatch="yes" id="234" fillcolor="00FCFF" type="integer" length="1">
                     <fixedvalues>
                         <fixedvalue name="extension" value="33"/>
                     </fixedvalues>
                 </number>
-                <number name="ExtensionLabel" mustmatch="yes" id="81" fillcolor="00FCFF" type="integer" length="1">
+                <number name="ExtensionLabel" mustmatch="yes" id="235" fillcolor="00FCFF" type="integer" length="1">
                     <fixedvalues>
                         <fixedvalue name="Graphics Control Extension" value="249"/>
                     </fixedvalues>
                 </number>
-                <number name="BlockSize" mustmatch="yes" id="82" fillcolor="00FCFF" type="integer" length="1">
+                <number name="BlockSize" mustmatch="yes" id="236" fillcolor="00FCFF" type="integer" length="1">
                     <fixedvalues>
                         <fixedvalue name="fixed" value="4"/>
                     </fixedvalues>
                 </number>
-                <structure name="Packed Fields" id="83" length="0">
-                    <number name="Reserved" id="84" fillcolor="00FCFF" type="integer" length="3" lengthunit="bit"/>
-                    <number name="Disposal Method" id="85" fillcolor="00FCFF" type="integer" length="3" lengthunit="bit">
+                <structure name="Packed Fields" id="237" length="0">
+                    <number name="Reserved" id="238" fillcolor="00FCFF" type="integer" length="3" lengthunit="bit"/>
+                    <number name="Disposal Method" id="239" fillcolor="00FCFF" type="integer" length="3" lengthunit="bit">
                         <fixedvalues>
                             <fixedvalue name="No disposal specified." value="0"/>
                             <fixedvalue name="Do not dispose." value="1"/>
@@ -702,70 +702,70 @@
                             <fixedvalue name="To be defined." value="7"/>
                         </fixedvalues>
                     </number>
-                    <number name="User Input Flag" id="86" fillcolor="00FCFF" type="integer" length="1" lengthunit="bit">
+                    <number name="User Input Flag" id="240" fillcolor="00FCFF" type="integer" length="1" lengthunit="bit">
                         <fixedvalues>
                             <fixedvalue name="User input is not expected" value="0"/>
                             <fixedvalue name="User input is expected" value="1"/>
                         </fixedvalues>
                     </number>
-                    <number name="Transparent Color Flag" id="87" fillcolor="00FCFF" type="integer" length="1" lengthunit="bit">
+                    <number name="Transparent Color Flag" id="241" fillcolor="00FCFF" type="integer" length="1" lengthunit="bit">
                         <fixedvalues>
                             <fixedvalue name="Transparent Index is not given" value="0"/>
                             <fixedvalue name="Transparent Index is given" value="1"/>
                         </fixedvalues>
                     </number>
                 </structure>
-                <number name="DelayTime" id="89" fillcolor="00FCFF" type="integer" length="2"/>
-                <number name="TransparentColorIndex" id="90" fillcolor="00FCFF" type="integer" length="1"/>
-                <number name="BlockTerminator" mustmatch="yes" id="91" fillcolor="00FCFF" type="integer" length="1">
+                <number name="DelayTime" id="243" fillcolor="00FCFF" type="integer" length="2"/>
+                <number name="TransparentColorIndex" id="244" fillcolor="00FCFF" type="integer" length="1"/>
+                <number name="BlockTerminator" mustmatch="yes" id="245" fillcolor="00FCFF" type="integer" length="1">
                     <fixedvalues>
                         <fixedvalue name="terminator" value="0"/>
                     </fixedvalues>
                 </number>
             </structure>
-            <structure name="ImageExtension" id="93" repeatmin="0">
-                <number name="ExtensionIntroducer" mustmatch="yes" id="94" fillcolor="FF9200" type="integer" length="1">
+            <structure name="ImageExtension" id="247" repeatmin="0">
+                <number name="ExtensionIntroducer" mustmatch="yes" id="248" fillcolor="FF9200" type="integer" length="1">
                     <fixedvalues>
                         <fixedvalue name="image" value="44"/>
                     </fixedvalues>
                 </number>
-                <number name="ImageLeft" id="95" fillcolor="FF9200" type="integer" length="2"/>
-                <number name="ImageTop" id="96" fillcolor="FF9200" type="integer" length="2"/>
-                <number name="ImageWidth" id="97" fillcolor="FF9200" type="integer" length="2"/>
-                <number name="ImageHeight" id="98" fillcolor="FF9200" type="integer" length="2"/>
-                <structure name="PacketFields" id="99">
-                    <number name="LocalColorTableFlag" id="100" fillcolor="FF9200" type="integer" length="1" lengthunit="bit">
+                <number name="ImageLeft" id="249" fillcolor="FF9200" type="integer" length="2"/>
+                <number name="ImageTop" id="250" fillcolor="FF9200" type="integer" length="2"/>
+                <number name="ImageWidth" id="251" fillcolor="FF9200" type="integer" length="2"/>
+                <number name="ImageHeight" id="252" fillcolor="FF9200" type="integer" length="2"/>
+                <structure name="PacketFields" id="253">
+                    <number name="LocalColorTableFlag" id="254" fillcolor="FF9200" type="integer" length="1" lengthunit="bit">
                         <fixedvalues>
                             <fixedvalue name="No Table Active" value="0"/>
                             <fixedvalue name="Table Active" value="1"/>
                         </fixedvalues>
                     </number>
-                    <number name="InterlaceFlag" id="101" fillcolor="FF9200" type="integer" length="1" lengthunit="bit">
+                    <number name="InterlaceFlag" id="255" fillcolor="FF9200" type="integer" length="1" lengthunit="bit">
                         <fixedvalues>
                             <fixedvalue name="Image is not interlaced" value="0"/>
                             <fixedvalue name="Image is interlaced" value="1"/>
                         </fixedvalues>
                     </number>
-                    <number name="SortFlag" id="102" fillcolor="FF9200" type="integer" length="1" lengthunit="bit">
+                    <number name="SortFlag" id="256" fillcolor="FF9200" type="integer" length="1" lengthunit="bit">
                         <fixedvalues>
                             <fixedvalue name="Not ordered" value="0"/>
                             <fixedvalue name="Ordered by decreasing importance" value="1"/>
                         </fixedvalues>
                     </number>
-                    <number name="Reserved" id="103" fillcolor="FF9200" type="integer" length="2" lengthunit="bit"/>
-                    <number name="SizeLocalColorTable" id="104" fillcolor="FF9200" type="integer" length="3" lengthunit="bit"/>
+                    <number name="Reserved" id="257" fillcolor="FF9200" type="integer" length="2" lengthunit="bit"/>
+                    <number name="SizeLocalColorTable" id="258" fillcolor="FF9200" type="integer" length="3" lengthunit="bit"/>
                 </structure>
-                <structure name="LocalColorTable" id="106" repeatmin="0">
-                    <structure name="LocalColorTableEntry" id="107" length="3" repeatmin="0" repeatmax="LocalColorTableFlag*pow(2,SizeLocalColorTable+1)">
-                        <number name="Red" id="108" fillcolor="FF2600" type="integer" length="1"/>
-                        <number name="Green" id="109" fillcolor="00F900" type="integer" length="1"/>
-                        <number name="Blue" id="110" fillcolor="0432FF" type="integer" length="1"/>
+                <structure name="LocalColorTable" id="260" repeatmin="0">
+                    <structure name="LocalColorTableEntry" id="261" length="3" repeatmin="0" repeatmax="LocalColorTableFlag*pow(2,SizeLocalColorTable+1)">
+                        <number name="Red" id="262" fillcolor="FF2600" type="integer" length="1"/>
+                        <number name="Green" id="263" fillcolor="00F900" type="integer" length="1"/>
+                        <number name="Blue" id="264" fillcolor="0432FF" type="integer" length="1"/>
                     </structure>
                 </structure>
-                <structure name="ImageData" id="113">
-                    <number name="LZWMinimumCodeSize" id="114" fillcolor="AA7941" type="integer" length="1"/>
-                    <structure name="LZWBlock" id="115" repeatmax="-1">
-                        <number name="LZWBlockSize" mustmatch="yes" id="116" fillcolor="AA7941" type="integer" length="1">
+                <structure name="ImageData" id="267">
+                    <number name="LZWMinimumCodeSize" id="268" fillcolor="AA7941" type="integer" length="1"/>
+                    <structure name="LZWBlock" id="269" repeatmax="-1">
+                        <number name="LZWBlockSize" mustmatch="yes" id="270" fillcolor="AA7941" type="integer" length="1">
                             <fixedvalues>
                                 <fixedvalue name="&lt;unnamed&gt;" value="1"/>
                                 <fixedvalue name="&lt;unnamed&gt;" value="2"/>
@@ -1024,63 +1024,63 @@
                                 <fixedvalue name="&lt;unnamed&gt;" value="255"/>
                             </fixedvalues>
                         </number>
-                        <string name="LZBBlockData" id="117" fillcolor="AA7941" type="fixed-length" length="LZWBlockSize"/>
+                        <string name="LZBBlockData" id="271" fillcolor="AA7941" type="fixed-length" length="LZWBlockSize"/>
                     </structure>
-                    <number name="LZWEndBlock" mustmatch="yes" id="119" fillcolor="AA7941" type="integer" length="1">
+                    <number name="LZWEndBlock" mustmatch="yes" id="273" fillcolor="AA7941" type="integer" length="1">
                         <fixedvalues>
                             <fixedvalue name="LZWEndBlock" value="0"/>
                         </fixedvalues>
                     </number>
                 </structure>
             </structure>
-            <structure name="CommentExtension" id="122" repeatmin="0">
-                <number name="ExtensionIntroducer" mustmatch="yes" id="123" fillcolor="FF40FF" type="integer" length="1">
+            <structure name="CommentExtension" id="276" repeatmin="0">
+                <number name="ExtensionIntroducer" mustmatch="yes" id="277" fillcolor="FF40FF" type="integer" length="1">
                     <fixedvalues>
                         <fixedvalue name="extension" value="33"/>
                     </fixedvalues>
                 </number>
-                <number name="ExtensionLabel" mustmatch="yes" id="124" fillcolor="FF40FF" type="integer" length="1">
+                <number name="ExtensionLabel" mustmatch="yes" id="278" fillcolor="FF40FF" type="integer" length="1">
                     <fixedvalues>
                         <fixedvalue name="Comment Extension" value="254"/>
                     </fixedvalues>
                 </number>
-                <number name="CommentSize" id="125" fillcolor="FF40FF" type="integer" length="1"/>
-                <string name="Comment" id="126" fillcolor="FF40FF" type="fixed-length" length="CommentSize"/>
-                <number name="BlockTerminator" mustmatch="yes" id="127" fillcolor="FF40FF" type="integer" length="1">
+                <number name="CommentSize" id="279" fillcolor="FF40FF" type="integer" length="1"/>
+                <string name="Comment" id="280" fillcolor="FF40FF" type="fixed-length" length="CommentSize"/>
+                <number name="BlockTerminator" mustmatch="yes" id="281" fillcolor="FF40FF" type="integer" length="1">
                     <fixedvalues>
                         <fixedvalue name="terminator" value="0"/>
                     </fixedvalues>
                 </number>
             </structure>
-            <structure name="PlainTextExtension" id="129" repeatmin="0">
-                <number name="ExtensionIntroducer" mustmatch="yes" id="130" fillcolor="932092" type="integer" length="1">
+            <structure name="PlainTextExtension" id="283" repeatmin="0">
+                <number name="ExtensionIntroducer" mustmatch="yes" id="284" fillcolor="932092" type="integer" length="1">
                     <fixedvalues>
                         <fixedvalue name="extension" value="33"/>
                     </fixedvalues>
                 </number>
-                <number name="ExtensionLabel" mustmatch="yes" id="131" fillcolor="932092" type="integer" length="1">
+                <number name="ExtensionLabel" mustmatch="yes" id="285" fillcolor="932092" type="integer" length="1">
                     <fixedvalues>
                         <fixedvalue name="plain text" value="1"/>
                     </fixedvalues>
                 </number>
-                <number name="TextBlockSize" id="132" fillcolor="932092" type="integer" length="1"/>
-                <string name="TextBlock" id="133" fillcolor="932092" type="fixed-length" length="TextBlockSize"/>
-                <string name="PlainTextData" id="134" fillcolor="932092" type="zero-terminated"/>
+                <number name="TextBlockSize" id="286" fillcolor="932092" type="integer" length="1"/>
+                <string name="TextBlock" id="287" fillcolor="932092" type="fixed-length" length="TextBlockSize"/>
+                <string name="PlainTextData" id="288" fillcolor="932092" type="zero-terminated"/>
             </structure>
         </structure>
-        <structure name="Trailer" id="137" extends="id:11">
-            <number name="GIF Trailer" mustmatch="yes" id="138" fillcolor="FF7B7A" type="integer" length="1">
+        <structure name="Trailer" id="291" extends="id:156">
+            <number name="GIF Trailer" mustmatch="yes" id="292" fillcolor="FF7B7A" type="integer" length="1">
                 <fixedvalues>
                     <fixedvalue name="Trailer" value="59"/>
                 </fixedvalues>
             </number>
         </structure>
-        <structure name="GIF file" id="10" extends="id:11" consists-of="id:11" encoding="ISO_8859-1:1987" endian="little" signed="no">
-            <structref name="Header" id="140" structure="id:13"/>
-            <structref name="LogicalScreenDescriptor" id="141" structure="id:17"/>
-            <structref name="GlobalColorTable" id="142" repeatmin="0" structure="id:29"/>
-            <structref name="Extensions" id="143" repeatmax="-1" structure="id:36"/>
-            <structref name="Trailer" id="157" structure="id:137"/>
+        <structure name="GIF file" id="155" extends="id:156" consists-of="id:156" encoding="ISO_8859-1:1987" endian="little" signed="no">
+            <structref name="Header" id="294" structure="id:158"/>
+            <structref name="LogicalScreenDescriptor" id="295" structure="id:162"/>
+            <structref name="GlobalColorTable" id="296" repeatmin="0" structure="id:174"/>
+            <structref name="Extensions" id="297" repeatmax="-1" structure="id:181"/>
+            <structref name="Trailer" id="298" structure="id:291"/>
         </structure>
     </grammar>
 </ufwb>
