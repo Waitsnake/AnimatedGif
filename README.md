@@ -1,10 +1,10 @@
 # AnimatedGif
 
-AnimatedGif is an screensaver for Mac OSX / macOS that plays animated gif's.
+AnimatedGif is an screensaver for Mac OSX / macOS that plays animated GIFs.
 
-It also has a background mode to let you run the gif as a desktop background (or wallpaper). Unfortunately the screensaver clock is not working together with background mode and will be disabled. But the clock works fine in normal screensaver mode. The background mode can be enabled under "Screen Saver Options" in macOS.
+It also has a background mode to let you run the gif as a desktop background (or wallpaper). The background mode can be enabled under "Screen Saver Options" in macOS.
 
-You can either open only one single GIF file file or you can choose a directory that contains more than one GIF file. In case of a selected directory the option panel of screensaver will let you choose a time between 1 and 30 minutes after which the GIF file is randomly changed.
+You can either open only one single GIF file or you can choose a directory that contains more than one GIF file. In case of a selected directory the option panel of screensaver will let you choose a time between 1 and 30 minutes after which the GIF file is randomly changed.
 
 Since 1.5.1 also animated PNG (Animated Portable Network Graphics (APNG)) are supported (starting with OSX 10.10).
 <br>
@@ -24,6 +24,8 @@ The latest release 1.5.2 was compiled with Xcode 10.2.1 with SDK for OSX 10.14 M
 Since release 1.5.0 AnimatedGif supports Metal(API) for rendering.
 
 When started AnimatedGif tries to initialise Metal as first choice for rendering. Only if this initialisation fails (on MacOSX versions older than El Capitan (10.11) or not supported Macs(usually Macs older as Mid 2012; except Mac Pro models from Mid 2010 with supported graphics card)) it tries to initialise OpenGL for rendering(as it was default between release 1.0 till 1.4.0).
+
+Unfortunately the screensaver clock is not working together with background mode and will be disabled if background mode is enabled. But the clock works fine in normal screensaver mode.
 
 <br>
 
