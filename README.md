@@ -9,6 +9,10 @@ You can either open only one single GIF file file or you can choose a directory 
 Since 1.5.1 also animated PNG (Animated Portable Network Graphics (APNG)) are supported (starting with OSX 10.10).
 <br>
 
+<p align="left">
+<img src="readme_extra/intro.png?raw=true"/>
+</p>
+
 ## Compatibility
 
 This project was originally (release 1.0) written with Xcode 6.2 and SDK for OSX 10.9 Mavericks. 
