@@ -72,8 +72,10 @@
     // keep track of whether or not drawRect: should erase the background
     NSMutableArray *animationImages;
     NSMutableArray *animationDurations;
+    NSLock *arrayLock;
     NSInteger currFrameCount;
     NSInteger maxFrameCount;
+    NSInteger lastLoadFrame;
     NSImage *img;
     NSBitmapImageRep *imgRep;
     float backgrRed;
@@ -119,7 +121,9 @@
 - (void) animateNoGifGL;
 - (void) animateWithGifGL;
 - (void) drawAttributedStringGL:(NSAttributedString *)attributedString atPoint:(NSPoint)point;
-- (void) drawImageGL:(void *)pixelsBytes pixelWidth:(NSInteger)width pixelHeight:(NSInteger)height withFilter:(NSInteger)filter hasAlpha: (Boolean)alpha atRect:(NSRect) rect;
+- (void) drawImageGL:(GLuint)textureName pixelWidth:(NSInteger)width pixelHeight:(NSInteger)height withFilter:(NSInteger)filter hasAlpha: (Boolean)alpha atRect:(NSRect) rect;
+- (GLuint) loadGLTextureFromPixels:(void*)pixelsBytes withWidh:(NSInteger)width andHeight:(NSInteger)height;
+- (void) unloadGLTexture:(GLuint)textureName;
 
 - (MTKView *)createViewMTL;
 - (void) startRenderMTL:(BOOL)allowScale;
@@ -127,7 +131,10 @@
 - (void) animateNoGifMTL;
 - (void) animateWithGifMTL;
 - (void) drawAttributedStringMTL:(NSAttributedString *)attributedString atPoint:(NSPoint)point;
-- (void) drawImageMTL:(void *)pixelsBytes pixelWidth:(NSInteger)width pixelHeight:(NSInteger)height withFilter:(NSInteger)filter hasAlpha: (Boolean)alpha atRect:(NSRect) rect;
+- (void) drawImageMTL:(id<MTLTexture>) texture pixelWidth:(NSInteger)width pixelHeight:(NSInteger)height withFilter:(NSInteger)filter hasAlpha: (Boolean)alpha atRect:(NSRect) rect;
+- (void)generateMipmapsForTexture:(id<MTLTexture>)texture;
+- (id<MTLTexture>)loadMTLTextureFromPixels:(void*)pixelsBytes withWidh:(NSInteger)width andHeight:(NSInteger)height;
+- (void) unloadMTLTexture:(id<MTLTexture>)texture;
 
 - (float)pictureRatioFromWidth:(float)iWidth andHeight:(float)iHeight;
 - (float)calcWidthFromRatio:(float)iRatio andHeight:(float)iHeight;

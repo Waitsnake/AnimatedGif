@@ -17,7 +17,9 @@
     glView = nil;
     trigByTimer = FALSE;
     lastDuration = 0;
+    animationImages = nil;
     currFrameCount = FRAME_COUNT_NOT_USED;
+    arrayLock = [[NSLock alloc] init];
     self = [super initWithFrame:frame isPreview:isPreview];
     
     // initialize screensaver defaults with an default value
@@ -406,8 +408,10 @@
     if (loadAnimationToMem == TRUE)
     {
         /*clean all pre-calculated bitmap images*/
+        [arrayLock lock]; // NSMutableArray isn't thread-safe
         [animationImages removeAllObjects];
         animationImages = nil;
+        [arrayLock unlock];
     }
     [animationDurations removeAllObjects];
     animationDurations = nil;
@@ -1417,19 +1421,35 @@
         // in case of no review mode and active config option create an array in memory with all frames of bitmap in bitmap format (can be used directly as OpenGL texture)
         if (loadAnimationToMem == TRUE)
         {
-            animationImages = [[NSMutableArray alloc] init];
-            for(NSUInteger frame=0;frame<maxFrameCount;frame++)
-            {
-                [imgRep setProperty:NSImageCurrentFrame withValue:@(frame)];
-                // bitmapData needs most CPU time during animation.
-                // thats why we execute bitmapData here during startAnimation and not in animateOneFrame. the start of screensaver will be than slower of cause, but during animation itself we need less CPU time
-                unsigned char *data = [imgRep bitmapData];
-                unsigned long size = [imgRep bytesPerPlane]*sizeof(unsigned char);
-                // copy the bitmap data into an NSData object, that can be save transferred to animateOneFrame
-                NSData *imgData = [[NSData alloc] initWithBytes:data length:size];
-                [animationImages addObject:imgData];
-                
-            }
+            // use GCD to do loading into mem asynchron since we have a lot of waiting time between for this task
+            
+            // create an semaphore for the first frame to be finished
+            dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
+            // run next loop as extra thread
+            dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0),
+            ^ {
+                [self->arrayLock lock]; // NSMutableArray isn't thread-safe
+                self->animationImages = [[NSMutableArray alloc] init];
+                [self->arrayLock unlock];
+                for(NSUInteger frame=0;frame<self->maxFrameCount;frame++)
+                {
+                    [self->imgRep setProperty:NSImageCurrentFrame withValue:@(frame)];
+                    // bitmapData needs most CPU time during animation.
+                    // thats why we execute bitmapData here during startAnimation and not in animateOneFrame. the start of screensaver will be than slower of cause, but during animation itself we need less CPU time
+                    unsigned char *data = [self->imgRep bitmapData];
+                    unsigned long size = [self->imgRep bytesPerPlane]*sizeof(unsigned char);
+                    // copy the bitmap data into an NSData object, that can be save transferred to animateOneFrame
+                    NSData *imgData = [[NSData alloc] initWithBytes:data length:size];
+                    [self->arrayLock lock]; // NSMutableArray isn't thread-safe
+                    [self->animationImages addObject:imgData];
+                    [self->arrayLock unlock];
+                    // tell that a frame is finished
+                    dispatch_semaphore_signal(semaphore);
+                }
+            });
+            // just wait for the first frame to be done so we have a valid animationImages object with one frame to begin with
+            dispatch_semaphore_wait(semaphore, DISPATCH_TIME_FOREVER);
+            lastLoadFrame = FIRST_FRAME;
         }
         
         // GIF was loaded
@@ -1580,23 +1600,55 @@
     texturSize.height = [bitmap pixelsHigh];
     NSRect bounds = NSMakeRect (point.x, point.y, texturSize.width, texturSize.height);
     
-    [self drawImageGL:[bitmap bitmapData] pixelWidth:texturSize.width pixelHeight:texturSize.height withFilter:FILTER_OPT_BLUR hasAlpha:YES atRect:bounds];
+    GLuint texture = [self loadGLTextureFromPixels:[bitmap bitmapData] withWidh:texturSize.width andHeight:texturSize.height];
+    [self drawImageGL:texture pixelWidth:texturSize.width pixelHeight:texturSize.height withFilter:FILTER_OPT_BLUR hasAlpha:YES atRect:bounds];
+    [self unloadGLTexture:texture];
 }
 
-- (void) drawImageGL:(void *)pixelsBytes pixelWidth:(NSInteger)width pixelHeight:(NSInteger)height withFilter:(NSInteger)filter hasAlpha: (Boolean)alpha atRect:(NSRect) rect
+- (void) drawImageGL:(GLuint)textureName pixelWidth:(NSInteger)width pixelHeight:(NSInteger)height withFilter:(NSInteger)filter hasAlpha: (Boolean)alpha atRect:(NSRect) rect
 {
-    glEnable(GL_TEXTURE_2D);
+    if (textureName==0) return;
+    
+    // enable alpha blending if needed
     if (alpha == TRUE) {
         glEnable(GL_BLEND);
         glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
     }
+
+    // reference to a texture we allready loaded by textureName
+    glBindTexture(GL_TEXTURE_2D,textureName);
+    // enable texture mapping for glBegin(GL_QUADS)
+    glEnable(GL_TEXTURE_2D);
+    // define the target position of texture (related to screen defined by glOrtho) witch makes the texture visible
+    float x = rect.origin.x;
+    float y = rect.origin.y;
+    float iheight = rect.size.height;
+    float iwidth = rect.size.width;
+    glBegin( GL_QUADS );
+    glTexCoord2f( 0.f, 0.f ); glVertex2f(x, y); //Bottom left
+    glTexCoord2f( 1.f, 0.f ); glVertex2f(x + iwidth, y); //Bottom right
+    glTexCoord2f( 1.f, 1.f ); glVertex2f(x + iwidth, y + iheight); //Top right
+    glTexCoord2f( 0.f, 1.f ); glVertex2f(x, y + iheight); //Top left
+    glEnd();
     
-    //get one free texture name
+    // disable texture mapping
+    glDisable(GL_TEXTURE_2D);
+    
+    // disable alpha blending
+    if (alpha == TRUE) {
+        glDisable(GL_BLEND);
+    }
+}
+
+- (GLuint)loadGLTextureFromPixels:(void*)pixelsBytes withWidh:(NSInteger)width andHeight:(NSInteger)height
+{
     GLuint frameTextureName;
+    if (pixelsBytes == NULL) return 0;
+    // add the texture
     glGenTextures(1, &frameTextureName);
     //bind a Texture object to the name
     glBindTexture(GL_TEXTURE_2D,frameTextureName);
-    
+
     // set paramter for texture
     if (filter == FILTER_OPT_BLUR)
     {
@@ -1619,35 +1671,24 @@
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     
     glTexImage2D(GL_TEXTURE_2D,
-                     0,
-                     GL_RGBA,
-                     (GLint)width,
-                     (GLint)height,
-                     0,
-                     GL_RGBA,
-                     GL_UNSIGNED_BYTE,
-                     pixelsBytes
-                     );
-    
-    // generate Mipmap
+                 0,
+                 GL_RGBA,
+                 (GLint)width,
+                 (GLint)height,
+                 0,
+                 GL_RGBA,
+                 GL_UNSIGNED_BYTE,
+                 pixelsBytes
+                 );
+    //genereate mipmaps
     glGenerateMipmap(GL_TEXTURE_2D);
-    
-    // define the target position of texture (related to screen defined by glOrtho) witch makes the texture visible
-    float x = rect.origin.x;
-    float y = rect.origin.y;
-    float iheight = rect.size.height;
-    float iwidth = rect.size.width;
-    glBegin( GL_QUADS );
-    glTexCoord2f( 0.f, 0.f ); glVertex2f(x, y); //Bottom left
-    glTexCoord2f( 1.f, 0.f ); glVertex2f(x + iwidth, y); //Bottom right
-    glTexCoord2f( 1.f, 1.f ); glVertex2f(x + iwidth, y + iheight); //Top right
-    glTexCoord2f( 0.f, 1.f ); glVertex2f(x, y + iheight); //Top left
-    glEnd();
-    
-    glDisable(GL_BLEND);
-    glDisable(GL_TEXTURE_2D);
-    
-    glDeleteTextures(1,&frameTextureName);
+
+    return frameTextureName;
+}
+
+-(void) unloadGLTexture:(GLuint)textureName
+{
+    glDeleteTextures(1,&textureName);
 }
 
 - (void) animateNoGifGL
@@ -1688,7 +1729,9 @@
             void *pixelDataIcon= [iconRep bitmapData];
             if (pixelDataIcon != NULL)
             {
-                [self drawImageGL:pixelDataIcon pixelWidth: [iconRep pixelsWide] pixelHeight:[iconRep pixelsHigh] withFilter:FILTER_OPT_BLUR hasAlpha:[iconRep hasAlpha] atRect:NSMakeRect(screenRect.size.width/2 - iconSize.width/2, screenRect.size.height/4*3 - iconSize.height/2, iconSize.width, iconSize.height)];
+                GLuint texture = [self loadGLTextureFromPixels:pixelDataIcon withWidh:[iconRep pixelsWide] andHeight:[iconRep pixelsHigh] ];
+                [self drawImageGL:texture pixelWidth: [iconRep pixelsWide] pixelHeight:[iconRep pixelsHigh] withFilter:FILTER_OPT_BLUR hasAlpha:[iconRep hasAlpha] atRect:NSMakeRect(screenRect.size.width/2 - iconSize.width/2, screenRect.size.height/4*3 - iconSize.height/2, iconSize.width, iconSize.height)];
+                [self unloadGLTexture:texture];
             }
         }
     }
@@ -1703,9 +1746,22 @@
     void *pixelData=NULL;
     if (loadAnimationToMem == TRUE)
     {
-        // we load bitmap data from memory and save CPU time (created during startAnimation)
-        NSData *pixels = [animationImages objectAtIndex:currFrameCount];
-        pixelData = (void*)[pixels bytes];
+        // if not all frames done we might have some frame drops at the start, but thats better than waiting to long at the start to load all frames into memory at ones
+        [arrayLock lock]; // NSMutableArray isn't thread-safe
+        if ((animationImages != nil) && (([animationImages count]-1)>=currFrameCount))
+        {
+            // we load bitmap data from memory and save CPU time (created during startAnimation)
+            NSData *pixels = [animationImages objectAtIndex:currFrameCount];
+            pixelData = (void*)[pixels bytes];
+            lastLoadFrame = currFrameCount;
+        }
+        else
+        {
+            // we stay at the last frame a bit longer
+            NSData *pixels = [animationImages objectAtIndex:lastLoadFrame];
+            pixelData = (void*)[pixels bytes];
+        }
+        [arrayLock unlock];
     }
     else
     {
@@ -1714,10 +1770,12 @@
         pixelData = [imgRep bitmapData];
     }
     
+    GLuint texture = [self loadGLTextureFromPixels:pixelData withWidh:[imgRep pixelsWide] andHeight:[imgRep pixelsHigh]];
+    
     if (tiles == TILE_OPT_1)
     {
         // only draw one tile
-        [self drawImageGL:pixelData pixelWidth: [imgRep pixelsWide] pixelHeight:[imgRep pixelsHigh] withFilter:filter hasAlpha:[imgRep hasAlpha] atRect:targetRect];
+        [self drawImageGL:texture pixelWidth: [imgRep pixelsWide] pixelHeight:[imgRep pixelsHigh] withFilter:filter hasAlpha:[imgRep hasAlpha] atRect:targetRect];
     }
     else
     {
@@ -1731,16 +1789,18 @@
         NSRect r13 = NSMakeRect(targetRect.origin.x, targetRect.origin.y+targetRect.size.height/3*2, targetRect.size.width/3, targetRect.size.height/3);
         NSRect r23 = NSMakeRect(targetRect.origin.x+targetRect.size.width/3, targetRect.origin.y+targetRect.size.height/3*2, targetRect.size.width/3, targetRect.size.height/3);
         NSRect r33 = NSMakeRect(targetRect.origin.x+targetRect.size.width/3*2, targetRect.origin.y+targetRect.size.height/3*2, targetRect.size.width/3, targetRect.size.height/3);
-        [self drawImageGL:pixelData pixelWidth: [imgRep pixelsWide] pixelHeight:[imgRep pixelsHigh] withFilter:filter hasAlpha:[imgRep hasAlpha] atRect:r11];
-        [self drawImageGL:pixelData pixelWidth: [imgRep pixelsWide] pixelHeight:[imgRep pixelsHigh] withFilter:filter hasAlpha:[imgRep hasAlpha] atRect:r21];
-        [self drawImageGL:pixelData pixelWidth: [imgRep pixelsWide] pixelHeight:[imgRep pixelsHigh] withFilter:filter hasAlpha:[imgRep hasAlpha] atRect:r31];
-        [self drawImageGL:pixelData pixelWidth: [imgRep pixelsWide] pixelHeight:[imgRep pixelsHigh] withFilter:filter hasAlpha:[imgRep hasAlpha] atRect:r12];
-        [self drawImageGL:pixelData pixelWidth: [imgRep pixelsWide] pixelHeight:[imgRep pixelsHigh] withFilter:filter hasAlpha:[imgRep hasAlpha] atRect:r22];
-        [self drawImageGL:pixelData pixelWidth: [imgRep pixelsWide] pixelHeight:[imgRep pixelsHigh] withFilter:filter hasAlpha:[imgRep hasAlpha] atRect:r32];
-        [self drawImageGL:pixelData pixelWidth: [imgRep pixelsWide] pixelHeight:[imgRep pixelsHigh] withFilter:filter hasAlpha:[imgRep hasAlpha] atRect:r13];
-        [self drawImageGL:pixelData pixelWidth: [imgRep pixelsWide] pixelHeight:[imgRep pixelsHigh] withFilter:filter hasAlpha:[imgRep hasAlpha] atRect:r23];
-        [self drawImageGL:pixelData pixelWidth: [imgRep pixelsWide] pixelHeight:[imgRep pixelsHigh] withFilter:filter hasAlpha:[imgRep hasAlpha] atRect:r33];
+        [self drawImageGL:texture pixelWidth: [imgRep pixelsWide] pixelHeight:[imgRep pixelsHigh] withFilter:filter hasAlpha:[imgRep hasAlpha] atRect:r11];
+        [self drawImageGL:texture pixelWidth: [imgRep pixelsWide] pixelHeight:[imgRep pixelsHigh] withFilter:filter hasAlpha:[imgRep hasAlpha] atRect:r21];
+        [self drawImageGL:texture pixelWidth: [imgRep pixelsWide] pixelHeight:[imgRep pixelsHigh] withFilter:filter hasAlpha:[imgRep hasAlpha] atRect:r31];
+        [self drawImageGL:texture pixelWidth: [imgRep pixelsWide] pixelHeight:[imgRep pixelsHigh] withFilter:filter hasAlpha:[imgRep hasAlpha] atRect:r12];
+        [self drawImageGL:texture pixelWidth: [imgRep pixelsWide] pixelHeight:[imgRep pixelsHigh] withFilter:filter hasAlpha:[imgRep hasAlpha] atRect:r22];
+        [self drawImageGL:texture pixelWidth: [imgRep pixelsWide] pixelHeight:[imgRep pixelsHigh] withFilter:filter hasAlpha:[imgRep hasAlpha] atRect:r32];
+        [self drawImageGL:texture pixelWidth: [imgRep pixelsWide] pixelHeight:[imgRep pixelsHigh] withFilter:filter hasAlpha:[imgRep hasAlpha] atRect:r13];
+        [self drawImageGL:texture pixelWidth: [imgRep pixelsWide] pixelHeight:[imgRep pixelsHigh] withFilter:filter hasAlpha:[imgRep hasAlpha] atRect:r23];
+        [self drawImageGL:texture pixelWidth: [imgRep pixelsWide] pixelHeight:[imgRep pixelsHigh] withFilter:filter hasAlpha:[imgRep hasAlpha] atRect:r33];
     }
+    
+    [self unloadGLTexture:texture];
     
     [self endRenderGL];
 }
@@ -1791,11 +1851,17 @@
     texturSize.height = [bitmap pixelsHigh];
     NSRect bounds = NSMakeRect (point.x, point.y, texturSize.width, texturSize.height);
     
-    [self drawImageMTL:[bitmap bitmapData] pixelWidth:texturSize.width pixelHeight:texturSize.height withFilter:FILTER_OPT_BLUR hasAlpha:YES atRect:bounds];
+    id<MTLTexture> texture = [self loadMTLTextureFromPixels:[bitmap bitmapData] withWidh:texturSize.width andHeight:texturSize.height];
+    
+    [self drawImageMTL:texture pixelWidth:texturSize.width pixelHeight:texturSize.height withFilter:FILTER_OPT_BLUR hasAlpha:YES atRect:bounds];
+    
+    [self unloadMTLTexture:texture];
 }
 
-- (void) drawImageMTL:(void *)pixelsBytes pixelWidth:(NSInteger)width pixelHeight:(NSInteger)height withFilter:(NSInteger)filter hasAlpha: (Boolean)alpha atRect:(NSRect) rect
+- (void) drawImageMTL:(id<MTLTexture>) texture pixelWidth:(NSInteger)width pixelHeight:(NSInteger)height withFilter:(NSInteger)filter hasAlpha: (Boolean)alpha atRect:(NSRect) rect
 {
+    if (texture==nil) return;
+    
     // update alpha blending depending on hasAlpha (in an GIF file not each frame uses alpha blending and it needs to be set for each frame individually)
     NSError *err = nil;
     pipelineStateDescriptor.colorAttachments[0].blendingEnabled = alpha;
@@ -1821,37 +1887,25 @@
     {
         samplerDescriptor.minFilter = MTLSamplerMinMagFilterLinear;
         samplerDescriptor.magFilter = MTLSamplerMinMagFilterLinear;
-        //samplerDescriptor.mipFilter = MTLSamplerMipFilterLinear;
+        samplerDescriptor.mipFilter = MTLSamplerMipFilterLinear;
     }
     else if (filter == FILTER_OPT_SHARP)
     {
         samplerDescriptor.minFilter = MTLSamplerMinMagFilterNearest;
         samplerDescriptor.magFilter = MTLSamplerMinMagFilterNearest;
-        //samplerDescriptor.mipFilter = MTLSamplerMipFilterNearest;
+        samplerDescriptor.mipFilter = MTLSamplerMipFilterNearest;
     }
     else
     {
         // use sharp filter as default
         samplerDescriptor.minFilter = MTLSamplerMinMagFilterNearest;
         samplerDescriptor.magFilter = MTLSamplerMinMagFilterNearest;
-        //samplerDescriptor.mipFilter = MTLSamplerMipFilterNearest;
+        samplerDescriptor.mipFilter = MTLSamplerMipFilterNearest;
     }
     samplerDescriptor.sAddressMode = MTLSamplerAddressModeRepeat;
     samplerDescriptor.tAddressMode = MTLSamplerAddressModeRepeat;
     id<MTLSamplerState> sampler = [deviceMTL newSamplerStateWithDescriptor:samplerDescriptor];
     [renderMTL setFragmentSamplerState:sampler atIndex:0];
-
-    // add the texture
-    MTLTextureDescriptor *textureDescriptor = [MTLTextureDescriptor texture2DDescriptorWithPixelFormat:MTLPixelFormatRGBA8Unorm width:width height:height mipmapped:YES];
-    id<MTLTexture> texture = [deviceMTL newTextureWithDescriptor:textureDescriptor];
-    MTLRegion region = MTLRegionMake2D(0, 0, width, height);
-    [texture replaceRegion:region mipmapLevel:0 withBytes:pixelsBytes bytesPerRow:width*SIZE_OF_BGRA_PIXEL];
-    
-    /* TODO: use blitter to genereate mipmaps
-       comment out since this increases CPU load quite a lot, especially when rendering the 3x3 tiles
-       -> it would be better in this case to greate mimmaps only once per texture instead of 9 times as the code is structured at the moment
-     */
-    //[self generateMipmapsForTexture:texture];
     
     [renderMTL setFragmentTexture:texture atIndex:0];
     
@@ -1896,7 +1950,9 @@
             void *pixelDataIcon= [iconRep bitmapData];
             if (pixelDataIcon != NULL)
             {
-                [self drawImageMTL:pixelDataIcon pixelWidth: [iconRep pixelsWide] pixelHeight:[iconRep pixelsHigh] withFilter:FILTER_OPT_BLUR hasAlpha:[iconRep hasAlpha] atRect:NSMakeRect(screenRect.size.width/2 - iconSize.width/2, screenRect.size.height/4*3 - iconSize.height/2, iconSize.width, iconSize.height)];
+                id<MTLTexture> texture = [self loadMTLTextureFromPixels:pixelDataIcon withWidh:[iconRep pixelsWide] andHeight:[iconRep pixelsHigh]];
+                [self drawImageMTL:texture pixelWidth: [iconRep pixelsWide] pixelHeight:[iconRep pixelsHigh] withFilter:FILTER_OPT_BLUR hasAlpha:[iconRep hasAlpha] atRect:NSMakeRect(screenRect.size.width/2 - iconSize.width/2, screenRect.size.height/4*3 - iconSize.height/2, iconSize.width, iconSize.height)];
+                [self unloadMTLTexture:texture];
             }
         }
     }
@@ -1911,9 +1967,22 @@
     void *pixelData=NULL;
     if (loadAnimationToMem == TRUE)
     {
-        // we load bitmap data from memory and save CPU time (created during startAnimation)
-        NSData *pixels = [animationImages objectAtIndex:currFrameCount];
-        pixelData = (void*)[pixels bytes];
+        // if not all frames done we might have some frame drops at the start, but thats better than waiting to long at the start to load all frames into memory at ones
+        [arrayLock lock]; // NSMutableArray isn't thread-safe
+        if ((animationImages != nil) && (([animationImages count]-1)>=currFrameCount))
+        {
+            // we load bitmap data from memory and save CPU time (created during startAnimation)
+            NSData *pixels = [animationImages objectAtIndex:currFrameCount];
+            pixelData = (void*)[pixels bytes];
+            lastLoadFrame = currFrameCount;
+        }
+        else
+        {
+            // we stay at the last frame a bit longer
+            NSData *pixels = [animationImages objectAtIndex:lastLoadFrame];
+            pixelData = (void*)[pixels bytes];
+        }
+        [arrayLock unlock];
     }
     else
     {
@@ -1922,10 +1991,12 @@
         pixelData = [imgRep bitmapData];
     }
     
+    id<MTLTexture> texture = [self loadMTLTextureFromPixels:pixelData withWidh:[imgRep pixelsWide] andHeight:[imgRep pixelsHigh] ];
+    
     if (tiles == TILE_OPT_1)
     {
         // only draw one tile
-        [self drawImageMTL:pixelData pixelWidth: [imgRep pixelsWide] pixelHeight:[imgRep pixelsHigh] withFilter:filter hasAlpha:[imgRep hasAlpha] atRect:targetRect];
+        [self drawImageMTL:texture pixelWidth: [imgRep pixelsWide] pixelHeight:[imgRep pixelsHigh] withFilter:filter hasAlpha:[imgRep hasAlpha] atRect:targetRect];
     }
     else
     {
@@ -1939,18 +2010,39 @@
         NSRect r13 = NSMakeRect(targetRect.origin.x, targetRect.origin.y+targetRect.size.height/3*2, targetRect.size.width/3, targetRect.size.height/3);
         NSRect r23 = NSMakeRect(targetRect.origin.x+targetRect.size.width/3, targetRect.origin.y+targetRect.size.height/3*2, targetRect.size.width/3, targetRect.size.height/3);
         NSRect r33 = NSMakeRect(targetRect.origin.x+targetRect.size.width/3*2, targetRect.origin.y+targetRect.size.height/3*2, targetRect.size.width/3, targetRect.size.height/3);
-        [self drawImageMTL:pixelData pixelWidth: [imgRep pixelsWide] pixelHeight:[imgRep pixelsHigh] withFilter:filter hasAlpha:[imgRep hasAlpha] atRect:r11];
-        [self drawImageMTL:pixelData pixelWidth: [imgRep pixelsWide] pixelHeight:[imgRep pixelsHigh] withFilter:filter hasAlpha:[imgRep hasAlpha] atRect:r21];
-        [self drawImageMTL:pixelData pixelWidth: [imgRep pixelsWide] pixelHeight:[imgRep pixelsHigh] withFilter:filter hasAlpha:[imgRep hasAlpha] atRect:r31];
-        [self drawImageMTL:pixelData pixelWidth: [imgRep pixelsWide] pixelHeight:[imgRep pixelsHigh] withFilter:filter hasAlpha:[imgRep hasAlpha] atRect:r12];
-        [self drawImageMTL:pixelData pixelWidth: [imgRep pixelsWide] pixelHeight:[imgRep pixelsHigh] withFilter:filter hasAlpha:[imgRep hasAlpha] atRect:r22];
-        [self drawImageMTL:pixelData pixelWidth: [imgRep pixelsWide] pixelHeight:[imgRep pixelsHigh] withFilter:filter hasAlpha:[imgRep hasAlpha] atRect:r32];
-        [self drawImageMTL:pixelData pixelWidth: [imgRep pixelsWide] pixelHeight:[imgRep pixelsHigh] withFilter:filter hasAlpha:[imgRep hasAlpha] atRect:r13];
-        [self drawImageMTL:pixelData pixelWidth: [imgRep pixelsWide] pixelHeight:[imgRep pixelsHigh] withFilter:filter hasAlpha:[imgRep hasAlpha] atRect:r23];
-        [self drawImageMTL:pixelData pixelWidth: [imgRep pixelsWide] pixelHeight:[imgRep pixelsHigh] withFilter:filter hasAlpha:[imgRep hasAlpha] atRect:r33];
+        [self drawImageMTL:texture pixelWidth: [imgRep pixelsWide] pixelHeight:[imgRep pixelsHigh] withFilter:filter hasAlpha:[imgRep hasAlpha] atRect:r11];
+        [self drawImageMTL:texture pixelWidth: [imgRep pixelsWide] pixelHeight:[imgRep pixelsHigh] withFilter:filter hasAlpha:[imgRep hasAlpha] atRect:r21];
+        [self drawImageMTL:texture pixelWidth: [imgRep pixelsWide] pixelHeight:[imgRep pixelsHigh] withFilter:filter hasAlpha:[imgRep hasAlpha] atRect:r31];
+        [self drawImageMTL:texture pixelWidth: [imgRep pixelsWide] pixelHeight:[imgRep pixelsHigh] withFilter:filter hasAlpha:[imgRep hasAlpha] atRect:r12];
+        [self drawImageMTL:texture pixelWidth: [imgRep pixelsWide] pixelHeight:[imgRep pixelsHigh] withFilter:filter hasAlpha:[imgRep hasAlpha] atRect:r22];
+        [self drawImageMTL:texture pixelWidth: [imgRep pixelsWide] pixelHeight:[imgRep pixelsHigh] withFilter:filter hasAlpha:[imgRep hasAlpha] atRect:r32];
+        [self drawImageMTL:texture pixelWidth: [imgRep pixelsWide] pixelHeight:[imgRep pixelsHigh] withFilter:filter hasAlpha:[imgRep hasAlpha] atRect:r13];
+        [self drawImageMTL:texture pixelWidth: [imgRep pixelsWide] pixelHeight:[imgRep pixelsHigh] withFilter:filter hasAlpha:[imgRep hasAlpha] atRect:r23];
+        [self drawImageMTL:texture pixelWidth: [imgRep pixelsWide] pixelHeight:[imgRep pixelsHigh] withFilter:filter hasAlpha:[imgRep hasAlpha] atRect:r33];
     }
     
+    [self unloadMTLTexture:texture];
+    
     [self endRenderMTL];
+}
+
+- (id<MTLTexture>)loadMTLTextureFromPixels:(void*)pixelsBytes withWidh:(NSInteger)width andHeight:(NSInteger)height
+{
+    if (pixelsBytes == NULL) return nil;
+    // add the texture
+    MTLTextureDescriptor *textureDescriptor = [MTLTextureDescriptor texture2DDescriptorWithPixelFormat:MTLPixelFormatRGBA8Unorm width:width height:height mipmapped:YES];
+    id<MTLTexture> texture = [deviceMTL newTextureWithDescriptor:textureDescriptor];
+    MTLRegion region = MTLRegionMake2D(0, 0, width, height);
+    [texture replaceRegion:region mipmapLevel:0 withBytes:pixelsBytes bytesPerRow:width*SIZE_OF_BGRA_PIXEL];
+
+    //use blitter to genereate mipmaps
+    [self generateMipmapsForTexture:texture];
+    return texture;
+}
+
+- (void) unloadMTLTexture:(id<MTLTexture>)texture
+{
+    texture = nil;
 }
 
 - (void)generateMipmapsForTexture:(id<MTLTexture>)texture
