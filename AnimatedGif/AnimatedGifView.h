@@ -63,7 +63,20 @@
 
 #define GL_ALPHA_OPAQUE             1.0f
 #define NS_ALPHA_OPAQUE             1.0
-#define NEVER_CHANGE_GIF            30
+
+#define CHANGE_INT_5SEC             0
+#define CHANGE_INT_15SEC            1
+#define CHANGE_INT_30SEC            2
+#define CHANGE_INT_1MIN             3
+#define CHANGE_INT_5MIN             4
+#define CHANGE_INT_10MIN            5
+#define CHANGE_INT_15MIN            6
+#define CHANGE_INT_30MIN            7
+#define CHANGE_INT_1HOUR            8
+#define CHANGE_INT_6HOUR            9
+#define CHANGE_INT_12HOUR           10
+#define CHANGE_INT_1DAY             11
+#define CHANGE_INT_NEVER            12
 
 #define SIZE_OF_BGRA_PIXEL          4
 
@@ -144,11 +157,12 @@
 - (BOOL)isDir:(NSString*)fileOrDir;
 - (NSString *)getRandomGifFile:(NSString*)fileOrDir;
 - (void)timerMethod;
-- (void)enableSliderChangeInterval:(BOOL)enable;
+- (void)enableChangeInterval:(BOOL)enable;
 - (void)enableSliderFpsManual:(BOOL)enable;
 - (void)hideFpsFromFile:(BOOL)hide;
 - (BOOL)loadGifFromFile:(NSString*)gifFileName;
 - (float)calcScaleFromScaleOption:(NSInteger)option;
+- (NSInteger)getIntervalFromOption:(NSInteger)option;
 - (NSRect)calcTargetRectFromOption:(NSInteger)option;
 - (NSTimeInterval)getDurationFromFile:(NSString*)gifFileName atFrame:(NSInteger)frame;
 - (void)setAnimationIntervalAtFrame:(NSInteger)frame;
@@ -167,12 +181,8 @@
 @property (assign) IBOutlet NSTextField *labelVersion;
 @property (assign) IBOutlet NSTextField *labelRender;
 
-@property (assign) IBOutlet NSSlider *sliderChangeInterval;
-@property (assign) IBOutlet NSTextField *labelChangeInterval;
+@property (assign) IBOutlet NSPopUpButton *popupIntervalOptions;
 @property (assign) IBOutlet NSTextField *labelChIntT1;
-@property (assign) IBOutlet NSTextField *labelChIntT2;
-@property (assign) IBOutlet NSTextField *labelChIntT3;
-@property (assign) IBOutlet NSTextField *labelChIntT4;
 
 @property (assign) IBOutlet NSSlider *sliderFpsManual;
 @property (assign) IBOutlet NSTextField *labelFpsManual;

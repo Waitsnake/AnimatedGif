@@ -25,7 +25,7 @@
     // initialize screensaver defaults with an default value
     ScreenSaverDefaults *defaults = [ScreenSaverDefaults defaultsForModuleWithName:[[NSBundle bundleForClass: [self class]] bundleIdentifier]];
     [defaults registerDefaults:[NSDictionary dictionaryWithObjectsAndKeys:
-                                 @"file:///please/select/an/gif/animation.gif", @"GifFileName", @"30.0", @"GifFrameRate", @"NO", @"GifFrameRateManual", @"0", @"ViewOpt", @"4", @"ScaleOpt", @"1", @"FilterOpt", @"0", @"TileOpt", @"0.0", @"BackgrRed", @"0.0", @"BackgrGreen", @"0.0", @"BackgrBlue", @"NO", @"LoadAniToMem", @"5", @"ChangeInterval",nil]];
+                                 @"file:///please/select/an/gif/animation.gif", @"GifFileName", @"30.0", @"GifFrameRate", @"NO", @"GifFrameRateManual", @"0", @"ViewOpt", @"4", @"ScaleOpt", @"1", @"FilterOpt", @"0", @"TileOpt", @"0.0", @"BackgrRed", @"0.0", @"BackgrGreen", @"0.0", @"BackgrBlue", @"YES", @"LoadAniToMem", @"3", @"ChangeInterval",nil]];
     
     if (self) {
         mtlView = [self createViewMTL];
@@ -292,7 +292,7 @@
     backgrRed = [defaults floatForKey:@"BackgrRed"];
     backgrGreen = [defaults floatForKey:@"BackgrGreen"];
     backgrBlue = [defaults floatForKey:@"BackgrBlue"];
-    NSInteger changeIntervalInMin = [defaults integerForKey:@"ChangeInterval"];
+    NSInteger changeIntervalOption = [defaults integerForKey:@"ChangeInterval"];
     
     // In case if preview window never use the 'load into memory' feature since it initially needs much CPU time witch is bad inside the system preferences app
     if ([self isPreview])
@@ -340,12 +340,15 @@
         scale = 1.0;
     }
     
+    // get change interval in seconds from change interval option
+    NSInteger changeIntervalInSec = [self getIntervalFromOption:changeIntervalOption];
+    
     // check if it is a file or a directory
-    if (isFileLoaded && [self isDir:gifFileName] && ((changeIntervalInMin) != NEVER_CHANGE_GIF))
+    if (isFileLoaded && [self isDir:gifFileName] && ((changeIntervalOption) != CHANGE_INT_NEVER))
     {
 
         // start a one-time timer at end of startAnimation otherwise the time for loading the GIF is part of the timer
-        changeTimer = [NSTimer scheduledTimerWithTimeInterval:(changeIntervalInMin * 60)
+        changeTimer = [NSTimer scheduledTimerWithTimeInterval:(changeIntervalInSec)
                                          target:self
                                        selector:@selector(timerMethod)
                                        userInfo:nil
@@ -598,7 +601,7 @@
         [self hideFpsFromFile:YES];
         
         // enable time interval slider only in case that an directory is selected
-        [self enableSliderChangeInterval:YES];
+        [self enableChangeInterval:YES];
     }
     else
     {
@@ -609,7 +612,7 @@
         [self hideFpsFromFile:NO];
         
         // disable time interval slider in case an file is selected
-        [self enableSliderChangeInterval:NO];
+        [self enableChangeInterval:NO];
     }
     
     if (mtlView==nil)
@@ -647,15 +650,7 @@
     [self.popupButtonViewOptions selectItemWithTag:viewOpt];
     [self.popupButtonScaleOptions selectItemWithTag:scaleOpt];
     [self.popupButtonFilterOptions selectItemWithTag:filterOpt];
-    [self.sliderChangeInterval setIntegerValue:changeInter];
-    if ([self.sliderChangeInterval intValue] == NEVER_CHANGE_GIF)
-    {
-        [self.labelChangeInterval setStringValue:[self.labelChIntT4 stringValue]];
-    }
-    else
-    {
-        [self.labelChangeInterval setStringValue:[self.sliderChangeInterval stringValue]];
-    }
+    [self.popupIntervalOptions selectItemWithTag:changeInter];
     [self enableSliderFpsManual:frameRateManual];
     [self.labelFpsManual setStringValue:[self.sliderFpsManual stringValue]];
     [self.colorWellBackgrColor setColor:[NSColor colorWithRed:bgrRed green:bgrGreen blue:bgrBlue alpha:NS_ALPHA_OPAQUE]];
@@ -720,7 +715,7 @@
     NSInteger scaleOpt = self.popupButtonScaleOptions.selectedTag;
     NSInteger filterOpt = self.popupButtonFilterOptions.selectedTag;
     NSColor *colorPicked = self.colorWellBackgrColor.color;
-    NSInteger changeInt = [self.sliderChangeInterval integerValue];
+    NSInteger changeInt = self.popupIntervalOptions.selectedTag;
     NSInteger tileOpt = 0;
     if (self.checkButtonTileOptions.state == NO)
     {
@@ -880,38 +875,17 @@
     [self.labelFpsManual setStringValue:[self.sliderFpsManual stringValue]];
 }
 
-- (IBAction)selectSliderChangeInterval:(id)sender
-{
-    // update label with actual selected value of slider
-    if ([self.sliderChangeInterval intValue] == NEVER_CHANGE_GIF)
-    {
-        [self.labelChangeInterval setStringValue:[self.labelChIntT4 stringValue]];
-    }
-    else
-    {
-        [self.labelChangeInterval setStringValue:[self.sliderChangeInterval stringValue]];
-    }
-}
-
-- (void)enableSliderChangeInterval:(BOOL)enable
+- (void)enableChangeInterval:(BOOL)enable
 {
     if (enable==TRUE)
     {
-        [self.sliderChangeInterval setEnabled:YES];
-        [self.labelChangeInterval setTextColor:[NSColor blackColor]];
         [self.labelChIntT1 setTextColor:[NSColor blackColor]];
-        [self.labelChIntT2 setTextColor:[NSColor blackColor]];
-        [self.labelChIntT3 setTextColor:[NSColor blackColor]];
-        [self.labelChIntT4 setTextColor:[NSColor blackColor]];
+        [self.popupIntervalOptions setEnabled:YES];
     }
     else
     {
-        [self.sliderChangeInterval setEnabled:NO];
-        [self.labelChangeInterval setTextColor:[NSColor lightGrayColor]];
         [self.labelChIntT1 setTextColor:[NSColor lightGrayColor]];
-        [self.labelChIntT2 setTextColor:[NSColor lightGrayColor]];
-        [self.labelChIntT3 setTextColor:[NSColor lightGrayColor]];
-        [self.labelChIntT4 setTextColor:[NSColor lightGrayColor]];
+        [self.popupIntervalOptions setEnabled:NO];
     }
 }
 
@@ -1034,7 +1008,7 @@
                  [self hideFpsFromFile:YES];
                  
                  // enable time interval slider only in case that an directory is selected
-                 [self enableSliderChangeInterval:YES];
+                 [self enableChangeInterval:YES];
              }
              else
              {
@@ -1045,7 +1019,7 @@
                  [self hideFpsFromFile:NO];
                  
                  // disable time interval slider only in case that an file is selected
-                 [self enableSliderChangeInterval:NO];
+                 [self enableChangeInterval:NO];
              }
              [self->openDlg close];
          }
@@ -1214,6 +1188,53 @@
         return fileOrDir;
     }
 
+}
+
+- (NSInteger)getIntervalFromOption:(NSInteger)option
+{
+    NSInteger changeTimeInSec = 60;
+    switch (option) {
+        case CHANGE_INT_5SEC:
+            changeTimeInSec = 5;
+            break;
+        case CHANGE_INT_15SEC:
+            changeTimeInSec = 15;
+            break;
+        case CHANGE_INT_30SEC:
+            changeTimeInSec = 30;
+            break;
+        case CHANGE_INT_1MIN:
+            changeTimeInSec = 60;
+            break;
+        case CHANGE_INT_5MIN:
+            changeTimeInSec = 5 * 60;
+            break;
+        case CHANGE_INT_10MIN:
+            changeTimeInSec = 10 * 60;
+            break;
+        case CHANGE_INT_15MIN:
+            changeTimeInSec = 15 * 60;
+            break;
+        case CHANGE_INT_30MIN:
+            changeTimeInSec = 30 * 60;
+            break;
+        case CHANGE_INT_1HOUR:
+            changeTimeInSec = 60 * 60;
+            break;
+        case CHANGE_INT_6HOUR:
+            changeTimeInSec = 6 * 60 * 60;
+            break;
+        case CHANGE_INT_12HOUR:
+            changeTimeInSec = 12 * 60 * 60;
+            break;
+        case CHANGE_INT_1DAY:
+            changeTimeInSec = 24 * 60 * 60;
+            break;
+        default:
+            changeTimeInSec = 60;
+            break;
+    }
+    return changeTimeInSec;
 }
 
 - (float)calcScaleFromScaleOption:(NSInteger)option
