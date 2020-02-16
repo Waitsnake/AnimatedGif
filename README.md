@@ -17,7 +17,7 @@ The release 1.4.0 was compiled with Xcode 10.1 with SDK for OSX 10.14 Mojave. It
 
 The latest release 1.5.3 was compiled with Xcode 10.2.1 with SDK for OSX 10.14 Mojave. It was tested successfully under Mavericks(10.9.5), High Sierra(10.13.6) and Mojave(10.14.5).
 
-_Note: AnimatedGif is **not working** with Catalina(10.15), see issue <a href="https://github.com/Waitsnake/AnimatedGif/issues/57">#57</a> and  <a href="https://github.com/Waitsnake/AnimatedGif/issues/59">#59</a>._
+_Note: AnimatedGif is **not working** with Catalina(10.15) since screensavers are now sandboxed (this means no GIF files can be selected or read from local disk and also background mode is broken), see issue <a href="https://github.com/Waitsnake/AnimatedGif/issues/57">#57</a>._
 
 Since release 1.5.0 AnimatedGif supports Metal(API) for rendering.
 
