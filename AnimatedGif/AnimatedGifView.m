@@ -1623,12 +1623,13 @@
     NSSize frameSize = NSMakeSize(0.0f, 0.0f);
     
     frameSize = [attributedString size];
-    NSImage * image = [[NSImage alloc] initWithSize:frameSize];
-    [image lockFocus];
-    [[NSGraphicsContext currentContext] setShouldAntialias:YES];
+    NSBitmapImageRep *bitmap = [[NSBitmapImageRep alloc] initWithBitmapDataPlanes:NULL pixelsWide:round(frameSize.width) pixelsHigh:round(frameSize.height)
+        bitsPerSample:8 samplesPerPixel:4 hasAlpha:YES isPlanar:NO colorSpaceName:NSCalibratedRGBColorSpace bitmapFormat:NS32BitLittleEndianBitmapFormat bytesPerRow:round(frameSize.width)*4 bitsPerPixel:0];
+    NSGraphicsContext *context = [NSGraphicsContext graphicsContextWithBitmapImageRep:bitmap];
+    [NSGraphicsContext saveGraphicsState];
+    [NSGraphicsContext setCurrentContext:context];
     [attributedString drawAtPoint:NSMakePoint (0.0f, 0.0f)];
-    NSBitmapImageRep *bitmap = [[NSBitmapImageRep alloc] initWithFocusedViewRect:NSMakeRect(0.0f, 0.0f, frameSize.width, frameSize.height)];
-    [image unlockFocus];
+    [NSGraphicsContext restoreGraphicsState];
     texturSize.width = [bitmap pixelsWide];
     texturSize.height = [bitmap pixelsHigh];
     NSRect bounds = NSMakeRect (point.x, point.y, texturSize.width, texturSize.height);
@@ -1874,12 +1875,13 @@
     NSSize frameSize = NSMakeSize(0.0f, 0.0f);
     
     frameSize = [attributedString size];
-    NSImage * image = [[NSImage alloc] initWithSize:frameSize];
-    [image lockFocus];
-    [[NSGraphicsContext currentContext] setShouldAntialias:YES];
+    NSBitmapImageRep *bitmap = [[NSBitmapImageRep alloc] initWithBitmapDataPlanes:NULL pixelsWide:round(frameSize.width) pixelsHigh:round(frameSize.height)
+        bitsPerSample:8 samplesPerPixel:4 hasAlpha:YES isPlanar:NO colorSpaceName:NSCalibratedRGBColorSpace bitmapFormat:NS32BitLittleEndianBitmapFormat bytesPerRow:round(frameSize.width)*4 bitsPerPixel:0];
+    NSGraphicsContext *context = [NSGraphicsContext graphicsContextWithBitmapImageRep:bitmap];
+    [NSGraphicsContext saveGraphicsState];
+    [NSGraphicsContext setCurrentContext:context];
     [attributedString drawAtPoint:NSMakePoint (0.0f, 0.0f)];
-    NSBitmapImageRep *bitmap = [[NSBitmapImageRep alloc] initWithFocusedViewRect:NSMakeRect(0.0f, 0.0f, frameSize.width, frameSize.height)];
-    [image unlockFocus];
+    [NSGraphicsContext restoreGraphicsState];
     texturSize.width = [bitmap pixelsWide];
     texturSize.height = [bitmap pixelsHigh];
     NSRect bounds = NSMakeRect (point.x, point.y, texturSize.width, texturSize.height);
