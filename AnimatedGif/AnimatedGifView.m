@@ -58,7 +58,7 @@
         
         NSString *pathToScreenSaverEngine = @"/System/Library/Frameworks/ScreenSaver.framework/Resources/ScreenSaverEngine.app/Contents/MacOS/ScreenSaverEngine";
         NSOperatingSystemVersion osVer = [[NSProcessInfo processInfo] operatingSystemVersion];
-        if (osVer.majorVersion > 10 || osVer.minorVersion > 12)
+        if ((osVer.majorVersion > 10) || ((osVer.minorVersion > 12) && (osVer.majorVersion == 10)))
         {
             pathToScreenSaverEngine = @"/System/Library/CoreServices/ScreenSaverEngine.app/Contents/MacOS/ScreenSaverEngine";
         }
@@ -655,16 +655,28 @@
     [self.labelFpsManual setStringValue:[self.sliderFpsManual stringValue]];
     [self.colorWellBackgrColor setColor:[NSColor colorWithRed:bgrRed green:bgrGreen blue:bgrBlue alpha:NS_ALPHA_OPAQUE]];
     
-    // set segment button depending if the launch-agent is active or not
-    NSString *userLaunchAgentsPath = [[NSString alloc] initWithFormat:@"%@%@%@", @"/Users/", NSUserName(), @"/Library/LaunchAgents/com.waitsnake.animatedgif.plist"];
-    BOOL launchAgentFileExists = [[NSFileManager defaultManager] fileExistsAtPath:userLaunchAgentsPath];
-    if (launchAgentFileExists == YES)
+    NSOperatingSystemVersion osVer = [[NSProcessInfo processInfo] operatingSystemVersion];
+    if ((osVer.majorVersion > 10) || ((osVer.minorVersion > 14) && (osVer.majorVersion == 10)))
     {
-        self.segmentButtonLaunchAgent.selectedSegment = LOAD_BTN;
+        // disable segment button for Catalina, Big Sur or later OS since Sandbox prohibits this feature
+        self.segmentButtonLaunchAgent.enabled = false;
+        self.segmentButtonLaunchAgent.toolTip = @"Not longer supported";
     }
     else
     {
-        self.segmentButtonLaunchAgent.selectedSegment = UNLOAD_BTN;
+        // still allow this feature for Mojave or lower OS
+        
+        // set segment button depending if the launch-agent is active or not
+        NSString *userLaunchAgentsPath = [[NSString alloc] initWithFormat:@"%@%@%@", @"/Users/", NSUserName(), @"/Library/LaunchAgents/com.waitsnake.animatedgif.plist"];
+        BOOL launchAgentFileExists = [[NSFileManager defaultManager] fileExistsAtPath:userLaunchAgentsPath];
+        if (launchAgentFileExists == YES)
+        {
+            self.segmentButtonLaunchAgent.selectedSegment = LOAD_BTN;
+        }
+        else
+        {
+            self.segmentButtonLaunchAgent.selectedSegment = UNLOAD_BTN;
+        }
     }
     
     // return the new created options dialog
@@ -1047,7 +1059,7 @@
     
     NSString *pathToScreenSaverEngine = @"/System/Library/Frameworks/ScreenSaver.framework/Resources/ScreenSaverEngine.app/Contents/MacOS/ScreenSaverEngine";
     NSOperatingSystemVersion osVer = [[NSProcessInfo processInfo] operatingSystemVersion];
-    if (osVer.majorVersion > 10 || osVer.minorVersion > 12)
+    if ((osVer.majorVersion > 10) || ((osVer.minorVersion > 12) && (osVer.majorVersion == 10)))
     {
         pathToScreenSaverEngine = @"/System/Library/CoreServices/ScreenSaverEngine.app/Contents/MacOS/ScreenSaverEngine";
     }
@@ -1412,7 +1424,7 @@
                     // Because of ths on lower systems a APNG will stand still like an normal PNG.
                     NSNumber *durationPNG = 0;
                     NSOperatingSystemVersion osVer = [[NSProcessInfo processInfo] operatingSystemVersion];
-                    if (osVer.majorVersion > 10 || osVer.minorVersion >= 10)
+                    if ((osVer.majorVersion > 10) || ((osVer.minorVersion >= 10) && (osVer.majorVersion == 10)))
                     {
                         durationPNG = [[properties objectForKey:(__bridge NSString *)kCGImagePropertyPNGDictionary]
                                        objectForKey:(__bridge NSString *) kCGImagePropertyAPNGUnclampedDelayTime];
@@ -1565,7 +1577,7 @@
         // Because of ths on lower systems a APNG will stand still like an normal PNG.
         NSNumber *durationPNG = 0;
         NSOperatingSystemVersion osVer = [[NSProcessInfo processInfo] operatingSystemVersion];
-        if (osVer.majorVersion > 10 || osVer.minorVersion >= 10)
+        if ((osVer.majorVersion > 10) || ((osVer.minorVersion >= 10) && (osVer.majorVersion == 10)))
         {
             durationPNG = [[properties objectForKey:(__bridge NSString *)kCGImagePropertyPNGDictionary]
                                  objectForKey:(__bridge NSString *) kCGImagePropertyAPNGUnclampedDelayTime];
