@@ -6,11 +6,11 @@
 //  Copyright © 2019 Marco Köhler. All rights reserved.
 //
 
-#include <metal_stdlib>
 #include <simd/simd.h>
 #include "Structs.h"
 
 using namespace metal;
+#include <metal_stdlib>
 
 // this Metal file defines the code for the shader that run on the GPU
 
@@ -38,7 +38,7 @@ struct RasterizerData {
     float2 textCoord;
 };
 
-vertex RasterizerData myVertexShader(device Vertex* vertexArray    [[ buffer(0) ]],
+vertex RasterizerData myVertexShader(const device Vertex* vertexArray    [[ buffer(0) ]],
                                      constant uniforms_t& uniforms [[ buffer(1) ]],
                                      //constant float4x4 &projection [[ buffer(1) ]],
                                      unsigned int vid              [[ vertex_id ]])
