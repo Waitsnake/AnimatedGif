@@ -11,15 +11,10 @@ Since 1.5.1 also animated PNG (Animated Portable Network Graphics (APNG)) are su
 
 ## Compatibility
 
-This project was originally (release 1.0) written with Xcode 6.2 and SDK for OSX 10.9 Mavericks. 
+_Note: AnimatedGif is **not working** with **Catalina(10.15-10.15.7)** and early versions of **Big Sur(before 11.5.2)** since screensavers are to strong sandboxed in this versions of macOS(this means no GIF files can be selected or read from local disk and also background mode is broken), see issue <a href="https://github.com/Waitsnake/AnimatedGif/issues/57">#57</a> and <a href="https://github.com/Waitsnake/AnimatedGif/issues/63">#63</a>.
+Later OS versions of Big Sur starting with 10.5.2 make the Sandbox a bit more open and at least allow selection of local user files._
 
-The release 1.4.0 was compiled with Xcode 10.1 with SDK for OSX 10.14 Mojave. It was tested successfully under Mavericks(10.9.5), El Capitan(10.11.6), High Sierra(10.13.6) and Mojave(10.14.5).
-
-The release 1.5.3 was compiled with Xcode 10.2.1 with SDK for OSX 10.14 Mojave. It was tested successfully under Mavericks(10.9.5), High Sierra(10.13.6) and Mojave(10.14.6).
-
-The latest release 1.5.4 was compiled with Xcode 12.5.1 with SDK for macOS 11 Big Sur. It was tested successfully under High Sierra(10.13.6), Mojave(10.14.6) and Big Sur(11.5.2).
-
-_Note: AnimatedGif is **not working** with **Catalina(10.15)** and early versions of **Big Sur(11)** (later OS versions of Big Sur make Sandbox more open and allow selection of local user files) since screensavers are sandboxed (this means no GIF files can be selected or read from local disk and also background mode is broken), see issue <a href="https://github.com/Waitsnake/AnimatedGif/issues/57">#57</a> and <a href="https://github.com/Waitsnake/AnimatedGif/issues/63">#63</a>._
+<br>
 
 Since release 1.5.0 AnimatedGif supports Metal(API) for rendering.
 
@@ -30,6 +25,16 @@ Unfortunately the screensaver clock is not working together with background mode
 Because Big Sur(11.5.2) still sandboxes screensaver the background mode is still not working and so this button will be automaticly disabled since release 1.5.4 when Big Sur(and Catalina) is detected. But background mode is still available on Mojave or earlier versions of OSX.
 
 <br>
+
+## Version History
+
+This project was originally (release 1.0) written with Xcode 6.2 and SDK for OSX 10.9 Mavericks. 
+
+The release 1.4.0 was compiled with Xcode 10.1 with SDK for OSX 10.14 Mojave. It was tested successfully under Mavericks(10.9.5), El Capitan(10.11.6), High Sierra(10.13.6) and Mojave(10.14.5).
+
+The release 1.5.3 was compiled with Xcode 10.2.1 with SDK for OSX 10.14 Mojave. It was tested successfully under Mavericks(10.9.5), High Sierra(10.13.6) and Mojave(10.14.6).
+
+The latest release 1.5.4 was compiled with Xcode 12.5.1 with SDK for macOS 11 Big Sur. It was tested successfully under High Sierra(10.13.6), Mojave(10.14.6) and Big Sur(11.5.2).
 
 ## Setup - Mac
 
