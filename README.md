@@ -72,7 +72,7 @@ Big Sur:
 Mojave:
 <img src="readme_extra/can_not_open_3.png?raw=true" width="500"/>
 Big Sur:
-<img src="readme_extra/big_sur_not_open_2.png?raw=true" width="500"/>
+<img src="readme_extra/big_sur_not_open_3.png?raw=true" width="500"/>
 5. Choose if you like to install screensaver for actual user onyl or all users
 <br>
 6. Click "Install"
