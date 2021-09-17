@@ -52,23 +52,37 @@ The latest release 1.5.4 was compiled with Xcode 12.5.1 with SDK for macOS 11 Bi
 </p>
 <br>
 
-## If there is an error message saying "[AnimatedGif.saver] can't be opened because it is from an unidentified developer"
+## If there is an error message saying "[AnimatedGif.saver] can't be opened because it is from an unidentified developer" (Mojave) or  "[AnimatedGif.saver] can't be opened because Apple cannot check it for malicious software." (Big Sur) 
 <br>
 <img src="readme_extra/can_not_open_1.png?raw=true" width="500"/>
+(Mojave)
+<img src="readme_extra/big_sur_not_open_1.png?raw=true" width="500"/>
+(Big Sur)
 
 1. Open System Preferences
 2. Go to "Security & Privacy"
 3. Click "Open Anyway"
 <br>
 <img src="readme_extra/can_not_open_2.png?raw=true" width="500"/>
+(Mojave)
+<img src="readme_extra/big_sur_not_open_2.png?raw=true" width="500"/>
+(Big Sur)
 4. Click "Open"
 <br>
 <img src="readme_extra/can_not_open_3.png?raw=true" width="500"/>
+(Mojave)
+<img src="readme_extra/big_sur_not_open_2.png?raw=true" width="500"/>
+(Big Sur)
 5. Choose if you like to install screensaver for actual user onyl or all users
 <br>
 6. Click "Install"
 <br>
 <img src="readme_extra/can_not_open_4.png?raw=true" width="500"/>
+(Mojave)
+<img src="readme_extra/big_sur_not_open_0.png?raw=true" width="500"/>
+(Big Sur)
+
+Note: On Big Sur steps 5. and 6. appear now even before step 1.
 
 ## Uninstall AnimatedGif
 
