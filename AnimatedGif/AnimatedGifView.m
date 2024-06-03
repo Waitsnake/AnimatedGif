@@ -22,6 +22,16 @@
     arrayLock = [[NSLock alloc] init];
     self = [super initWithFrame:frame isPreview:isPreview];
     
+    // workaround for Sonoma
+    if ([self isPreview] == FALSE)
+    {
+        [[NSDistributedNotificationCenter defaultCenter]
+           addObserver:self
+           selector:@selector(sonomaQuitWorkaround)
+           name:@"com.apple.screensaver.willstop"
+           object:nil];
+    }
+    
     // initialize screensaver defaults with an default value
     ScreenSaverDefaults *defaults = [ScreenSaverDefaults defaultsForModuleWithName:[[NSBundle bundleForClass: [self class]] bundleIdentifier]];
     [defaults registerDefaults:[NSDictionary dictionaryWithObjectsAndKeys:
@@ -79,6 +89,14 @@
     }
     
     return self;
+}
+
+- (void) sonomaQuitWorkaround
+{
+    // workaround for Sonoma:
+    // quit legacyScreenSaver when screensaver is stoped instead of keeping instance running in background as it is the case in Sonoma
+    // problem with this running background legacyScreenSaver is that it keeps using old vales of ScreenSaverDefaults and ignores new options the user has done in the meantime.
+    exit(0);
 }
 
 - (NSOpenGLView *)createViewGL
